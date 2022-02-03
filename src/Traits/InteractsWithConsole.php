@@ -9,14 +9,23 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-trait ConsoleAssertions
+trait InteractsWithConsole
 {
-    public function assertConsoleCommandOutputContains(string $command, array $args = [], string ... $strings)
+    public function assertConsoleCommandOutputContainsStrings(string $command, array $args = [], string ...$strings)
     {
         $output = $this->runCommand($command, $args);
 
         foreach ($strings as $string) {
-            $this->assertStringContainsString($output, $string);
+            $this->assertStringContainsString(
+                $output,
+                $string,
+                \sprintf(
+                    'Console command [%s] with args [%s] does not contain string [%s]',
+                    $command,
+                    json_encode($args),
+                    $string
+                )
+            );
         }
     }
 

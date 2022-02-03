@@ -6,16 +6,28 @@ namespace Spiral\Testing\Traits;
 
 use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Stream;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Spiral\Auth\AuthContext;
+use Spiral\Auth\AuthContextInterface;
 use Spiral\Http\Http;
+use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Http\TestResponse;
 use Spiral\Testing\Session\FakeSession;
 
-trait HttpAssertions
+trait InteractsWithHttp
 {
+    private array $defaultServerVariables = [];
+    private array $defaultHeaders = [];
+    private array $defaultCookies = [];
+    private array $defaultMiddleware = [];
+
+    private ?AuthContextInterface $auth = null;
+    private ?SessionInterface $session = null;
+
     public function withActor(object $actor): self
     {
         $this->auth = new AuthContext(new FakeActorProvider($actor));
@@ -23,12 +35,114 @@ trait HttpAssertions
         return $this;
     }
 
-    public function withSession(array $data): self
+    public function withServerVariables(array $variables): self
     {
-        $this->session = new FakeSession($data);
+        $this->defaultServerVariables = $variables;
+
+        return $this;
     }
 
-    protected function getHttp(): RequestHandlerInterface
+    public function flushServerVariables(): self
+    {
+        $this->defaultServerVariables = [];
+
+        return $this;
+    }
+
+    public function withHeaders(array $headers): self
+    {
+        $this->defaultHeaders = $headers;
+
+        return $this;
+    }
+
+    public function withHeader(string $key, $value): self
+    {
+        $this->defaultHeaders[$key] = $value;
+
+        return $this;
+    }
+
+    public function withAuthorizationToken(string $token, string $type = 'Bearer'): self
+    {
+        return $this->withHeader('Authorization', $type.' '.$token);
+    }
+
+    public function flushHeaders(): self
+    {
+        $this->defaultHeaders = [];
+
+        return $this;
+    }
+
+    public function withCookies(array $cookies): self
+    {
+        $this->defaultCookies = $cookies;
+
+        return $this;
+    }
+
+    public function withCookie(string $name, string $value): self
+    {
+        $this->defaultCookies[$name] = $value;
+
+        return $this;
+    }
+
+    public function flushCookies(): self
+    {
+        $this->defaultCookies = [];
+
+        return $this;
+    }
+
+    public function withSession(
+        array $data,
+        string $clientSignature = 'fake-session',
+        int $lifetime = 3600,
+        ?string $id = null
+    ): self {
+        $this->session = new FakeSession($data, $clientSignature, $lifetime, $id);
+
+        return $this;
+    }
+
+    public function flushSession(): self
+    {
+        $this->session = null;
+
+        return $this;
+    }
+
+    public function withMiddleware(string ...$middleware): self
+    {
+        foreach ($middleware as $name) {
+            $this->getContainer()->removeBinding($name);
+        }
+
+        return $this;
+    }
+
+    public function withoutMiddleware(string ...$middleware): self
+    {
+        foreach ($middleware as $name) {
+            $this->getContainer()->bindSingleton(
+                $name,
+                new class implements MiddlewareInterface {
+                    public function process(
+                        ServerRequestInterface $request,
+                        RequestHandlerInterface $handler
+                    ): ResponseInterface {
+                        return $handler->handle($request);
+                    }
+                }
+            );
+        }
+
+        return $this;
+    }
+
+    protected function getHttp(): Http
     {
         return $this->getContainer()->get(Http::class);
     }
@@ -103,15 +217,6 @@ trait HttpAssertions
         );
     }
 
-    protected function handleRequest(ServerRequestInterface $request): TestResponse
-    {
-        $handler = function () use ($request) {
-            return $this->getHttp()->handle($request);
-        };
-
-        return new TestResponse($this->runScoped($handler));
-    }
-
     protected function createJsonRequest(
         string $uri,
         string $method,
@@ -127,7 +232,8 @@ trait HttpAssertions
             'Accept' => 'application/json',
         ], $headers);
 
-        return $this->createRequest($uri, $method, [], $headers, $cookies)->withBody(new Stream($content));
+        return $this->createRequest($uri, $method, [], $headers, $cookies)
+            ->withBody(new Stream($content));
     }
 
     protected function createRequest(
@@ -137,7 +243,11 @@ trait HttpAssertions
         array $headers,
         array $cookies
     ): ServerRequest {
+        $cookies = \array_merge($this->defaultCookies, $cookies);
+        $headers = \array_merge($this->defaultHeaders, $headers);
+
         return new ServerRequest(
+            serverParams: $this->defaultServerVariables,
             uri: $uri,
             method: $method,
             headers: $headers,
@@ -146,14 +256,22 @@ trait HttpAssertions
         );
     }
 
-    protected function fetchCookies(array $header): array
+    protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
-        $result = [];
-        foreach ($header as $line) {
-            $cookie = explode('=', $line);
-            $result[$cookie[0]] = rawurldecode(substr($cookie[1], 0, strpos($cookie[1], ';')));
+        if ($this->auth) {
+            $bindings[AuthContextInterface::class] = $this->auth;
         }
 
-        return $result;
+        if ($this->session) {
+            $bindings[SessionInterface::class] = $this->session;
+        }
+
+        $handler = function () use ($request) {
+            return $this->getHttp()->handle($request);
+        };
+
+        return new TestResponse(
+            $this->runScoped($handler, $bindings)
+        );
     }
 }

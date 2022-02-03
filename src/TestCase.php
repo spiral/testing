@@ -7,20 +7,22 @@ namespace Spiral\Testing;
 use Closure;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase as BaseTestCase;
-use Spiral\Auth\AuthContextInterface;
+use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Boot\KernelInterface;
-use Spiral\Core\ConfigsInterface;
 use Spiral\Core\Container;
-use Spiral\Session\SessionInterface;
 
 abstract class TestCase extends BaseTestCase
 {
-    use Traits\ConsoleAssertions,
-        Traits\HttpAssertions,
-        Traits\KernelAssertions,
-        Traits\FileSystemAssertions,
+    use Traits\InteractsWithConsole,
+        Traits\InteractsWithHttp,
+        Traits\InteractsWithCore,
+        Traits\InteractsWithFileSystem,
+        Traits\InteractsWithConfig,
+        Traits\InteractsWithDispatcher,
+        Traits\InteractsWithMailer,
+        Traits\InteractsWithQueue,
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
@@ -29,13 +31,21 @@ abstract class TestCase extends BaseTestCase
     private Container $container;
     /** @var array<Closure> */
     private array $beforeStarting = [];
-    private ?AuthContextInterface $auth = null;
-    private ?SessionInterface $session = null;
+
+    private ?EnvironmentInterface $environment = null;
 
     /**
      * @return array<class-string>|array<class-string, array<non-empty-string, mixed>>
      */
-    abstract public function defineBootloaders(): array;
+    public function defineBootloaders(): array
+    {
+        return [];
+    }
+
+    public function rootDirectory(): string
+    {
+        return dirname(__DIR__);
+    }
 
     protected function setUp(): void
     {
@@ -48,7 +58,7 @@ abstract class TestCase extends BaseTestCase
         $this->beforeStarting[] = $callback;
     }
 
-    final public function getApp(): App
+    final public function getApp(): TestApp
     {
         return $this->app;
     }
@@ -58,23 +68,31 @@ abstract class TestCase extends BaseTestCase
         return $this->container;
     }
 
-    protected function makeApp(array $env = []): App
+    public function createAppInstance(): TestableKernelInterface
     {
-        $environment = new Environment($env);
+        $root = $this->rootDirectory();
 
-        $root = dirname(__DIR__);
-
-        $app = App::createWithBootloaders(
+        return TestApp::createWithBootloaders(
             $this->defineBootloaders(),
             [
                 'root' => $root,
                 'app' => $root.'/App',
-                'runtime' => $root.'/runtime/tests',
-                'cache' => $root.'/runtime/tests/cache',
+                'runtime' => $root.'/runtime',
+                'cache' => $root.'/runtime/cache',
             ],
             false
         );
+    }
 
+    /**
+     * @param array<non-empty-string,mixed> $env
+     * @return AbstractKernel|TestableKernelInterface
+     */
+    protected function initApp(array $env = []): AbstractKernel
+    {
+        $environment = new Environment($env);
+
+        $app = $this->createAppInstance();
         $this->container = $app->getContainer();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
@@ -86,41 +104,15 @@ abstract class TestCase extends BaseTestCase
 
     protected function refreshApp()
     {
-        $this->app = $this->makeApp(static::ENV);
+        $this->app = $this->initApp(static::ENV);
     }
 
-    public function getConfig(string $config): array
+    public function runScoped(Closure $callback, array $bindings = []): mixed
     {
-        return $this->getContainer()->get(ConfigsInterface::class)->getConfig($config);
-    }
-
-    public function setConfig(string $config, $data): void
-    {
-        $this->getContainer()->get(ConfigsInterface::class)->setDefaults(
-            $config,
-            $data
-        );
-    }
-    public function runScoped(Closure $callback): mixed
-    {
-        $scopes = [];
-
-        if ($this->auth) {
-            $scopes[AuthContextInterface::class] = $this->auth;
+        if ($this->environment) {
+            $bindings[EnvironmentInterface::class] = $this->environment;
         }
 
-        if ($this->session) {
-            $scopes[SessionInterface::class] = $this->session;
-        }
-
-        return $this->getContainer()->runScope($scopes, $callback);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->auth = null;
-        $this->session = null;
+        return $this->getContainer()->runScope($bindings, $callback);
     }
 }

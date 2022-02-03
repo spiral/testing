@@ -8,11 +8,12 @@ use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\CoreBootloader;
 use Spiral\Boot\Exception\BootException;
 use Spiral\Boot\ExceptionHandler;
-use Spiral\Core\Container;
 use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
 
-class App extends AbstractKernel
+class TestApp extends AbstractKernel implements TestableKernelInterface
 {
+    use Traits\TestableKernel;
+
     // framework specific bootloaders
     protected const SYSTEM = [
         CoreBootloader::class,
@@ -21,6 +22,7 @@ class App extends AbstractKernel
 
     // application specific bootloaders
     protected const APP = [];
+
     /**
      * @var array<class-string>
      */
@@ -42,21 +44,6 @@ class App extends AbstractKernel
         $kernel->bootloaders = $bootloaders;
 
         return $kernel;
-    }
-
-    public function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    public function getLoadedDispatchers(): array
-    {
-        return $this->dispatchers;
-    }
-
-    public function getLoadedBootloaders(): array
-    {
-        return $this->bootloader->getClasses();
     }
 
     public function defineBootloaders(): array

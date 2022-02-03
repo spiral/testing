@@ -7,7 +7,7 @@ namespace Spiral\Testing\Traits;
 use Spiral\Boot\DirectoriesInterface;
 use Spiral\Files\Files;
 
-trait FileSystemAssertions
+trait InteractsWithFileSystem
 {
     public function assertDirectoryAliasDefined(string $name): void
     {
@@ -40,12 +40,18 @@ trait FileSystemAssertions
         return $this->getContainer()->get(DirectoriesInterface::class);
     }
 
-    public function getDirectoryByAlias(string $name): string
+    public function getDirectoryByAlias(string $name, ?string $path = null): string
     {
-        return $this->getDirectories()->get($name);
+        $dir = $this->getDirectories()->get($name);
+
+        if ($path) {
+            $dir = $dir.ltrim('/', $path);
+        }
+
+        return $dir;
     }
 
-    public function cleanUpRuntimeDirectories(): void
+    public function cleanUpRuntimeDirectory(): void
     {
         $this->cleanupDirectories(
             $this->getDirectoryByAlias('runtime')

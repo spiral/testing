@@ -13,6 +13,9 @@ final class TestResponse
     {
     }
 
+    /**
+     * Get response status code
+     */
     public function getStatusCode(): int
     {
         return $this->getStatusCode();
