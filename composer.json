@@ -1,25 +1,23 @@
 {
-  "name": ":vendor_slug/:package_slug",
-  "description": ":package_description",
+  "name": "spiral-packages/testing",
+  "description": "This is my package testing",
   "keywords": [
-    ":vendor_name",
+    "spiral-packages",
     "spiral",
-    ":package_slug"
+    "testing"
   ],
-  "homepage": "https://github.com/:vendor_slug/:package_slug",
+  "homepage": "https://github.com/spiral-packages/testing",
   "license": "MIT",
   "authors": [
     {
-      "name": ":author_name",
-      "email": "author@domain.com",
+      "name": "butschster",
+      "email": "butschster@gmail.com",
       "role": "Developer"
     }
   ],
   "require": {
     "php": "^8.0",
-    "spiral/boot": "^2.8",
-    "spiral/console": "^2.8",
-    "spiral/core": "^2.8"
+    "spiral/framework": "dev-master#7f0dc61359ddad263be84c7ea9d0aa9674f9f18e"
   },
   "require-dev": {
     "mockery/mockery": "^1.5",
@@ -28,12 +26,12 @@
   },
   "autoload": {
     "psr-4": {
-      "VendorName\\Skeleton\\": "src"
+      "Spiral\\Testing\\": "src"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "VendorName\\Skeleton\\Tests\\": "tests/src"
+      "Spiral\\Testing\\Tests\\": "tests/src"
     }
   },
   "scripts": {
@@ -41,12 +39,15 @@
     "psalm": "vendor/bin/psalm --config=psalm.xml ./src"
   },
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "spiral/composer-publish-plugin": false
+    }
   },
   "extra": {
     "spiral": {
       "bootloaders": [
-        "VendorName\\Skeleton\\SkeletonBootloader"
+        "Spiral\\Testing\\TestingBootloader"
       ]
     }
   },
