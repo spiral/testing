@@ -1,5 +1,5 @@
 {
-  "name": "spiral-packages/testing",
+  "name": "spiral/testing",
   "description": "This is my package testing",
   "keywords": [
     "spiral-packages",
@@ -24,7 +24,7 @@
     "php": "^8.0",
     "phpunit/phpunit": "^9.5",
     "mockery/mockery": "^1.5",
-    "spiral/framework": "2.9.x-dev"
+    "spiral/framework": "^2.9"
   },
   "suggest": {
     "brianium/paratest": "Required to run tests in parallel (^6.0)."
@@ -35,28 +35,6 @@
   "autoload": {
     "psr-4": {
       "Spiral\\Testing\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Spiral\\Testing\\Tests\\": "tests/src"
-    }
-  },
-  "scripts": {
-    "test": "vendor/bin/phpunit",
-    "psalm": "vendor/bin/psalm --config=psalm.xml ./src"
-  },
-  "config": {
-    "sort-packages": true,
-    "allow-plugins": {
-      "spiral/composer-publish-plugin": false
-    }
-  },
-  "extra": {
-    "spiral": {
-      "bootloaders": [
-        "Spiral\\Testing\\TestingBootloader"
-      ]
     }
   },
   "minimum-stability": "dev",
