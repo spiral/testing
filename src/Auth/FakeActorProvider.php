@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Spiral\Testing;
+namespace Spiral\Testing\Auth;
 
 use Spiral\Auth\ActorProviderInterface;
 use Spiral\Auth\TokenInterface;

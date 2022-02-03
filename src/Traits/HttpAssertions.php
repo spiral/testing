@@ -9,16 +9,14 @@ use Laminas\Diactoros\Stream;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Spiral\Auth\AuthContext;
-use Spiral\Auth\AuthContextInterface;
 use Spiral\Http\Http;
-use Spiral\Session\Session;
-use Spiral\Session\SessionInterface;
-use Spiral\Testing\FakeActorProvider;
+use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Http\TestResponse;
+use Spiral\Testing\Session\FakeSession;
 
 trait HttpAssertions
 {
-    public function actingAsActor(object $actor): self
+    public function withActor(object $actor): self
     {
         $this->auth = new AuthContext(new FakeActorProvider($actor));
 
@@ -27,7 +25,7 @@ trait HttpAssertions
 
     public function withSession(array $data): self
     {
-        $session = new Session();
+        $this->session = new FakeSession($data);
     }
 
     protected function getHttp(): RequestHandlerInterface
@@ -52,7 +50,6 @@ trait HttpAssertions
             $this->createJsonRequest($uri, 'GET', $query, $headers, $cookies)
         );
     }
-
 
     protected function getWithAttributes(string $uri, array $attributes, array $headers = []): TestResponse
     {

@@ -113,4 +113,9 @@ final class TestResponse
     {
         return \in_array($this->response->getStatusCode(), [201, 301, 302, 303, 307, 308]);
     }
+
+    public function getOriginalResponse(): ResponseInterface
+    {
+        return $this->response;
+    }
 }

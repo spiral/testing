@@ -4,25 +4,8 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Traits;
 
-use Spiral\Boot\DirectoriesInterface;
-
 trait KernelAssertions
 {
-    public function assertApplicationDirectoryEquals(string $name, string $path)
-    {
-        $this->assertSame(
-            $path,
-            $this->getContainer()->get(DirectoriesInterface::class)->get($name)
-        );
-    }
-
-    public function assertApplicationDirectoryDefined(string $name)
-    {
-        $this->assertTrue(
-            $this->getContainer()->get(DirectoriesInterface::class)->has($name)
-        );
-    }
-
     public function assertBootloaderLoaded(string $class): void
     {
         $this->assertContains($class, $this->getLoadedBootloaders());

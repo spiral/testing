@@ -8,23 +8,19 @@ use Closure;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Auth\AuthContextInterface;
-use Spiral\Boot\DirectoriesInterface;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Boot\KernelInterface;
 use Spiral\Core\ConfigsInterface;
 use Spiral\Core\Container;
-use Spiral\Files\Files;
 use Spiral\Session\SessionInterface;
-
-use function Spiral\Testing\Traits\;
 
 abstract class TestCase extends BaseTestCase
 {
     use Traits\ConsoleAssertions,
         Traits\HttpAssertions,
         Traits\KernelAssertions,
-        Traits\ApplicationMocks,
+        Traits\FileSystemAssertions,
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
@@ -105,18 +101,6 @@ abstract class TestCase extends BaseTestCase
             $data
         );
     }
-
-    public function cleanupDirectories(string ...$directories)
-    {
-        $fs = new Files();
-
-        foreach ($directories as $directory) {
-            if ($fs->isDirectory($directory)) {
-                $fs->deleteDirectory($directory);
-            }
-        }
-    }
-
     public function runScoped(Closure $callback): mixed
     {
         $scopes = [];
@@ -138,8 +122,5 @@ abstract class TestCase extends BaseTestCase
 
         $this->auth = null;
         $this->session = null;
-
-        $runtime = $this->getContainer()->get(DirectoriesInterface::class)->get('runtime');
-        $this->cleanupDirectories($runtime);
     }
 }
