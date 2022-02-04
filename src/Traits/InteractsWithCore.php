@@ -35,17 +35,12 @@ trait InteractsWithCore
         );
     }
 
-    public function assertContainerBound(
+    public function assertContainerInstantiable(
         string $alias,
         ?string $class = null,
         array $params = [],
         ?\Closure $callback = null
     ): void {
-        $this->assertTrue(
-            $this->getContainer()->has($alias),
-            \sprintf('Container does not contain entry with name [%s].', $alias)
-        );
-
         $class ??= $alias;
 
         if ($params === []) {
@@ -68,6 +63,20 @@ trait InteractsWithCore
         if ($callback) {
             $callback($realObject);
         }
+    }
+
+    public function assertContainerBound(
+        string $alias,
+        ?string $class = null,
+        array $params = [],
+        ?\Closure $callback = null
+    ): void {
+        $this->assertTrue(
+            $this->getContainer()->has($alias),
+            \sprintf('Container does not contain entry with name [%s].', $alias)
+        );
+
+        $this->assertContainerInstantiable($alias, $class, $params, $callback);
     }
 
     public function assertContainerBoundNotAsSingleton(

@@ -312,6 +312,14 @@ $this->assertBootloaderMissed(\Spiral\Framework\Bootloaders\Http\HttpBootloader:
 $this->assertContainerMissed(\Spiral\Queue\QueueConnectionProviderInterface::class);
 ```
 
+#### assertContainerInstantiable
+
+Checking if container can create an object with autowiring
+
+```php
+$this->assertContainerInstantiable(\Spiral\Queue\QueueConnectionProviderInterface::class);
+```
+
 #### assertContainerBound
 
 Checking if container has alias and bound with the same interface
