@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing;
 
 use Closure;
+use JetBrains\PhpStorm\ArrayShape;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Boot\AbstractKernel;
@@ -39,6 +40,16 @@ abstract class TestCase extends BaseTestCase
         return [];
     }
 
+    public function defineDirectories(string $root): array
+    {
+        return [
+            'root' => $root,
+            'app' => $root.'/app',
+            'runtime' => $root.'/runtime',
+            'cache' => $root.'/runtime/cache',
+        ];
+    }
+
     public function rootDirectory(): string
     {
         return dirname(__DIR__);
@@ -67,16 +78,11 @@ abstract class TestCase extends BaseTestCase
 
     public function createAppInstance(): TestableKernelInterface
     {
-        $root = $this->rootDirectory();
-
         return TestApp::createWithBootloaders(
             $this->defineBootloaders(),
-            [
-                'root' => $root,
-                'app' => $root.'/App',
-                'runtime' => $root.'/runtime',
-                'cache' => $root.'/runtime/cache',
-            ],
+            $this->defineDirectories(
+                $this->rootDirectory()
+            ),
             false
         );
     }
