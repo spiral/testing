@@ -7,7 +7,6 @@ namespace Spiral\Testing\Queue;
 use Spiral\Core\Container;
 use Spiral\Queue\Config\QueueConfig;
 use Spiral\Queue\QueueConnectionProviderInterface;
-use Spiral\Queue\QueueInterface;
 
 class FakeQueueManager implements QueueConnectionProviderInterface
 {

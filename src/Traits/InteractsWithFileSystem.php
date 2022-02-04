@@ -51,13 +51,6 @@ trait InteractsWithFileSystem
         return $dir;
     }
 
-    public function cleanUpRuntimeDirectory(): void
-    {
-        $this->cleanupDirectories(
-            $this->getDirectoryByAlias('runtime')
-        );
-    }
-
     public function cleanupDirectories(string ...$directories)
     {
         $fs = $this->getContainer()->get(FilesInterface::class);
@@ -67,5 +60,19 @@ trait InteractsWithFileSystem
                 $fs->deleteDirectory($directory);
             }
         }
+    }
+
+    public function cleanupDirectoriesByAliases(string ...$aliases)
+    {
+        $directories = \array_map(function (string $alias): string {
+            return $this->getDirectoryByAlias($alias);
+        }, $aliases);
+
+        $this->cleanupDirectories(...$directories);
+    }
+
+    public function cleanUpRuntimeDirectory(): void
+    {
+        $this->cleanupDirectoriesByAliases('runtime');
     }
 }

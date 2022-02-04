@@ -46,9 +46,7 @@ trait InteractsWithCore
             \sprintf('Container does not contain entry with name [%s].', $alias)
         );
 
-        if (! $class) {
-            return;
-        }
+        $class ??= $alias;
 
         if ($params === []) {
             $realObject = $this->getContainer()->get($alias);
@@ -88,17 +86,15 @@ trait InteractsWithCore
 
     public function assertContainerBoundAsSingleton(string $alias, string $class, ?\Closure $callback = null): void
     {
-        $this->assertContainerBound($alias, $class);
+        $this->assertContainerBound($alias, $class, [], function (object $realObject) use ($alias, $callback): void {
+            $this->assertSame(
+                $realObject,
+                $this->getContainer()->get($alias),
+                \sprintf("Container [%s] is bound, but it contains not a singleton.", $alias)
+            );
 
-        $this->assertSame(
-            $realObject = $this->getContainer()->get($alias),
-            $this->getContainer()->get($alias),
-            \sprintf("Container [%s] is bound, but it contains not a singleton.", $alias)
-        );
-
-        if ($callback) {
-            $callback($realObject);
-        }
+            $callback?->__invoke($realObject);
+        });
     }
 
     /**

@@ -11,14 +11,20 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait InteractsWithConsole
 {
-    public function assertConsoleCommandOutputContainsStrings(string $command, array $args = [], string ...$strings)
-    {
+    /**
+     * @param string[] $strings
+     */
+    public function assertConsoleCommandOutputContainsStrings(
+        string $command,
+        array $args = [],
+        array|string $strings = []
+    ): void {
         $output = $this->runCommand($command, $args);
 
-        foreach ($strings as $string) {
+        foreach ((array)$strings as $string) {
             $this->assertStringContainsString(
-                $output,
                 $string,
+                $output,
                 \sprintf(
                     'Console command [%s] with args [%s] does not contain string [%s]',
                     $command,
@@ -27,11 +33,6 @@ trait InteractsWithConsole
                 )
             );
         }
-    }
-
-    public function getConsole(): Console
-    {
-        return $this->getContainer()->get(Console::class);
     }
 
     public function runCommand(
@@ -51,23 +52,8 @@ trait InteractsWithConsole
         return $output->fetch();
     }
 
-    public function runCommandDebug(string $command, array $args = [], OutputInterface $output = null): string
+    public function getConsole(): Console
     {
-        return $this->runCommand(
-            $command,
-            $args,
-            $output,
-            BufferedOutput::VERBOSITY_VERBOSE
-        );
-    }
-
-    public function runCommandVeryVerbose(string $command, array $args = [], OutputInterface $output = null): string
-    {
-        return $this->runCommand(
-            $command,
-            $args,
-            $output,
-            BufferedOutput::VERBOSITY_DEBUG
-        );
+        return $this->getContainer()->get(Console::class);
     }
 }

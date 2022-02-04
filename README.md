@@ -140,7 +140,8 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 ### Interaction with Http
 
 ```php
-$response = $this->withHeaders(['Accept' => 'application/json'])
+$response = $this->fakeHttp()
+    ->withHeaders(['Accept' => 'application/json'])
     ->withHeader('CONTENT_TYPE', 'application/json')
     ->withActor(new UserActor())
     ->withServerVariables(['SERVER_ADDR' => '127.0.0.1'])
@@ -163,17 +164,20 @@ $response->assertStatus(200);
 #### Requests
 
 ```php
-$this->get('/')->assertOk();
-$this->getJson('/')->assertOk();
+$http = $this->fakeHttp();
+$http->withHeaders(['Accept' => 'application/json']);
 
-$this->post('/')->assertOk();
-$this->postJson('/')->assertOk();
+$http->get('/')->assertOk();
+$http->getJson('/')->assertOk();
 
-$this->put('/')->assertOk();
-$this->putJson('/')->assertOk();
+$http->post('/')->assertOk();
+$http->postJson('/')->assertOk();
 
-$this->delete('/')->assertOk();
-$this->deleteJson('/')->assertOk();
+$http->put('/')->assertOk();
+$http->putJson('/')->assertOk();
+
+$http->delete('/')->assertOk();
+$http->deleteJson('/')->assertOk();
 ```
 
 ### Interaction with Mailer
@@ -310,7 +314,7 @@ $this->assertContainerMissed(\Spiral\Queue\QueueConnectionProviderInterface::cla
 
 #### assertContainerBound
 
-Checking if container has alias
+Checking if container has alias and bound with the same interface
 
 ```php
 $this->assertContainerBound(\Spiral\Queue\QueueConnectionProviderInterface::class);
@@ -424,7 +428,7 @@ $dispatchers = $this->getRegisteredDispatchers();
 $this->assertConsoleCommandOutputContainsStrings(
     'ping', 
     ['site' => 'https://google.com'], 
-    'Site found', 'Starting ping ...', 'Success!'
+    ['Site found', 'Starting ping ...', 'Success!']
 );
 ```
 
@@ -479,6 +483,14 @@ $this->assertDirectoryAliasMatches('runtime', __DIR__.'src/runtime');
 $this->cleanupDirectories(
     __DIR__.'src/runtime/cache', 
     __DIR__.'src/runtime/tmp'
+);
+```
+
+#### cleanupDirectoriesByAliases
+
+```php
+$this->cleanupDirectoriesByAliases(
+    'runtime', 'app', '...'
 );
 ```
 
