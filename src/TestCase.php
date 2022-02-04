@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
-use Spiral\Boot\KernelInterface;
 use Spiral\Core\Container;
 
 abstract class TestCase extends BaseTestCase
@@ -27,11 +26,9 @@ abstract class TestCase extends BaseTestCase
 
     public const ENV = [];
 
-    private KernelInterface $app;
-    private Container $container;
+    private TestableKernelInterface $app;
     /** @var array<Closure> */
     private array $beforeStarting = [];
-
     private ?EnvironmentInterface $environment = null;
 
     /**
@@ -65,7 +62,7 @@ abstract class TestCase extends BaseTestCase
 
     final public function getContainer(): Container
     {
-        return $this->container;
+        return $this->app->getContainer();
     }
 
     public function createAppInstance(): TestableKernelInterface
@@ -93,7 +90,6 @@ abstract class TestCase extends BaseTestCase
         $environment = new Environment($env);
 
         $app = $this->createAppInstance();
-        $this->container = $app->getContainer();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
         $app->starting(...$this->beforeStarting);

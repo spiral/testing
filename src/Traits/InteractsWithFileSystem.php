@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Traits;
 
 use Spiral\Boot\DirectoriesInterface;
-use Spiral\Files\Files;
+use Spiral\Files\FilesInterface;
 
 trait InteractsWithFileSystem
 {
@@ -60,7 +60,7 @@ trait InteractsWithFileSystem
 
     public function cleanupDirectories(string ...$directories)
     {
-        $fs = new Files();
+        $fs = $this->getContainer()->get(FilesInterface::class);
 
         foreach ($directories as $directory) {
             if ($fs->isDirectory($directory)) {

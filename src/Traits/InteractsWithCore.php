@@ -116,7 +116,7 @@ trait InteractsWithCore
      */
     public function mockContainer(string $alias, ?string $interface = null): \Mockery\MockInterface
     {
-        $this->getContainer()->bind(
+        $this->getContainer()->bindSingleton(
             $alias,
             $mock = \Mockery::mock($interface ?? $alias)
         );

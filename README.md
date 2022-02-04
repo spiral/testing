@@ -1,7 +1,6 @@
 # Spiral Framework testing SDK
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral/testing.svg?style=flat-square)](https://packagist.org/packages/spiral/testing)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral/testing/run-tests?label=tests)](https://github.com/spiral/testing/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/spiral/testing.svg?style=flat-square)](https://packagist.org/packages/spiral/testing)
 
 ## Installation
@@ -230,7 +229,8 @@ $this->mailer->assertNothingSent();
 protected function setUp(): void
 {
     parent::setUp();
-    $this->queue = $this->fakeQueue()->getConnection();
+    $this->connection = $this->fakeQueue();
+    $this->queue = $this->connection->getConnection();
 }
 
 protected function testRegisterUser(): void
@@ -241,7 +241,9 @@ protected function testRegisterUser(): void
         return $data['handler'] instanceof \Spiral\SendIt\MailJob
             && $data['options']->getQueue() === 'mail'
             && $data['payload']['foo'] === 'bar';
-    })
+    });
+    
+    $this->connection->getConnection('redis')->assertPushed('another.job', ...);
 }
 ```
 

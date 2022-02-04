@@ -19,7 +19,7 @@ class FakeMailer implements MailerInterface
             return $msg instanceof $type;
         });
 
-        $callback = $callback ?: static function (): bool {
+        $callback = $callback ?: static function (MessageInterface $msg): bool {
             return true;
         };
 
@@ -83,10 +83,10 @@ class FakeMailer implements MailerInterface
         );
     }
 
-    public function send(MessageInterface ...$messages): void
+    public function send(MessageInterface ...$message): void
     {
-        foreach ($messages as $message) {
-            $this->messages[] = $message;
+        foreach ($message as $msg) {
+            $this->messages[] = $msg;
         }
     }
 }

@@ -10,6 +10,7 @@ use Spiral\Session\SessionSectionInterface;
 final class FakeSession implements SessionInterface
 {
     private bool $started = false;
+    private ?string $id = null;
 
     public function __construct(
         private array $data,

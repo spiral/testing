@@ -17,5 +17,15 @@
                 <referencedClass name="JetBrains\PhpStorm\ExpectedValues" />
             </errorLevel>
         </UndefinedAttributeClass>
+        <MismatchingDocblockReturnType>
+            <errorLevel type="suppress">
+                <file name="src/TestCase.php" />
+            </errorLevel>
+        </MismatchingDocblockReturnType>
+        <UndefinedInterfaceMethod>
+            <errorLevel type="suppress">
+                <file name="src/TestCase.php" />
+            </errorLevel>
+        </UndefinedInterfaceMethod>
     </issueHandlers>
 </psalm>

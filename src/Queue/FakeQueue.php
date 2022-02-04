@@ -16,7 +16,7 @@ class FakeQueue implements QueueInterface
     use QueueTrait;
 
     /**
-     * @var array<int, array{name: string, payload: array<string, mixed>, options: OptionsInterface}>
+     * @var array<non-empty-string, array<int, array{name: string, payload: array<string, mixed>, options: OptionsInterface}>>
      */
     private array $jobs = [];
 
@@ -31,7 +31,7 @@ class FakeQueue implements QueueInterface
     {
         $jobs = $this->jobs[$name] ?? [];
 
-        $callback = $callback ?: static function (): bool {
+        $callback = $callback ?: static function (array $data): bool {
             return true;
         };
 

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Spiral\Testing;
 
 use Spiral\Boot\DispatcherInterface;
+use Spiral\Boot\KernelInterface;
 use Spiral\Core\Container;
 
-interface TestableKernelInterface
+interface TestableKernelInterface extends KernelInterface
 {
     /**
      * Get application container

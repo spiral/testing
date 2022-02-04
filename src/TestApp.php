@@ -26,10 +26,11 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     /**
      * @var array<class-string>
      */
-    private array $bootloaders;
+    protected array $bootloaders;
 
     /**
      * Create an application instance with bootloader.
+     * @throws \Throwable
      */
     public static function createWithBootloaders(
         array $bootloaders,
@@ -40,6 +41,7 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
             ExceptionHandler::register();
         }
 
+        /** @var TestApp $kernel */
         $kernel = static::create($directories, $handleErrors);
         $kernel->bootloaders = $bootloaders;
 

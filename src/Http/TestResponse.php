@@ -47,6 +47,8 @@ final class TestResponse
             $this->response->hasHeader($name),
             \sprintf('Response contains header with name [%s].', $name)
         );
+
+        return $this;
     }
 
     public function assertStatus(int $status): self
