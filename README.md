@@ -52,15 +52,8 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function createAppInstance(): TestableKernelInterface
     {
-        $root = $this->rootDirectory();
-
         return \Spiral\Tests\App\TestApp::create(
-            [
-                'root' => $root,
-                'app' => $root.'/App',
-                'runtime' => $root.'/runtime',
-                'cache' => $root.'/runtime/cache',
-            ],
+            $this->defineDirectories($this->rootDirectory()),
             false
         );
     }
