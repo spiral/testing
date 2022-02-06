@@ -98,7 +98,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function rootDirectory(): string
     {
-        return dirname(__DIR__.'/../app');
+        return __DIR__.'/../';
     }
     
     public function defineBootloaders(): array
