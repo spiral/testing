@@ -59,15 +59,8 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function createAppInstance(): TestableKernelInterface
     {
-        $root = $this->rootDirectory();
-
         return \Spiral\Tests\App\TestApp::create(
-            [
-                'root' => $root,
-                'app' => $root.'/App',
-                'runtime' => $root.'/runtime',
-                'cache' => $root.'/runtime/cache',
-            ],
+            $this->defineDirectories($this->rootDirectory()),
             false
         );
     }
@@ -105,7 +98,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function rootDirectory(): string
     {
-        return dirname(__DIR__.'/../app');
+        return __DIR__.'/../';
     }
     
     public function defineBootloaders(): array
