@@ -68,7 +68,7 @@ class FakeMailer implements MailerInterface
     public function assertNothingSent(): void
     {
         $messages = \array_map(static function (MessageInterface $message): string {
-            return $message::class;
+            return get_class($message);
         }, $this->messages);
 
         $messages = \implode(', ', $messages);

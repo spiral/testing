@@ -14,9 +14,13 @@ class FakeQueueManager implements QueueConnectionProviderInterface
      * @var array<FakeQueue>
      */
     private array $connections = [];
+    private Container $container;
+    private QueueConfig $config;
 
-    public function __construct(private Container $container, private QueueConfig $config)
+    public function __construct(Container $container, QueueConfig $config)
     {
+        $this->container = $container;
+        $this->config = $config;
     }
 
     public function getConnection(?string $name = null): FakeQueue

@@ -9,8 +9,11 @@ use Spiral\Auth\TokenInterface;
 
 final class FakeActorProvider implements ActorProviderInterface
 {
-    public function __construct(private object $actor)
+    private object $actor;
+
+    public function __construct(object $actor)
     {
+        $this->actor = $actor;
     }
 
     public function getActor(TokenInterface $token): ?object

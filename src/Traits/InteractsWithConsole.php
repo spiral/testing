@@ -12,12 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 trait InteractsWithConsole
 {
     /**
-     * @param string[] $strings
+     * @param string[]|string $strings
      */
     public function assertConsoleCommandOutputContainsStrings(
         string $command,
         array $args = [],
-        array|string $strings = []
+        $strings = []
     ): void {
         $output = $this->runCommand($command, $args);
 

@@ -9,8 +9,11 @@ use Psr\Http\Message\ResponseInterface;
 
 final class TestResponse
 {
-    public function __construct(private ResponseInterface $response)
+    private ResponseInterface $response;
+
+    public function __construct(ResponseInterface $response)
     {
+        $this->response = $response;
     }
 
     /**

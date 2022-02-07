@@ -11,13 +11,19 @@ final class FakeSession implements SessionInterface
 {
     private bool $started = false;
     private ?string $id = null;
+    private array $data;
+    private string $clientSignature;
+    private int $lifetime;
 
     public function __construct(
-        private array $data,
-        private string $clientSignature,
-        private int $lifetime = 3600,
+        array $data,
+        string $clientSignature,
+        int $lifetime = 3600,
         ?string $id = null
     ) {
+        $this->data = $data;
+        $this->clientSignature = $clientSignature;
+        $this->lifetime = $lifetime;
         if (! empty($id) && $this->validID($id)) {
             $this->id = $id;
         }

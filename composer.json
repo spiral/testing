@@ -21,7 +21,7 @@
     }
   ],
   "require": {
-    "php": "^8.0",
+    "php": ">=7.4",
     "laminas/laminas-diactoros": "^2.4",
     "mockery/mockery": "^1.5",
     "phpunit/phpunit": "^9.5",
@@ -34,7 +34,8 @@
     "spiral/mailer": "^2.9",
     "spiral/queue": "^2.9",
     "spiral/session": "^2.9",
-    "spiral/tokenizer": "^2.9"
+    "spiral/tokenizer": "^2.9",
+    "ext-json": "*"
   },
   "suggest": {
     "brianium/paratest": "Required to run tests in parallel (^6.0)."

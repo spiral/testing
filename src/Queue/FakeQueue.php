@@ -19,12 +19,18 @@ class FakeQueue implements QueueInterface
      * @var array<non-empty-string, array<int, array{name: string, payload: array<string, mixed>, options: OptionsInterface}>>
      */
     private array $jobs = [];
+    private HandlerRegistryInterface $registry;
+    private string $name;
+    private string $driver;
 
     public function __construct(
-        private HandlerRegistryInterface $registry,
-        private string $name,
-        private string $driver
+        HandlerRegistryInterface $registry,
+        string $name,
+        string $driver
     ) {
+        $this->registry = $registry;
+        $this->name = $name;
+        $this->driver = $driver;
     }
 
     private function filterJobs(string $name, \Closure $callback = null): array

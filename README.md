@@ -3,6 +3,13 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral/testing.svg?style=flat-square)](https://packagist.org/packages/spiral/testing)
 [![Total Downloads](https://img.shields.io/packagist/dt/spiral/testing.svg?style=flat-square)](https://packagist.org/packages/spiral/testing)
 
+## Requirements
+
+Make sure that your server is configured with following PHP version and extensions:
+
+- PHP 7.4+
+- Spiral framework 2.9+
+
 ## Installation
 
 You can install the package via composer:

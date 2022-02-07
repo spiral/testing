@@ -26,11 +26,15 @@ class FakeHttp
 
     private ?AuthContextInterface $auth = null;
     private ?SessionInterface $session = null;
+    private Container $container;
+    private \Closure $scope;
 
     public function __construct(
-        private Container $container,
-        private \Closure $scope
+        Container $container,
+        \Closure $scope
     ) {
+        $this->container = $container;
+        $this->scope = $scope;
     }
 
     public function withActor(object $actor): self
@@ -229,7 +233,7 @@ class FakeHttp
         array $headers,
         array $cookies
     ): ServerRequest {
-        $content = json_encode($data);
+        $content = \json_encode($data);
 
         $headers = array_merge([
             'CONTENT_LENGTH' => mb_strlen($content, '8bit'),
@@ -252,12 +256,14 @@ class FakeHttp
         $headers = \array_merge($this->defaultHeaders, $headers);
 
         return new ServerRequest(
-            serverParams: $this->defaultServerVariables,
-            uri: $uri,
-            method: $method,
-            headers: $headers,
-            cookies: $cookies,
-            queryParams: $query
+            $this->defaultServerVariables,
+            [],
+            $uri,
+            $method,
+            'php://input',
+            $headers,
+            $cookies,
+            $query
         );
     }
 

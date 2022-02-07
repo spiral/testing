@@ -46,7 +46,7 @@ trait InteractsWithDispatcher
     public function getRegisteredDispatchers(): array
     {
         return array_map(static function ($dispatcher): string {
-            return $dispatcher::class;
+            return get_class($dispatcher);
         }, $this->app->getRegisteredDispatchers());
     }
 }

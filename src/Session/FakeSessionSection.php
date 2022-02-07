@@ -8,8 +8,13 @@ use Spiral\Session\SessionSectionInterface;
 
 class FakeSessionSection implements SessionSectionInterface
 {
-    public function __construct(private string $name, private array $data)
+    private string $name;
+    private array $data;
+
+    public function __construct(string $name, array $data)
     {
+        $this->name = $name;
+        $this->data = $data;
     }
 
     public function __get(string $name)
@@ -32,27 +37,27 @@ class FakeSessionSection implements SessionSectionInterface
         $this->delete($name);
     }
 
-    public function getIterator()
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->getAll());
     }
 
-    public function offsetExists(mixed $offset): bool
+    public function offsetExists($offset): bool
     {
         return $this->has($offset);
     }
 
-    public function offsetGet(mixed $offset)
+    public function offsetGet($offset)
     {
         return $this->get($offset);
     }
 
-    public function offsetSet(mixed $offset, mixed $value)
+    public function offsetSet($offset, $value)
     {
         $this->set($offset, $value);
     }
 
-    public function offsetUnset(mixed $offset)
+    public function offsetUnset($offset)
     {
         $this->delete($offset);
     }

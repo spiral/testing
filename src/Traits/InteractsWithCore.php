@@ -56,7 +56,7 @@ trait InteractsWithCore
                 "Container [%s] was found, but binding [%s] does not match [%s].",
                 $alias,
                 $class,
-                $realObject::class
+                get_class($realObject)
             )
         );
 
@@ -102,7 +102,9 @@ trait InteractsWithCore
                 \sprintf("Container [%s] is bound, but it contains not a singleton.", $alias)
             );
 
-            $callback?->__invoke($realObject);
+            if ($callback) {
+                $callback->__invoke($realObject);
+            }
         });
     }
 

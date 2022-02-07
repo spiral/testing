@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Spiral\Testing;
 
 use Closure;
-use JetBrains\PhpStorm\ArrayShape;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Boot\AbstractKernel;
@@ -109,7 +108,13 @@ abstract class TestCase extends BaseTestCase
         $this->app = $this->initApp(static::ENV);
     }
 
-    public function runScoped(Closure $callback, array $bindings = []): mixed
+    /**
+     * @param Closure $callback
+     * @param array $bindings
+     * @return callable|mixed
+     * @throws \Throwable
+     */
+    public function runScoped(Closure $callback, array $bindings = [])
     {
         if ($this->environment) {
             $bindings[EnvironmentInterface::class] = $this->environment;
