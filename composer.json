@@ -1,6 +1,6 @@
 {
   "name": "spiral/testing",
-  "description": "This is my package testing",
+  "description": "Spiral Framework testing SDK",
   "keywords": [
     "spiral-packages",
     "spiral",
