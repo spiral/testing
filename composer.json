@@ -24,7 +24,7 @@
     "php": ">=7.4",
     "laminas/laminas-diactoros": "^2.4",
     "mockery/mockery": "^1.5",
-    "phpunit/phpunit": "^9.5",
+    "phpunit/phpunit": "^8.5|^9.5",
     "spiral/auth": "^2.9",
     "spiral/core": "^2.9",
     "spiral/boot": "^2.9",
