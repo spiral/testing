@@ -126,6 +126,14 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     protected function setUp(): void
     {
         // !!! Before parent::setUp() !!! 
+        // Will be fired before method `boot` invoked
+        $this->beforeBooting(static function(\Spiral\Core\Container $container) {
+
+            $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
+            
+        });
+        
+        // Will be fired after method `boot` invoked, but before method `start`
         $this->beforeStarting(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);

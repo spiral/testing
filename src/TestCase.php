@@ -28,6 +28,8 @@ abstract class TestCase extends BaseTestCase
 
     private TestableKernelInterface $app;
     /** @var array<Closure> */
+    private array $beforeBooting = [];
+    /** @var array<Closure> */
     private array $beforeStarting = [];
     private ?EnvironmentInterface $environment = null;
 
@@ -58,6 +60,15 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         $this->refreshApp();
+
+        $this->setUpTraits(
+            $this->getTraits(static::class)
+        );
+    }
+
+    final public function beforeBooting(Closure $callback): void
+    {
+        $this->beforeBooting[] = $callback;
     }
 
     final public function beforeStarting(Closure $callback): void
@@ -97,6 +108,10 @@ abstract class TestCase extends BaseTestCase
         $app = $this->createAppInstance();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
+        foreach ($this->beforeBooting as $callback) {
+            $app->getContainer()->invoke($callback);
+        }
+
         $app->starting(...$this->beforeStarting);
         $app->run($environment);
 
@@ -121,5 +136,38 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $this->getContainer()->runScope($bindings, $callback);
+    }
+
+    private function setUpTraits(array $traits): void
+    {
+        foreach ($traits as $trait) {
+            if (method_exists($this, $method = 'setUp'.(new \ReflectionClass($trait))->getShortName())) {
+                $this->getContainer()->invoke([$this, $method]);
+            }
+        }
+    }
+
+    private function tearDownTraits(array $traits): void
+    {
+        foreach ($traits as $trait) {
+            if (method_exists($this, $method = 'setUp'.(new \ReflectionClass($trait))->getShortName())) {
+                $this->getContainer()->invoke([$this, $method]);
+            }
+        }
+    }
+
+    /**
+     * @param class-string $class
+     * @return array<class-string>
+     */
+    private function getTraits(string $class): array
+    {
+        $results = [];
+
+        foreach (\array_reverse(\class_parents($class)) + [$class => $class] as $class) {
+            $results += \class_uses($class) ?: [];
+        }
+
+        return \array_unique($results);
     }
 }
