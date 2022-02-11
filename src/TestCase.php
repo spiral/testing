@@ -28,6 +28,8 @@ abstract class TestCase extends BaseTestCase
 
     private TestableKernelInterface $app;
     /** @var array<Closure> */
+    private array $beforeBooting = [];
+    /** @var array<Closure> */
     private array $beforeStarting = [];
     private ?EnvironmentInterface $environment = null;
 
@@ -58,6 +60,11 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         $this->refreshApp();
+    }
+
+    final public function beforeBooting(Closure $callback): void
+    {
+        $this->beforeBooting[] = $callback;
     }
 
     final public function beforeStarting(Closure $callback): void
@@ -96,6 +103,10 @@ abstract class TestCase extends BaseTestCase
 
         $app = $this->createAppInstance();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
+
+        foreach ($this->beforeBooting as $callback) {
+            $app->getContainer()->invoke($callback);
+        }
 
         $app->starting(...$this->beforeStarting);
         $app->run($environment);
