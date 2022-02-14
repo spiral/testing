@@ -21,7 +21,7 @@ final class TestResponse
      */
     public function getStatusCode(): int
     {
-        return $this->getStatusCode();
+        return $this->response->getStatusCode();
     }
 
     public function assertHasHeader(string $name, ?string $value = null): self
@@ -115,6 +115,16 @@ final class TestResponse
     public function assertUnprocessable(): self
     {
         return $this->assertStatus(422);
+    }
+
+    public function assertBodyContains(string $needle): self
+    {
+        TestCase::assertStringContainsString(
+            $needle,
+            (string) $this->response->getBody()
+        );
+
+        return $this;
     }
 
     public function isRedirect(): bool

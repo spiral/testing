@@ -156,14 +156,14 @@ class FakeHttp
         return $this->container->get(Http::class);
     }
 
-    protected function get(string $uri, array $query = [], array $headers = [], array $cookies = []): TestResponse
+    public function get(string $uri, array $query = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createRequest($uri, 'GET', $query, $headers, $cookies)
         );
     }
 
-    protected function getJson(
+    public function getJson(
         string $uri,
         array $query = [],
         array $headers = [],
@@ -174,7 +174,7 @@ class FakeHttp
         );
     }
 
-    protected function getWithAttributes(string $uri, array $attributes, array $headers = []): TestResponse
+    public function getWithAttributes(string $uri, array $attributes, array $headers = []): TestResponse
     {
         $r = $this->createRequest($uri, 'GET', [], $headers, []);
         foreach ($attributes as $k => $v) {
@@ -184,42 +184,42 @@ class FakeHttp
         return $this->handleRequest($r);
     }
 
-    protected function post(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function post(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createRequest($uri, 'POST', [], $headers, $cookies)->withParsedBody($data)
         );
     }
 
-    protected function postJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function postJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies)
         );
     }
 
-    protected function put(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function put(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createRequest($uri, 'PUT', $data, $headers, $cookies)
         );
     }
 
-    protected function putJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function putJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies)
         );
     }
 
-    protected function delete(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function delete(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createRequest($uri, 'DELETE', $data, $headers, $cookies)
         );
     }
 
-    protected function deleteJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function deleteJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies)
