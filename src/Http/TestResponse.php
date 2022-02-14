@@ -121,7 +121,8 @@ final class TestResponse
     {
         TestCase::assertStringContainsString(
             $needle,
-            (string) $this->response->getBody()
+            (string) $this->response->getBody(),
+            \sprintf('Response doesn\'t contain [%s]', $needle)
         );
 
         return $this;
