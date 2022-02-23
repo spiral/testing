@@ -8,6 +8,7 @@ use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Stream;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Spiral\Auth\AuthContext;
@@ -28,13 +29,16 @@ class FakeHttp
     private ?SessionInterface $session = null;
     private Container $container;
     private \Closure $scope;
+    private FileFactory $fileFactory;
 
     public function __construct(
         Container $container,
+        FileFactory $fileFactory,
         \Closure $scope
     ) {
         $this->container = $container;
         $this->scope = $scope;
+        $this->fileFactory = $fileFactory;
     }
 
     public function withActor(object $actor): self
@@ -151,6 +155,11 @@ class FakeHttp
         return $this;
     }
 
+    public function getFileFactory(): FileFactory
+    {
+        return $this->fileFactory;
+    }
+
     public function getHttp(): Http
     {
         return $this->container->get(Http::class);
@@ -184,45 +193,45 @@ class FakeHttp
         return $this->handleRequest($r);
     }
 
-    public function post(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function post(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createRequest($uri, 'POST', [], $headers, $cookies)->withParsedBody($data)
+            $this->createRequest($uri, 'POST', [], $headers, $cookies, $files)->withParsedBody($data)
         );
     }
 
-    public function postJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function postJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies)
+            $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies, $files)
         );
     }
 
-    public function put(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function put(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createRequest($uri, 'PUT', $data, $headers, $cookies)
+            $this->createRequest($uri, 'PUT', $data, $headers, $cookies, $files)
         );
     }
 
-    public function putJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function putJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies)
+            $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies, $files)
         );
     }
 
-    public function delete(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function delete(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createRequest($uri, 'DELETE', $data, $headers, $cookies)
+            $this->createRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
         );
     }
 
-    public function deleteJson(string $uri, array $data = [], array $headers = [], array $cookies = []): TestResponse
+    public function deleteJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies)
+            $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
         );
     }
 
@@ -231,7 +240,8 @@ class FakeHttp
         string $method,
         array $data,
         array $headers,
-        array $cookies
+        array $cookies,
+        array $files = []
     ): ServerRequest {
         $content = \json_encode($data);
 
@@ -241,23 +251,27 @@ class FakeHttp
             'Accept' => 'application/json',
         ], $headers);
 
-        return $this->createRequest($uri, $method, [], $headers, $cookies)
+        return $this->createRequest($uri, $method, [], $headers, $cookies, $files)
             ->withBody(new Stream($content));
     }
 
+    /**
+     * @param array<UploadedFileInterface> $files
+     */
     protected function createRequest(
         string $uri,
         string $method,
         array $query,
         array $headers,
-        array $cookies
+        array $cookies,
+        array $files = []
     ): ServerRequest {
         $cookies = \array_merge($this->defaultCookies, $cookies);
         $headers = \array_merge($this->defaultHeaders, $headers);
 
         return new ServerRequest(
             $this->defaultServerVariables,
-            [],
+            $files,
             $uri,
             $method,
             'php://input',
