@@ -31,7 +31,7 @@ class File extends UploadedFile
         $this->tempFile = $tempFile;
 
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        $mimeType = (new MimeTypes())->getMimeTypes($extension) ?? 'application/octet-stream';
+        $mimeType = (new MimeTypes())->getMimeTypes($extension)[0] ?? 'application/octet-stream';
 
         parent::__construct(
             $this->tempFilePath(),
