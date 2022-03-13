@@ -33,7 +33,6 @@ final class FileFactory
         fwrite($tmpFile, $content);
 
         $file = new File($filename, $tmpFile);
-        $file->setSize(fstat($tmpFile)['size']);
 
         if ($mimeType) {
             $file->setMimeType($mimeType);

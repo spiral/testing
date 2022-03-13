@@ -35,7 +35,7 @@ class File extends UploadedFile
 
         parent::__construct(
             $this->tempFilePath(),
-            filesize($tempFile),
+            fstat($tempFile)['size'],
             UPLOAD_ERR_OK,
             $filename,
             $mimeType
