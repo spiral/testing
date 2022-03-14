@@ -21,24 +21,24 @@
     }
   ],
   "require": {
+    "ext-json": "*",
     "php": ">=7.4",
     "laminas/laminas-diactoros": "^2.4",
     "mockery/mockery": "^1.5",
     "phpunit/phpunit": "^8.5|^9.5",
     "spiral/auth": "^2.9",
-    "spiral/core": "^2.9",
     "spiral/boot": "^2.9",
     "spiral/console": "^2.9",
     "spiral/http": "^2.9",
-    "spiral/files": "^2.9",
     "spiral/mailer": "^2.9",
     "spiral/queue": "^2.9",
     "spiral/session": "^2.9",
     "spiral/tokenizer": "^2.9",
-    "ext-json": "*"
+    "symfony/mime": "^5.3|^6.0"
   },
   "suggest": {
-    "brianium/paratest": "Required to run tests in parallel (^6.0)."
+    "brianium/paratest": "Required to run tests in parallel (^6.0).",
+    "ext-gd": "Required to use generate fake image files"
   },
   "require-dev": {
     "vimeo/psalm": "^4.9"

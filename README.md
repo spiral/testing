@@ -167,17 +167,34 @@ $response->assertStatus(200);
 $http = $this->fakeHttp();
 $http->withHeaders(['Accept' => 'application/json']);
 
-$http->get('/')->assertOk();
-$http->getJson('/')->assertOk();
+$http->get(uri: '/', query: ['foo' => 'bar'])->assertOk();
+$http->getJson(uri: '/')->assertOk();
 
-$http->post('/')->assertOk();
-$http->postJson('/')->assertOk();
+$http->post(uri: '/', data: ['foo' => 'bar'], headers: ['Content-type' => '...'])->assertOk();
+$http->postJson(uri: '/')->assertOk();
 
-$http->put('/')->assertOk();
-$http->putJson('/')->assertOk();
+$http->put(uri: '/', cookies: ['token' => '...'])->assertOk();
+$http->putJson(uri: '/')->assertOk();
 
-$http->delete('/')->assertOk();
-$http->deleteJson('/')->assertOk();
+$http->delete(uri: '/')->assertOk();
+$http->deleteJson(uri: '/')->assertOk();
+```
+
+#### Working with uploading files
+
+```php
+$http = $this->fakeHttp();
+
+// Create a file with size - 100kb
+$file = $http->getFileFactory()->createFile('foo.txt', 100);
+
+// Create a file with specific content
+$file = $http->getFileFactory()->createFileWithContent('foo.txt', 'Hello world');
+
+// Create a fake image 640x480
+$image = $http->getFileFactory()->createImage('fake.jpg', 640, 480);
+
+$http->post(uri: '/', files: ['avatar' => $image, 'documents' => [$file]])->assertOk();
 ```
 
 ### Interaction with Mailer
