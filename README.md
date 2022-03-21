@@ -100,7 +100,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     {
         return __DIR__.'/../';
     }
-    
+
     public function defineBootloaders(): array
     {
         return [
@@ -125,11 +125,11 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 {
     protected function setUp(): void
     {
-        // !!! Before parent::setUp() !!! 
+        // !!! Before parent::setUp() !!!
         $this->beforeStarting(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
-            
+
         });
 
         parent::setUp();
@@ -197,6 +197,46 @@ $image = $http->getFileFactory()->createImage('fake.jpg', 640, 480);
 $http->post(uri: '/', files: ['avatar' => $image, 'documents' => [$file]])->assertOk();
 ```
 
+#### Working with storage
+
+```php
+// Will replace all buckets into with local adapters
+$storage = $this->fakeStorage();
+
+// Do something with storage
+// $image = new UploadedFile(...);
+// $storage->bucket('uploads')->write(
+//    $image->getClientFilename(),
+//    $image->getStream()
+// );
+
+$uploads = $storage->bucket('uploads');
+
+$uploads->assertExists('image.jpg');
+$uploads->assertCreated('image.jpg');
+
+$public = $storage->bucket('public');
+$public->assertNotExist('image.jpg');
+$public->assertNotCreated('image.jpg');
+
+// $public->delete('file.txt');
+$public->assertDeleted('file.txt');
+$uploads->assertNotDeleted('file.txt');
+$public->assertNotExist('file.txt');
+
+// $public->move('file.txt', 'folder/file.txt');
+$public->assertMoved('file.txt', 'folder/file.txt');
+$uploads->assertNotMoved('file.txt', 'folder/file.txt');
+
+// $public->copy('file.txt', 'folder/file.txt');
+$public->assertCopied('file.txt', 'folder/file.txt');
+$uploads->assertNotCopied('file.txt', 'folder/file.txt');
+
+// $public->setVisibility('file.txt', 'public');
+$public->assertVisibilityChanged('file.txt');
+$uploads->assertVisibilityNotChanged('file.txt');
+```
+
 ### Interaction with Mailer
 
 ```php
@@ -209,7 +249,7 @@ protected function setUp(): void
 protected function testRegisterUser(): void
 {
     // run some code
-    
+
     $this->mailer->assertSent(UserRegisteredMail::class, function (MessageInterface $message) {
         return $message->getTo() === 'user@site.com';
     })
@@ -257,13 +297,13 @@ protected function setUp(): void
 protected function testRegisterUser(): void
 {
     // run some code
-    
+
     $this->queue->assertPushed('mail.job', function (array $data) {
         return $data['handler'] instanceof \Spiral\SendIt\MailJob
             && $data['options']->getQueue() === 'mail'
             && $data['payload']['foo'] === 'bar';
     });
-    
+
     $this->connection->getConnection('redis')->assertPushed('another.job', ...);
 }
 ```
@@ -434,7 +474,7 @@ $this->serveDispatcher(HttpDispatcher::class, [
     \Spiral\Boot\EnvironmentInterface::class => new \Spiral\Boot\Environment([
         'foo' => 'bar'
     ]),
-    
+
 ]);
 ```
 
@@ -451,8 +491,8 @@ $dispatchers = $this->getRegisteredDispatchers();
 
 ```php
 $this->assertConsoleCommandOutputContainsStrings(
-    'ping', 
-    ['site' => 'https://google.com'], 
+    'ping',
+    ['site' => 'https://google.com'],
     ['Site found', 'Starting ping ...', 'Success!']
 );
 ```
@@ -506,7 +546,7 @@ $this->assertDirectoryAliasMatches('runtime', __DIR__.'src/runtime');
 
 ```php
 $this->cleanupDirectories(
-    __DIR__.'src/runtime/cache', 
+    __DIR__.'src/runtime/cache',
     __DIR__.'src/runtime/tmp'
 );
 ```

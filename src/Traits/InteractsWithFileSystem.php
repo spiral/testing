@@ -45,7 +45,7 @@ trait InteractsWithFileSystem
         $dir = $this->getDirectories()->get($name);
 
         if ($path) {
-            $dir = $dir.ltrim('/', $path);
+            return $dir.ltrim($path, '/');
         }
 
         return $dir;

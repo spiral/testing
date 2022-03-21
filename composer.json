@@ -42,11 +42,19 @@
     "ext-gd": "Required to use generate fake image files"
   },
   "require-dev": {
+    "spiral/framework": "^2.9",
+    "spiral/roadrunner-bridge": "^1.0",
     "vimeo/psalm": "^4.9"
   },
   "autoload": {
     "psr-4": {
       "Spiral\\Testing\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Spiral\\Testing\\Tests\\App\\": "tests/app",
+      "Spiral\\Testing\\Tests\\": "tests/src"
     }
   },
   "minimum-stability": "dev",

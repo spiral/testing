@@ -9,11 +9,16 @@ use Spiral\Testing\Http\FileFactory;
 
 trait InteractsWithHttp
 {
+    protected function getFileFactory(): FileFactory
+    {
+        return new FileFactory();
+    }
+
     protected function fakeHttp(): FakeHttp
     {
         return new FakeHttp(
             $this->getContainer(),
-            new FileFactory(),
+            $this->getFileFactory(),
             function (\Closure $closure, array $bindings = []) {
                 return $this->runScoped($closure, $bindings);
             }
