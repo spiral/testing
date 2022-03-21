@@ -34,6 +34,7 @@
     "spiral/queue": "^2.9",
     "spiral/session": "^2.9",
     "spiral/tokenizer": "^2.9",
+    "spiral/storage": "^2.11",
     "symfony/mime": "^5.3|^6.0"
   },
   "suggest": {
