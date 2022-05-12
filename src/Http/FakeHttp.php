@@ -11,8 +11,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Spiral\Auth\AuthContext;
-use Spiral\Auth\AuthContextInterface;
+use Spiral\Auth\ActorProviderInterface;
+use Spiral\Auth\TokenInterface;
+use Spiral\Auth\TokenStorageInterface;
 use Spiral\Core\Container;
 use Spiral\Http\Http;
 use Spiral\Session\SessionInterface;
@@ -25,7 +26,7 @@ class FakeHttp
     private array $defaultHeaders = [];
     private array $defaultCookies = [];
 
-    private ?AuthContextInterface $auth = null;
+    private ?ActorProviderInterface $auth = null;
     private ?SessionInterface $session = null;
     private Container $container;
     private \Closure $scope;
@@ -43,7 +44,7 @@ class FakeHttp
 
     public function withActor(object $actor): self
     {
-        $this->auth = new AuthContext(new FakeActorProvider($actor));
+        $this->auth = new FakeActorProvider($actor);
 
         return $this;
     }
@@ -283,8 +284,26 @@ class FakeHttp
 
     protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
+
         if ($this->auth) {
-            $bindings[AuthContextInterface::class] = $this->auth;
+            $request = $request->withHeader('X-Auth-Token', spl_object_hash($this->auth));
+
+            $bindings[ActorProviderInterface::class] = $this->auth;
+            $bindings[TokenStorageInterface::class] = new class implements TokenStorageInterface {
+                public function load(string $id): ?TokenInterface
+                {
+                    return new Token($id, []);
+                }
+
+                public function create(array $payload, \DateTimeInterface $expiresAt = null): TokenInterface
+                {
+                    return new Token(uniqid(), $payload, $expiresAt);
+                }
+
+                public function delete(TokenInterface $token): void
+                {
+                }
+            };
         }
 
         if ($this->session) {
