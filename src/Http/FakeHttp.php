@@ -12,21 +12,25 @@ use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Spiral\Auth\ActorProviderInterface;
-use Spiral\Auth\TokenInterface;
 use Spiral\Auth\TokenStorageInterface;
+use Spiral\Auth\Transport\HeaderTransport;
+use Spiral\Auth\TransportRegistry;
 use Spiral\Core\Container;
 use Spiral\Http\Http;
+use Spiral\Security\ActorInterface;
 use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Session\FakeSession;
 
 class FakeHttp
 {
+    private const AUTH_TOKEN_HEADER_KEY = 'X-Test-Token';
+
     private array $defaultServerVariables = [];
     private array $defaultHeaders = [];
     private array $defaultCookies = [];
 
-    private ?ActorProviderInterface $auth = null;
+    private ?object $actor = null;
     private ?SessionInterface $session = null;
     private Container $container;
     private \Closure $scope;
@@ -44,7 +48,7 @@ class FakeHttp
 
     public function withActor(object $actor): self
     {
-        $this->auth = new FakeActorProvider($actor);
+        $this->actor = $actor;
 
         return $this;
     }
@@ -194,43 +198,73 @@ class FakeHttp
         return $this->handleRequest($r);
     }
 
-    public function post(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function post(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createRequest($uri, 'POST', [], $headers, $cookies, $files)->withParsedBody($data)
         );
     }
 
-    public function postJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function postJson(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies, $files)
         );
     }
 
-    public function put(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function put(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createRequest($uri, 'PUT', $data, $headers, $cookies, $files)
         );
     }
 
-    public function putJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function putJson(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies, $files)
         );
     }
 
-    public function delete(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function delete(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
         );
     }
 
-    public function deleteJson(string $uri, array $data = [], array $headers = [], array $cookies = [], array $files = []): TestResponse
-    {
+    public function deleteJson(
+        string $uri,
+        array $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
         return $this->handleRequest(
             $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
         );
@@ -284,26 +318,15 @@ class FakeHttp
 
     protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
+        if ($this->actor) {
+            $request = $request->withHeader(static::AUTH_TOKEN_HEADER_KEY, spl_object_hash($this->actor));
 
-        if ($this->auth) {
-            $request = $request->withHeader('X-Auth-Token', spl_object_hash($this->auth));
+            $bindings[ActorProviderInterface::class] = new FakeActorProvider($this->actor);
+            $bindings[TokenStorageInterface::class] = new FakeTokenStorage();
 
-            $bindings[ActorProviderInterface::class] = $this->auth;
-            $bindings[TokenStorageInterface::class] = new class implements TokenStorageInterface {
-                public function load(string $id): ?TokenInterface
-                {
-                    return new Token($id, []);
-                }
-
-                public function create(array $payload, \DateTimeInterface $expiresAt = null): TokenInterface
-                {
-                    return new Token(uniqid(), $payload, $expiresAt);
-                }
-
-                public function delete(TokenInterface $token): void
-                {
-                }
-            };
+            $transport = new TransportRegistry();
+            $transport->setTransport('testing', new HeaderTransport(static::AUTH_TOKEN_HEADER_KEY));
+            $bindings[TransportRegistry::class] = $transport;
         }
 
         if ($this->session) {
