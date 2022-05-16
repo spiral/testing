@@ -17,7 +17,6 @@ use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
 use Spiral\Core\Container;
 use Spiral\Http\Http;
-use Spiral\Security\ActorInterface;
 use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Session\FakeSession;

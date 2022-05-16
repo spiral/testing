@@ -126,7 +126,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     protected function setUp(): void
     {
         // !!! Before parent::setUp() !!!
-        $this->beforeStarting(static function(\Spiral\Core\Container $container) {
+        $this->beforeInit(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
 

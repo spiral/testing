@@ -16,11 +16,12 @@ abstract class TestCase extends \Spiral\Testing\TestCase
             \Spiral\Tokenizer\Bootloader\TokenizerBootloader::class,
             \Spiral\SendIt\Bootloader\MailerBootloader::class,
             \Spiral\Bootloader\Http\HttpBootloader::class,
-            \Spiral\Bootloader\Http\DiactorosBootloader::class,
+            \Spiral\Http\Bootloader\DiactorosBootloader::class,
             \Spiral\Bootloader\Security\EncrypterBootloader::class,
             \Spiral\Bootloader\Http\RouterBootloader::class,
             \Spiral\Router\Bootloader\AnnotatedRoutesBootloader::class,
-            \Spiral\Bootloader\Storage\StorageBootloader::class,
+            \Spiral\Storage\Bootloader\StorageBootloader::class,
+            \Spiral\Testing\Tests\App\Bootloader\BlogBootloader::class,
             // ...
         ];
     }
