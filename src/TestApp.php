@@ -7,7 +7,6 @@ namespace Spiral\Testing;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Bootloader\CoreBootloader;
 use Spiral\Boot\Exception\BootException;
-use Spiral\Boot\ExceptionHandler;
 use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
 
 class TestApp extends AbstractKernel implements TestableKernelInterface
@@ -37,9 +36,6 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
         array $directories,
         bool $handleErrors = true
     ): self {
-        if ($handleErrors) {
-            ExceptionHandler::register();
-        }
 
         /** @var TestApp $kernel */
         $kernel = static::create($directories, $handleErrors);

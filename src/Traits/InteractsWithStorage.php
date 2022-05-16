@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Spiral\Testing\Traits;
 
 use Laminas\Diactoros\Uri;
-use Spiral\Bootloader\Storage\StorageConfig;
 use Spiral\Distribution\Resolver\StaticResolver;
+use Spiral\Storage\Config\StorageConfig;
 use Spiral\Storage\StorageInterface;
 use Spiral\Testing\Storage\FakeBucketFactory;
 

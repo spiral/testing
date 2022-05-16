@@ -31,7 +31,7 @@ abstract class TestCase extends BaseTestCase
     /** @var array<Closure> */
     private array $beforeBooting = [];
     /** @var array<Closure> */
-    private array $beforeStarting = [];
+    private array $beforeInit = [];
     private ?EnvironmentInterface $environment = null;
 
     /**
@@ -68,9 +68,9 @@ abstract class TestCase extends BaseTestCase
         $this->beforeBooting[] = $callback;
     }
 
-    final public function beforeStarting(Closure $callback): void
+    final public function beforeInit(Closure $callback): void
     {
-        $this->beforeStarting[] = $callback;
+        $this->beforeInit[] = $callback;
     }
 
     final public function getApp(): TestApp
@@ -105,11 +105,11 @@ abstract class TestCase extends BaseTestCase
         $app = $this->createAppInstance();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
-        foreach ($this->beforeBooting as $callback) {
+        foreach ($this->beforeInit as $callback) {
             $app->getContainer()->invoke($callback);
         }
 
-        $app->starting(...$this->beforeStarting);
+        $app->booting(...$this->beforeBooting);
         $app->run($environment);
 
         return $app;
