@@ -105,11 +105,11 @@ abstract class TestCase extends BaseTestCase
         $app = $this->createAppInstance();
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
-        foreach ($this->beforeBooting as $callback) {
+        foreach ($this->beforeInit as $callback) {
             $app->getContainer()->invoke($callback);
         }
 
-        $app->booting(...$this->beforeInit);
+        $app->booting(...$this->beforeBooting);
         $app->run($environment);
 
         return $app;
