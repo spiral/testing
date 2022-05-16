@@ -113,7 +113,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 
 ## Usage
 
-### Starting callbacks
+### Booting callbacks
 
 If you need to rebind some bound containers, you can do it via starting callbacks. You can create as more callbacks as
 you want.
@@ -126,7 +126,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     protected function setUp(): void
     {
         // !!! Before parent::setUp() !!!
-        $this->beforeInit(static function(\Spiral\Core\Container $container) {
+        $this->beforeBooting(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
 
