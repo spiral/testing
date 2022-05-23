@@ -9,7 +9,7 @@ use Spiral\Core\ConfigsInterface;
 
 trait InteractsWithConfig
 {
-    public function assertConfigMatches(string $name, array $data)
+    public function assertConfigMatches(string $name, array $data): void
     {
         $config = $this->getConfig($name);
         $this->assertSame($data, $config);

@@ -43,6 +43,17 @@ abstract class TestCase extends BaseTestCase
         return [];
     }
 
+    /**
+     * @return array{
+     *     app: string,
+     *     public: string,
+     *     vendor: string,
+     *     runtime: string,
+     *     cache: string,
+     *     config: string,
+     *     resources: string,
+     * }|array<non-empty-string, string>
+     */
     public function defineDirectories(string $root): array
     {
         return [
@@ -116,18 +127,16 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    protected function refreshApp()
+    protected function refreshApp(): void
     {
         $this->app = $this->initApp(static::ENV);
     }
 
     /**
-     * @param Closure $callback
-     * @param array $bindings
-     * @return callable|mixed
+     * @param array<string, string|array|callable|object> $bindings
      * @throws \Throwable
      */
-    public function runScoped(Closure $callback, array $bindings = [])
+    public function runScoped(Closure $callback, array $bindings = []): mixed
     {
         if ($this->environment) {
             $bindings[EnvironmentInterface::class] = $this->environment;

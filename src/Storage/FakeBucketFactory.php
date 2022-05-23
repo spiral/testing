@@ -13,11 +13,9 @@ use Spiral\Storage\BucketInterface;
 
 final class FakeBucketFactory implements BucketFactoryInterface
 {
-    private string $path;
-
-    public function __construct(string $path)
-    {
-        $this->path = $path;
+    public function __construct(
+        private readonly string $path
+    ) {
     }
 
     public function createFromAdapter(

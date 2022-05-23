@@ -25,28 +25,18 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     /**
      * @var array<class-string>
      */
-    protected array $bootloaders;
+    protected array $bootloaders = [];
 
     /**
-     * Create an application instance with bootloader.
-     * @throws \Throwable
+     * @param array $bootloaders
+     * @return $this
      */
-    public static function createWithBootloaders(
-        array $bootloaders,
-        array $directories,
-        bool $handleErrors = true
-    ): self {
-
-        /** @var TestApp $kernel */
-        $kernel = static::create($directories, $handleErrors);
-        $kernel->bootloaders = $bootloaders;
-
-        return $kernel;
-    }
-
-    public function defineBootloaders(): array
+    public function withBootloaders(array $bootloaders): self
     {
-        return $this->bootloaders;
+        $self = clone $this;
+        $self->bootloaders = $bootloaders;
+
+        return $self;
     }
 
     /**
@@ -60,8 +50,16 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     /**
      * Normalizes directory list and adds all required aliases.
      *
-     * @param array $directories
-     * @return array
+     * @param array{root: string}|array<non-empty-string, string> $directories
+     * @return array{
+     *     app: string,
+     *     public: string,
+     *     vendor: string,
+     *     runtime: string,
+     *     cache: string,
+     *     config: string,
+     *     resources: string,
+     * }|array<non-empty-string, string>
      */
     protected function mapDirectories(array $directories): array
     {

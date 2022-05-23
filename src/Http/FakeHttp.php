@@ -31,18 +31,12 @@ class FakeHttp
 
     private ?object $actor = null;
     private ?SessionInterface $session = null;
-    private Container $container;
-    private \Closure $scope;
-    private FileFactory $fileFactory;
 
     public function __construct(
-        Container $container,
-        FileFactory $fileFactory,
-        \Closure $scope
+        private readonly Container $container,
+        private readonly FileFactory $fileFactory,
+        private readonly \Closure $scope
     ) {
-        $this->container = $container;
-        $this->scope = $scope;
-        $this->fileFactory = $fileFactory;
     }
 
     public function withActor(object $actor): self

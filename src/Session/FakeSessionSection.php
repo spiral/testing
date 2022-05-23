@@ -8,13 +8,10 @@ use Spiral\Session\SessionSectionInterface;
 
 class FakeSessionSection implements SessionSectionInterface
 {
-    private string $name;
-    private array $data;
-
-    public function __construct(string $name, array $data)
-    {
-        $this->name = $name;
-        $this->data = $data;
+    public function __construct(
+        private readonly string $name,
+        private array $data
+    ) {
     }
 
     public function __get(string $name)

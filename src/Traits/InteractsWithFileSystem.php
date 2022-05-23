@@ -51,7 +51,7 @@ trait InteractsWithFileSystem
         return $dir;
     }
 
-    public function cleanupDirectories(string ...$directories)
+    public function cleanupDirectories(string ...$directories): void
     {
         $fs = $this->getContainer()->get(FilesInterface::class);
 
@@ -62,7 +62,7 @@ trait InteractsWithFileSystem
         }
     }
 
-    public function cleanupDirectoriesByAliases(string ...$aliases)
+    public function cleanupDirectoriesByAliases(string ...$aliases): void
     {
         $directories = \array_map(function (string $alias): string {
             return $this->getDirectoryByAlias($alias);

@@ -83,7 +83,7 @@ trait InteractsWithCore
         string $alias,
         string $class,
         array $params = []
-    ) {
+    ): void {
         $this->assertContainerBound($alias, $class, $params);
 
         $this->assertSame(
@@ -117,7 +117,7 @@ trait InteractsWithCore
     }
 
     /**
-     * @param class-string|non-empty-string $alias
+     * @param class-string $alias
      * @param class-string|null $interface
      * @return \Mockery\MockInterface
      */
@@ -131,6 +131,11 @@ trait InteractsWithCore
         return $mock;
     }
 
+    /**
+     * @param array<non-empty-string, string> $env
+     * @return \Spiral\Testing\TestCase|InteractsWithCore
+     * @throws \Throwable
+     */
     public function withEnvironment(array $env): self
     {
         $current = $this->getContainer()->get(EnvironmentInterface::class)->getAll();

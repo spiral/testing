@@ -9,10 +9,6 @@ use Symfony\Component\Mime\MimeTypes;
 
 class File extends UploadedFile
 {
-    private string $filename;
-
-    private $tempFile;
-
     /**
      * The fake file size
      */
@@ -23,13 +19,14 @@ class File extends UploadedFile
      */
     public ?string $fakeMimeType = null;
 
+    /**
+     * @param string $filename
+     * @param resource $tempFile
+     */
     public function __construct(
-        string $filename,
-        $tempFile
+        private string $filename,
+        private $tempFile
     ) {
-        $this->filename = $filename;
-        $this->tempFile = $tempFile;
-
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         $mimeType = (new MimeTypes())->getMimeTypes($extension)[0] ?? 'application/octet-stream';
 

@@ -17,7 +17,7 @@ trait InteractsWithConsole
     public function assertConsoleCommandOutputContainsStrings(
         string $command,
         array $args = [],
-        $strings = []
+        array|string $strings = []
     ): void {
         $output = $this->runCommand($command, $args);
 

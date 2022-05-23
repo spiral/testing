@@ -8,20 +8,11 @@ use Spiral\Auth\TokenInterface;
 
 class Token implements TokenInterface
 {
-    /** @var string */
-    private $id;
-
-    /** @var \DateTimeInterface|null */
-    private $expiresAt;
-
-    /** @var array */
-    private $payload;
-
-    public function __construct(string $id, array $payload, \DateTimeInterface $expiresAt = null)
-    {
-        $this->id = $id;
-        $this->expiresAt = $expiresAt;
-        $this->payload = $payload;
+    public function __construct(
+        private readonly string $id,
+        private readonly array $payload,
+        private readonly ?\DateTimeInterface $expiresAt = null
+    ) {
     }
 
     public function getID(): string

@@ -41,7 +41,7 @@ trait InteractsWithDispatcher
     }
 
     /**
-     * @return class-string[]
+     * @return class-string<DispatcherInterface>[]
      */
     public function getRegisteredDispatchers(): array
     {
