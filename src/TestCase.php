@@ -23,6 +23,7 @@ abstract class TestCase extends BaseTestCase
         Traits\InteractsWithMailer,
         Traits\InteractsWithQueue,
         Traits\InteractsWithStorage,
+        Traits\InteractsWithExceptions,
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
@@ -83,15 +84,15 @@ abstract class TestCase extends BaseTestCase
         return $this->app->getContainer();
     }
 
-    public function createAppInstance(): TestableKernelInterface
+    public function createAppInstance(Container $container = new Container()): TestableKernelInterface
     {
-        return TestApp::createWithBootloaders(
-            $this->defineBootloaders(),
-            $this->defineDirectories(
+        return TestApp::create(
+            directories: $this->defineDirectories(
                 $this->rootDirectory()
             ),
-            false
-        );
+            handleErrors: false,
+            container: $container
+        )->withBootloaders($this->defineBootloaders());
     }
 
     /**
