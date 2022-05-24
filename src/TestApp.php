@@ -23,18 +23,13 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     protected const APP = [];
 
     /**
-     * @var array<class-string>
-     */
-    protected array $bootloaders = [];
-
-    /**
      * @param array $bootloaders
      * @return $this
      */
     public function withBootloaders(array $bootloaders): self
     {
         $self = clone $this;
-        $self->bootloaders = $bootloaders;
+        $self->bootloader->bootload($bootloaders);
 
         return $self;
     }
