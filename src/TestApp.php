@@ -22,6 +22,8 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     // application specific bootloaders
     protected const APP = [];
 
+    protected ?array $bootloaders = null;
+
     /**
      * @param array $bootloaders
      * @return $this
@@ -29,9 +31,16 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     public function withBootloaders(array $bootloaders): self
     {
         $self = clone $this;
-        $self->bootloader->bootload($bootloaders);
+        $self->bootloaders = $bootloaders;
 
         return $self;
+    }
+
+    protected function defineBootloaders(): array
+    {
+        return $this->bootloaders !== null
+            ? $this->bootloaders
+            : static::LOAD;
     }
 
     /**
