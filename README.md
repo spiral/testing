@@ -478,6 +478,18 @@ $this->serveDispatcher(HttpDispatcher::class, [
 ]);
 ```
 
+#### assertDispatcherCanBeServed
+
+```php
+$this->assertDispatcherCanBeServed(HttpDispatcher::class);
+```
+
+#### assertDispatcherCannotBeServed
+
+```php
+$this->assertDispatcherCannotBeServed(HttpDispatcher::class);
+```
+
 #### getRegisteredDispatchers
 
 ```php

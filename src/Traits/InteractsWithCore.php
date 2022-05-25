@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Traits;
 
+use Spiral\Boot\Bootloader\BootloaderInterface;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 
 trait InteractsWithCore
 {
+    /**
+     * @param class-string<BootloaderInterface> $class
+     */
     public function assertBootloaderRegistered(string $class): void
     {
         $this->assertContains(
@@ -18,6 +22,9 @@ trait InteractsWithCore
         );
     }
 
+    /**
+     * @param class-string<BootloaderInterface> $class
+     */
     public function assertBootloaderMissed(string $class): void
     {
         $this->assertNotContains(
@@ -109,7 +116,7 @@ trait InteractsWithCore
     }
 
     /**
-     * @return class-string[]
+     * @return class-string<BootloaderInterface>
      */
     public function getRegisteredBootloaders(): array
     {

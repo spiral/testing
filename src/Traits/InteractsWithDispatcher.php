@@ -5,9 +5,35 @@ declare(strict_types=1);
 namespace Spiral\Testing\Traits;
 
 use Spiral\Boot\DispatcherInterface;
+use Spiral\Boot\KernelInterface;
 
 trait InteractsWithDispatcher
 {
+    /**
+     * @param class-string<DispatcherInterface> $dispatcher
+     */
+    public function assertDispatcherCanBeServed(string $dispatcher): void
+    {
+        $this->assertTrue(
+            $this->getContainer()->get($dispatcher)->canServe(),
+            \sprintf('Dispatcher [%s] can not be served.', $dispatcher)
+        );
+    }
+
+    /**
+     * @param class-string<DispatcherInterface> $dispatcher
+     */
+    public function assertDispatcherCannotBeServed(string $dispatcher): void
+    {
+        $this->assertFalse(
+            $this->getContainer()->get($dispatcher)->canServe(),
+            \sprintf('Dispatcher [%s] can be served.', $dispatcher)
+        );
+    }
+
+    /**
+     * @param class-string<DispatcherInterface> $dispatcher
+     */
     public function serveDispatcher(string $dispatcher, array $bindings = []): void
     {
         $this->assertDispatcherRegistered($dispatcher);
@@ -22,21 +48,27 @@ trait InteractsWithDispatcher
         }, $bindings);
     }
 
-    public function assertDispatcherRegistered(string $class): void
+    /**
+     * @param class-string<DispatcherInterface> $dispatcher
+     */
+    public function assertDispatcherRegistered(string $dispatcher): void
     {
         $this->assertContains(
-            $class,
+            $dispatcher,
             $this->getRegisteredDispatchers(),
-            \sprintf('Dispatcher [%s] was not loaded.', $class)
+            \sprintf('Dispatcher [%s] was not loaded.', $dispatcher)
         );
     }
 
-    public function assertDispatcherMissed(string $class): void
+    /**
+     * @param class-string<DispatcherInterface> $dispatcher
+     */
+    public function assertDispatcherMissed(string $dispatcher): void
     {
         $this->assertNotContains(
-            $class,
+            $dispatcher,
             $this->getRegisteredDispatchers(),
-            \sprintf('Dispatcher [%s] was loaded.', $class)
+            \sprintf('Dispatcher [%s] was loaded.', $dispatcher)
         );
     }
 
@@ -47,6 +79,6 @@ trait InteractsWithDispatcher
     {
         return array_map(static function ($dispatcher): string {
             return get_class($dispatcher);
-        }, $this->app->getRegisteredDispatchers());
+        }, $this->getContainer()->get(KernelInterface::class)->getRegisteredDispatchers());
     }
 }
