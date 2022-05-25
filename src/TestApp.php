@@ -40,7 +40,7 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     {
         return $this->bootloaders !== null
             ? $this->bootloaders
-            : static::LOAD;
+            : parent::defineBootloaders();
     }
 
     /**
