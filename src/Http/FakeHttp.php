@@ -8,6 +8,7 @@ use Laminas\Diactoros\ServerRequest;
 use Laminas\Diactoros\Stream;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -198,21 +199,35 @@ class FakeHttp
         return $this->handleRequest($r);
     }
 
+    /**
+     * @param array|object|StreamInterface $data
+     */
     public function post(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []
     ): TestResponse {
+        if (! \is_array($data) && ! \is_object($data)) {
+            throw new \InvalidArgumentException('$data should be an array or an object.');
+        }
+
+        $request = $this->createRequest($uri, 'POST', [], $headers, $cookies, $files);
+
         return $this->handleRequest(
-            $this->createRequest($uri, 'POST', [], $headers, $cookies, $files)->withParsedBody($data)
+            $data instanceof StreamInterface
+                ? $request->withBody($data)
+                : $request->withParsedBody($data)
         );
     }
 
+    /**
+     * @param array|StreamInterface $data
+     */
     public function postJson(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []
@@ -273,21 +288,29 @@ class FakeHttp
     protected function createJsonRequest(
         string $uri,
         string $method,
-        array $data,
+        $data,
         array $headers,
         array $cookies,
         array $files = []
     ): ServerRequest {
-        $content = \json_encode($data);
+        if (! \is_array($data) && ! $data instanceof StreamInterface) {
+            throw new \InvalidArgumentException(
+                \sprintf('$data should be array or instance of `%s` interface.', StreamInterface::class)
+            );
+        }
 
-        $headers = array_merge([
-            'CONTENT_LENGTH' => mb_strlen($content, '8bit'),
+        if (! $data instanceof StreamInterface) {
+            $data = new Stream(\json_encode($data));
+        }
+
+        $headers = \array_merge([
+            'CONTENT_LENGTH' => $data->getSize(),
             'CONTENT_TYPE' => 'application/json',
             'Accept' => 'application/json',
         ], $headers);
 
         return $this->createRequest($uri, $method, [], $headers, $cookies, $files)
-            ->withBody(new Stream($content));
+            ->withBody($data);
     }
 
     /**
@@ -319,7 +342,7 @@ class FakeHttp
     protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
         if ($this->actor) {
-            $request = $request->withHeader(static::AUTH_TOKEN_HEADER_KEY, spl_object_hash($this->actor));
+            $request = $request->withHeader(static::AUTH_TOKEN_HEADER_KEY, \spl_object_hash($this->actor));
 
             $bindings[ActorProviderInterface::class] = new FakeActorProvider($this->actor);
             $bindings[TokenStorageInterface::class] = new FakeTokenStorage();
