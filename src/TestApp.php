@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing;
 
 use Spiral\Boot\AbstractKernel;
+use Spiral\Boot\Bootloader\BootloaderInterface;
 use Spiral\Boot\Bootloader\CoreBootloader;
 use Spiral\Boot\Exception\BootException;
 use Spiral\Tokenizer\Bootloader\TokenizerBootloader;
@@ -25,15 +26,13 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
     protected ?array $bootloaders = null;
 
     /**
-     * @param array $bootloaders
-     * @return $this
+     * @param array<class-string<BootloaderInterface>> $bootloaders
      */
     public function withBootloaders(array $bootloaders): self
     {
-        $self = clone $this;
-        $self->bootloaders = $bootloaders;
+        $this->bootloaders = $bootloaders;
 
-        return $self;
+        return $this;
     }
 
     protected function defineBootloaders(): array
