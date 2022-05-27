@@ -239,13 +239,21 @@ class FakeHttp
 
     public function put(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []
     ): TestResponse {
+        if (! \is_array($data) && ! \is_object($data)) {
+            throw new \InvalidArgumentException('$data should be an array or an object.');
+        }
+
+        $request = $this->createRequest($uri, 'PUT', [], $headers, $cookies, $files);
+
         return $this->handleRequest(
-            $this->createRequest($uri, 'PUT', $data, $headers, $cookies, $files)
+            $data instanceof StreamInterface
+                ? $request->withBody($data)
+                : $request->withParsedBody($data)
         );
     }
 
@@ -263,13 +271,21 @@ class FakeHttp
 
     public function delete(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []
     ): TestResponse {
+        if (! \is_array($data) && ! \is_object($data)) {
+            throw new \InvalidArgumentException('$data should be an array or an object.');
+        }
+
+        $request = $this->createRequest($uri, 'DELETE', [], $headers, $cookies, $files);
+
         return $this->handleRequest(
-            $this->createRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
+            $data instanceof StreamInterface
+                ? $request->withBody($data)
+                : $request->withParsedBody($data)
         );
     }
 
