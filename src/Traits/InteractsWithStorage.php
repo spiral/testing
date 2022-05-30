@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Traits;
 
-use Laminas\Diactoros\Uri;
+use Nyholm\Psr7\Uri;
 use Spiral\Bootloader\Storage\StorageConfig;
 use Spiral\Distribution\Resolver\StaticResolver;
 use Spiral\Storage\StorageInterface;

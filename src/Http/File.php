@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Http;
 
-use Laminas\Diactoros\UploadedFile;
+use Nyholm\Psr7\UploadedFile;
 use Symfony\Component\Mime\MimeTypes;
 
 class File extends UploadedFile

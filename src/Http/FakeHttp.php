@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Http;
 
-use Laminas\Diactoros\ServerRequest;
-use Laminas\Diactoros\Stream;
+use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\Stream;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -18,7 +18,6 @@ use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
 use Spiral\Core\Container;
 use Spiral\Http\Http;
-use Spiral\Security\ActorInterface;
 use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Session\FakeSession;
@@ -209,9 +208,7 @@ class FakeHttp
         array $cookies = [],
         array $files = []
     ): TestResponse {
-        if (! \is_array($data) && ! \is_object($data)) {
-            throw new \InvalidArgumentException('$data should be an array or an object.');
-        }
+        $this->validateRequestData($data);
 
         $request = $this->createRequest($uri, 'POST', [], $headers, $cookies, $files);
 
@@ -244,9 +241,7 @@ class FakeHttp
         array $cookies = [],
         array $files = []
     ): TestResponse {
-        if (! \is_array($data) && ! \is_object($data)) {
-            throw new \InvalidArgumentException('$data should be an array or an object.');
-        }
+        $this->validateRequestData($data);
 
         $request = $this->createRequest($uri, 'PUT', [], $headers, $cookies, $files);
 
@@ -276,9 +271,7 @@ class FakeHttp
         array $cookies = [],
         array $files = []
     ): TestResponse {
-        if (! \is_array($data) && ! \is_object($data)) {
-            throw new \InvalidArgumentException('$data should be an array or an object.');
-        }
+        $this->validateRequestData($data);
 
         $request = $this->createRequest($uri, 'DELETE', [], $headers, $cookies, $files);
 
@@ -309,14 +302,14 @@ class FakeHttp
         array $cookies,
         array $files = []
     ): ServerRequest {
-        if (! \is_array($data) && ! $data instanceof StreamInterface) {
+        if (!\is_array($data) && !$data instanceof StreamInterface) {
             throw new \InvalidArgumentException(
                 \sprintf('$data should be array or instance of `%s` interface.', StreamInterface::class)
             );
         }
 
         if (! $data instanceof StreamInterface) {
-            $data = new Stream(\json_encode($data));
+            $data = Stream::create(\json_encode($data));
         }
 
         $headers = \array_merge([
@@ -343,16 +336,19 @@ class FakeHttp
         $cookies = \array_merge($this->defaultCookies, $cookies);
         $headers = \array_merge($this->defaultHeaders, $headers);
 
-        return new ServerRequest(
-            $this->defaultServerVariables,
-            $files,
-            $uri,
+        $request = new ServerRequest(
             $method,
-            'php://input',
+            $uri,
             $headers,
-            $cookies,
-            $query
+            'php://input',
+            '1.1',
+            $this->defaultServerVariables
         );
+
+        return $request
+            ->withCookieParams($cookies)
+            ->withQueryParams($query)
+            ->withUploadedFiles($files);
     }
 
     protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
@@ -379,5 +375,12 @@ class FakeHttp
         $scope = $this->scope;
 
         return new TestResponse($scope($handler, $bindings));
+    }
+
+    protected function validateRequestData($data): void
+    {
+        if (!\is_array($data) && !\is_object($data)) {
+            throw new \InvalidArgumentException('$data should be an array or an object.');
+        }
     }
 }
