@@ -102,22 +102,22 @@ abstract class TestCase extends BaseTestCase
     {
         $environment = new Environment($env);
 
-        $app = $this->createAppInstance();
-        $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
+        $this->app = $this->createAppInstance();
+        $this->app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
         foreach ($this->beforeBooting as $callback) {
-            $app->getContainer()->invoke($callback);
+            $this->app->getContainer()->invoke($callback);
         }
 
-        $app->starting(...$this->beforeStarting);
-        $app->run($environment);
+        $this->app->starting(...$this->beforeStarting);
+        $this->app->run($environment);
 
-        return $app;
+        return $this->app;
     }
 
     protected function refreshApp()
     {
-        $this->app = $this->initApp(static::ENV);
+        $this->initApp(static::ENV);
     }
 
     /**
