@@ -27,6 +27,7 @@ abstract class TestCase extends BaseTestCase
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
+    public const MAKE_APP_ON_STARTUP = true;
 
     private TestableKernelInterface $app;
     /** @var array<Closure> */
@@ -72,7 +73,10 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->refreshApp();
+
+        if (static::MAKE_APP_ON_STARTUP) {
+            $this->makeApp(static::ENV);
+        }
     }
 
     final public function beforeBooting(Closure $callback): void
@@ -110,7 +114,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<non-empty-string,mixed> $env
      * @return AbstractKernel|TestableKernelInterface
      */
-    protected function initApp(array $env = []): AbstractKernel
+    private function initApp(array $env = []): AbstractKernel
     {
         $environment = new Environment($env);
 
@@ -127,16 +131,16 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    protected function refreshApp(): void
+    final public function makeApp(array $env = []): void
     {
-        $this->app = $this->initApp(static::ENV);
+        $this->app = $this->initApp($env);
     }
 
     /**
      * @param array<string, string|array|callable|object> $bindings
      * @throws \Throwable
      */
-    public function runScoped(Closure $callback, array $bindings = []): mixed
+    final public function runScoped(Closure $callback, array $bindings = []): mixed
     {
         if ($this->environment) {
             $bindings[EnvironmentInterface::class] = $this->environment;

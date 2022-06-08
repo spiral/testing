@@ -14,7 +14,7 @@ class TestApp extends AbstractKernel implements TestableKernelInterface
 {
     use Traits\TestableKernel;
 
-    // framework specific bootloaders
+    // Framework specific bootloaders
     protected const SYSTEM = [
         CoreBootloader::class,
         TokenizerBootloader::class,

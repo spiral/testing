@@ -71,7 +71,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 
 There are some difference between App and package testing. One of them - tou don't have application and bootloaders.
 
-TestCase from the package has custom TestApp implementation that will help you testing your packages without creating
+TestCase from the package has custom TestApp implementation that will help you to test your packages without creating
 extra classes.
 
 The following example will show you how it is easy-peasy.
@@ -113,6 +113,61 @@ abstract class TestCase extends \Spiral\Testing\TestCase
 
 ## Usage
 
+### Application running
+
+Application will be run automatically via `setUp` method in `Spiral\Testing\TestCase`. If you need to run application by
+your self, you may disable automatic running.
+
+```php
+final class SomeTest extends BaseTest
+{
+    public const MAKE_APP_ON_STARTUP = false;
+    
+    public function testSomeFeature(): void
+    {
+        $this->makeApp(env: [
+            // ...
+        ]);
+    }
+}
+```
+
+### Environment variables
+
+You have two options to pass ENV variables to into your application instance:
+
+1. By using `ENV` const.
+
+```php
+class KernelTest extends BaseTest
+{
+    public const ENV = [
+        'FOO' => 'BAR'
+    ];
+    
+    public function testSomeFeature(): void
+    {
+        // 
+    }
+}
+```
+
+2. By running application by yourself
+
+```php
+final class SomeTest extends BaseTest
+{
+    public const MAKE_APP_ON_STARTUP = false;
+    
+    public function testSomeFeature(): void
+    {
+        $this->makeApp(env: [
+            // ...
+        ]);
+    }
+}
+```
+
 ### Booting callbacks
 
 If you need to rebind some bound containers, you can do it via starting callbacks. You can create as more callbacks as
@@ -126,6 +181,15 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     protected function setUp(): void
     {
         // !!! Before parent::setUp() !!!
+        
+        // Before application init
+        $this->beforeInit(static function(\Spiral\Core\Container $container) {
+
+            $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
+
+        });
+        
+        // Before application booting
         $this->beforeBooting(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
