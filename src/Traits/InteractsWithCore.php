@@ -151,6 +151,28 @@ trait InteractsWithCore
             array_merge($current, $env)
         );
 
+        $this->getContainer()->bind(EnvironmentInterface::class, $this->environment);
+
         return $this;
+    }
+
+    public function assertEnvironmentValueSame(string $key, mixed $value): void
+    {
+        $currentValue = $this->getContainer()->get(EnvironmentInterface::class)->get($key);
+
+        $this->assertSame(
+            $currentValue,
+            $value,
+            \sprintf('Current environment value for key [%s] is [%s], expected [%s].', $key, $currentValue, $value)
+        );
+    }
+
+    public function assertEnvironmentHasKey(string $key): void
+    {
+        $this->assertArrayHasKey(
+            $key,
+            $this->getContainer()->get(EnvironmentInterface::class)->getAll(),
+            \sprintf('Environment does not have key with name [%s].', $key)
+        );
     }
 }
