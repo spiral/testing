@@ -37,6 +37,8 @@
     "spiral/security": "^3.0",
     "spiral/tokenizer": "^3.0",
     "spiral/storage": "^3.0",
+    "spiral/views": "^3.0",
+    "spiral/translator": "^3.0",
     "symfony/mime": "^6.0"
   },
   "suggest": {

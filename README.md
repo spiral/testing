@@ -634,6 +634,40 @@ foreach (['Site found', 'Starting ping ...', 'Success!'] as $string) {
 }
 ```
 
+### Interaction with Views
+
+#### assertViewSame
+
+```php
+$this->assertViewSame('foo:bar', [
+    'foo' => 'bar',
+], '<html>...</html>')
+```
+
+#### assertViewContains
+
+```php
+$this->assertViewContains('foo:bar', [
+    'foo' => 'bar',
+], ['<div>...</div>', '<a href="...">...</a>'])
+```
+
+#### assertViewContains
+
+```php
+$this->assertViewNotContains('foo:bar', [
+    'foo' => 'bar',
+], ['<div class="hidden">...</div>'])
+```
+
+#### assertViewContains with specific locale
+
+```php
+$this->withLocale('fr')->assertViewSame('foo:bar', [
+    'foo' => 'bar',
+], '<div>...</div>')
+```
+
 ### Interaction with Config
 
 #### assertConfigMatches

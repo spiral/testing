@@ -11,13 +11,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait InteractsWithConsole
 {
+    public int $defaultVerbosityLevel = OutputInterface::VERBOSITY_NORMAL;
+
     /**
      * @param string[]|string $strings
      */
     public function assertConsoleCommandOutputContainsStrings(
         string $command,
         array $args = [],
-        array|string $strings = []
+        array|string $strings = [],
+        ?int $verbosityLevel = null
     ): void {
         $output = $this->runCommand($command, $args);
 
@@ -35,7 +38,7 @@ trait InteractsWithConsole
         }
     }
 
-    public function runCommand(
+    final public function runCommand(
         string $command,
         array $args = [],
         OutputInterface $output = null,
@@ -43,16 +46,14 @@ trait InteractsWithConsole
     ): string {
         $input = new ArrayInput($args);
         $output = $output ?? new BufferedOutput();
-        if ($verbosityLevel !== null) {
-            $output->setVerbosity($verbosityLevel);
-        }
+        $output->setVerbosity($verbosityLevel ?? $this->defaultVerbosityLevel);
 
         $this->getConsole()->run($command, $input, $output);
 
         return $output->fetch();
     }
 
-    public function getConsole(): Console
+    final public function getConsole(): Console
     {
         return $this->getContainer()->get(Console::class);
     }
