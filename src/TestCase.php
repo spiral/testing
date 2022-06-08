@@ -114,7 +114,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<non-empty-string,mixed> $env
      * @return AbstractKernel|TestableKernelInterface
      */
-    private function initApp(array $env = []): AbstractKernel
+    final public function initApp(array $env = []): AbstractKernel
     {
         $environment = new Environment($env);
 
