@@ -9,12 +9,12 @@ use Spiral\Testing\Http\FileFactory;
 
 trait InteractsWithHttp
 {
-    protected function getFileFactory(): FileFactory
+    final public function getFileFactory(): FileFactory
     {
         return new FileFactory();
     }
 
-    protected function fakeHttp(): FakeHttp
+    final public function fakeHttp(): FakeHttp
     {
         return new FakeHttp(
             $this->getContainer(),

@@ -125,7 +125,7 @@ final class SomeTest extends BaseTest
     
     public function testSomeFeature(): void
     {
-        $this->makeApp(env: [
+        $this->initApp(env: [
             // ...
         ]);
     }
@@ -161,7 +161,7 @@ final class SomeTest extends BaseTest
     
     public function testSomeFeature(): void
     {
-        $this->makeApp(env: [
+        $this->initApp(env: [
             // ...
         ]);
     }
@@ -242,6 +242,57 @@ $http->putJson(uri: '/')->assertOk();
 
 $http->delete(uri: '/')->assertOk();
 $http->deleteJson(uri: '/')->assertOk();
+```
+
+#### Request response
+
+```php
+/** @var \Spiral\Testing\Http\FakeHttp $http */
+$response = $http->get(uri: '/', query: ['foo' => 'bar']);
+
+// Check if header presents in response
+$response->assertHasHeader('Content-type');
+
+// Check if header missed in response
+$response->assertHeaderMissing('Content-type');
+
+// Get status code
+$code = $response->getStatusCode();
+
+// Check status code
+$response->assertStatus(200);
+$response->assertOk(); // code: 200
+$response->assertCreated(); // code: 201
+$response->assertAccepted(); // code: 
+$response->assertNoContent(); // code: 204
+$response->assertNoContent(status: 204); // code: 204
+$response->assertNotFound(); // code: 404
+$response->assertForbidden(); // code: 403
+$response->assertUnauthorized(); // code: 401
+$response->assertUnprocessable(); // code: 422
+
+// Check body
+$response->assertBodySame('OK');
+$response->assertBodyNotSame('OK');
+$response->assertBodyContains('Hello world');
+
+// Get body content
+$body = (string) $response;
+
+// Check cookie
+$response->assertCookieExists('foo');
+$response->assertCookieMissed('foo');
+$response->assertCookieSame(key: 'foo', value: 'bar');
+
+$cookies = $response->getCookies();
+
+// Check if response is redirect to another page
+$this->assertTrue($response->isRedirect());
+
+// Get original response
+$response = $response->getOriginalResponse();
+
+
 ```
 
 #### Working with uploading files

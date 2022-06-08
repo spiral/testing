@@ -7,11 +7,14 @@ namespace Spiral\Testing\Http;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-final class TestResponse
+final class TestResponse implements \Stringable
 {
+    private array $cookies;
+
     public function __construct(
         private readonly ResponseInterface $response
     ) {
+        $this->cookies = $this->fetchCookies($this->response->getHeader('Set-Cookie'));
     }
 
     /**
@@ -115,12 +118,69 @@ final class TestResponse
         return $this->assertStatus(422);
     }
 
+    public function assertBodySame(string $needle): self
+    {
+        TestCase::assertSame(
+            $needle,
+            (string)$this->response->getBody(),
+            \sprintf('Response is not same with [%s]', $needle)
+        );
+
+        return $this;
+    }
+
+    public function assertBodyNotSame(string $needle): self
+    {
+        TestCase::assertNotSame(
+            $needle,
+            (string)$this->response->getBody(),
+            \sprintf('Response is same with [%s]', $needle)
+        );
+
+        return $this;
+    }
+
     public function assertBodyContains(string $needle): self
     {
         TestCase::assertStringContainsString(
             $needle,
-            (string) $this->response->getBody(),
+            (string)$this->response->getBody(),
             \sprintf('Response doesn\'t contain [%s]', $needle)
+        );
+
+        return $this;
+    }
+
+    public function assertCookieExists(string $key): self
+    {
+        TestCase::assertArrayHasKey(
+            $key,
+            $this->getCookies(),
+            \sprintf('Response doesn\'t have cookie with name [%s]', $key)
+        );
+
+        return $this;
+    }
+
+    public function assertCookieMissed(string $key): self
+    {
+        TestCase::assertArrayNotHasKey(
+            $key,
+            $this->getCookies(),
+            \sprintf('Response has cookie with name [%s]', $key)
+        );
+
+        return $this;
+    }
+
+    public function assertCookieSame(string $key, mixed $value): self
+    {
+        $this->assertCookieExists($key);
+
+        TestCase::assertSame(
+            $value,
+            $this->cookies[$key],
+            \sprintf('Response cookie with name [%s] is not equal.', $key)
         );
 
         return $this;
@@ -134,5 +194,29 @@ final class TestResponse
     public function getOriginalResponse(): ResponseInterface
     {
         return $this->response;
+    }
+
+    public function __toString(): string
+    {
+        return (string)$this->getOriginalResponse()->getBody();
+    }
+
+    private function fetchCookies(array $header): array
+    {
+        $result = [];
+        foreach ($header as $line) {
+            $cookie = explode('=', $line);
+            $result[$cookie[0]] = rawurldecode(substr($cookie[1], 0, strpos($cookie[1], ';')));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<non-empty-string, string>
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
     }
 }
