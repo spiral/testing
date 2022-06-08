@@ -75,7 +75,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         if (static::MAKE_APP_ON_STARTUP) {
-            $this->makeApp(static::ENV);
+            $this->initApp(static::ENV);
         }
     }
 
@@ -114,7 +114,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<non-empty-string,mixed> $env
      * @return AbstractKernel|TestableKernelInterface
      */
-    final public function initApp(array $env = []): AbstractKernel
+    final public function makeApp(array $env = []): AbstractKernel
     {
         $environment = new Environment($env);
 
@@ -131,9 +131,9 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    final public function makeApp(array $env = []): void
+    final public function initApp(array $env = []): void
     {
-        $this->app = $this->initApp($env);
+        $this->app = $this->makeApp($env);
     }
 
     /**
