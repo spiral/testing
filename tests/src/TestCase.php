@@ -2,6 +2,8 @@
 
 namespace Spiral\Testing\Tests;
 
+use Spiral\Nyholm\Bootloader\NyholmBootloader;
+
 abstract class TestCase extends \Spiral\Testing\TestCase
 {
     public function rootDirectory(): string
@@ -16,7 +18,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
             \Spiral\Tokenizer\Bootloader\TokenizerBootloader::class,
             \Spiral\SendIt\Bootloader\MailerBootloader::class,
             \Spiral\Bootloader\Http\HttpBootloader::class,
-            \Spiral\Http\Bootloader\DiactorosBootloader::class,
+            NyholmBootloader::class,
             \Spiral\Bootloader\Security\EncrypterBootloader::class,
             \Spiral\Bootloader\Http\RouterBootloader::class,
             \Spiral\Router\Bootloader\AnnotatedRoutesBootloader::class,
