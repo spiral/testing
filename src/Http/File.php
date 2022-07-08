@@ -64,7 +64,7 @@ class File extends UploadedFile
         return parent::getClientMediaType();
     }
 
-    public function getSize(): ?int
+    public function getSize(): int
     {
         if ($this->fakeSize !== null) {
             return $this->fakeSize;
