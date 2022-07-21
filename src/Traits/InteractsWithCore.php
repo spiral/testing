@@ -93,7 +93,7 @@ trait InteractsWithCore
     ): void {
         $this->assertContainerBound($alias, $class, $params);
 
-        $this->assertSame(
+        $this->assertNotSame(
             $this->getContainer()->make($alias, $params),
             $this->getContainer()->make($alias, $params),
             \sprintf("Container [%s] is bound, but it contains a singleton.", $alias)

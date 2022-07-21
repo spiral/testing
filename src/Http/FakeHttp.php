@@ -248,7 +248,7 @@ class FakeHttp
 
     public function putJson(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []
@@ -278,7 +278,7 @@ class FakeHttp
 
     public function deleteJson(
         string $uri,
-        array $data = [],
+        $data = [],
         array $headers = [],
         array $cookies = [],
         array $files = []

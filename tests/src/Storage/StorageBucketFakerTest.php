@@ -17,8 +17,14 @@ final class StorageBucketFakerTest extends TestCase
         $this->storage = $this->fakeStorage();
     }
 
-    public function testWrite()
+    public function testWrite(): void
     {
+        if (! function_exists('imagecreatetruecolor')) {
+            $this->markTestSkipped('Missed Gd library. Test skipped.');
+
+            return;
+        }
+
         $image = $this->getFileFactory()->createImage('image.jpg');
         $file = $this->getFileFactory()->createFile('file.txt');
 
