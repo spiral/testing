@@ -88,7 +88,7 @@ final class TestResponse implements \Stringable
 
     public function assertNoContent(int $status = 204): self
     {
-        $this->assertStatus(202);
+        $this->assertStatus($status);
 
         TestCase::assertEmpty(
             $this->response->getBody()->getContents(),
