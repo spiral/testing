@@ -38,6 +38,14 @@ trait InteractsWithConsole
         }
     }
 
+    public function assertCommandRegistered(string $name): void
+    {
+        $this->assertTrue(
+            $this->getConsole()->getApplication()->has($name),
+            \sprintf('Command [%s] is not registered.', $name)
+        );
+    }
+
     final public function runCommand(
         string $command,
         array $args = [],
