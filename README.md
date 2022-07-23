@@ -624,6 +624,12 @@ $this->assertConsoleCommandOutputContainsStrings(
 );
 ```
 
+#### assertCommandRegistered
+
+```php
+$this->assertCommandRegistered('ping');
+```
+
 #### runCommand
 
 ```php
