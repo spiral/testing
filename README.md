@@ -399,6 +399,87 @@ $this->mailer->assertSentTimes(UserRegisteredMail::class, 1);
 $this->mailer->assertNothingSent();
 ```
 
+### Interaction with Events
+
+```php
+protected function setUp(): void
+{
+    parent::setUp();
+    $this->eventDispatcher = $this->fakeEventDispatcher();
+}
+```
+
+#### assertListening
+
+Assert if an event has a listener attached to it.
+
+```php
+$this->eventDispatcher->assertListening(SomeEvent::class, SomeListener::class);
+```
+
+#### assertDispatched
+
+Assert if an event was dispatched based on a truth-test callback.
+
+```php
+// Assert if an event dispatched one or more times
+$this->eventDispatcher->assertDispatched(SomeEvent::class);
+
+
+// Assert if an event dispatched one or more times based on a truth-test callback.
+$this->eventDispatcher->assertDispatched(SomeEvent::class, static function(SomeEvent $event): bool {
+    return $event->someParam === 100;
+});
+```
+
+#### assertDispatchedTimes
+
+Assert if an event was dispatched a number of times.
+
+```php
+$this->eventDispatcher->assertDispatchedTimes(SomeEvent::class, 5);
+```
+
+#### assertNotDispatched
+
+Determine if an event was dispatched based on a truth-test callback.
+
+```php
+$this->eventDispatcher->assertNotDispatched(SomeEvent::class);
+
+$this->eventDispatcher->assertNotDispatched(SomeEvent::class, static function(SomeEvent $event): bool {
+    return $event->someParam === 100;
+});
+```
+
+#### assertNothingDispatched
+
+Assert that no events were dispatched.
+
+```php
+$this->eventDispatcher->assertNothingDispatched();
+```
+
+#### dispatched
+
+Get all the events matching a truth-test callback.
+
+```php
+$this->eventDispatcher->dispatched(SomeEvent::class);
+
+// or
+
+$this->eventDispatcher->dispatched(SomeEvent::class, static function(SomeEvent $event): bool {
+    return $event->someParam === 100;
+});
+```
+
+#### hasDispatched
+
+```php
+$this->eventDispatcher->hasDispatched(SomeEvent::class);
+```
+
 ### Interaction with Queue
 
 ```php

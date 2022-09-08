@@ -29,6 +29,7 @@
     "spiral/auth": "^3.0",
     "spiral/auth-http": "^3.0",
     "spiral/boot": "^3.0",
+    "spiral/events": "^3.0",
     "spiral/console": "^3.0",
     "spiral/http": "^3.0",
     "spiral/mailer": "^3.0",
