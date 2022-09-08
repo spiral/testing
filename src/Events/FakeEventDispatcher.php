@@ -70,7 +70,7 @@ class FakeEventDispatcher implements EventDispatcherInterface
         PHPUnit::assertTrue(
             false,
             \sprintf(
-                'Event [%s] does not have the [%s] listener attached to it',
+                'Event [%s] does not have the [%s] listener attached to it.',
                 $expectedEvent::class,
                 $expectedListener
             )
