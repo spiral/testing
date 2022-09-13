@@ -12,6 +12,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     public function defineBootloaders(): array
     {
         return [
+            \Spiral\Console\Bootloader\ConsoleBootloader::class,
             \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
             \Spiral\Tokenizer\Bootloader\TokenizerBootloader::class,
             \Spiral\SendIt\Bootloader\MailerBootloader::class,
