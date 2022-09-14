@@ -22,6 +22,7 @@ abstract class TestCase extends BaseTestCase
         Traits\InteractsWithDispatcher,
         Traits\InteractsWithMailer,
         Traits\InteractsWithQueue,
+        Traits\InteractsWithEvents,
         Traits\InteractsWithStorage,
         Traits\InteractsWithExceptions,
         Traits\InteractsWithViews,
