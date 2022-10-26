@@ -122,7 +122,7 @@ your self, you may disable automatic running.
 final class SomeTest extends BaseTest
 {
     public const MAKE_APP_ON_STARTUP = false;
-    
+
     public function testSomeFeature(): void
     {
         $this->initApp(env: [
@@ -144,10 +144,10 @@ class KernelTest extends BaseTest
     public const ENV = [
         'FOO' => 'BAR'
     ];
-    
+
     public function testSomeFeature(): void
     {
-        // 
+        //
     }
 }
 ```
@@ -158,7 +158,7 @@ class KernelTest extends BaseTest
 final class SomeTest extends BaseTest
 {
     public const MAKE_APP_ON_STARTUP = false;
-    
+
     public function testSomeFeature(): void
     {
         $this->initApp(env: [
@@ -181,14 +181,14 @@ abstract class TestCase extends \Spiral\Testing\TestCase
     protected function setUp(): void
     {
         // !!! Before parent::setUp() !!!
-        
+
         // Before application init
         $this->beforeInit(static function(\Spiral\Core\Container $container) {
 
             $container->bind(\Spiral\Queue\QueueInterface::class, // ...);
 
         });
-        
+
         // Before application booting
         $this->beforeBooting(static function(\Spiral\Core\Container $container) {
 
@@ -263,7 +263,7 @@ $code = $response->getStatusCode();
 $response->assertStatus(200);
 $response->assertOk(); // code: 200
 $response->assertCreated(); // code: 201
-$response->assertAccepted(); // code: 
+$response->assertAccepted(); // code:
 $response->assertNoContent(); // code: 204
 $response->assertNoContent(status: 204); // code: 204
 $response->assertNotFound(); // code: 404
@@ -766,6 +766,24 @@ $this->assertConfigMatches('http', [
         'Content-Type' => 'text/html; charset=UTF-8',
     ],
     'middleware' => [],
+])
+```
+
+#### assertConfigHasFragments
+
+```php
+$config = [
+    'basePath'   => '/',
+    'headers'    => [
+        'Content-Type' => 'text/html; charset=UTF-8',
+    ],
+    'middleware' => [],
+]
+```
+
+```php
+$this->assertConfigHasFragments('http', [
+    'basePath' => '/'
 ])
 ```
 
