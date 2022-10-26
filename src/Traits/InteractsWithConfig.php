@@ -17,6 +17,15 @@ trait InteractsWithConfig
         $this->assertSame($data, $config);
     }
 
+    public function assertConfigHasFragments(string $name, array $data): void
+    {
+        $config = $this->getConfig($name);
+
+        foreach ($data as $key => $fragment) {
+            $this->assertSame($fragment, $config[$key]);
+        }
+    }
+
     public function getConfig(string $config): array
     {
         return $this->getConfigs()->getConfig($config);
