@@ -92,7 +92,7 @@ abstract class TestCase extends BaseTestCase
         $this->beforeInit[] = $callback;
     }
 
-    final public function getApp(): TestApp
+    final public function getApp(): TestableKernelInterface
     {
         return $this->app;
     }
