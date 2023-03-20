@@ -228,6 +228,42 @@ class FakeHttp
         );
     }
 
+    /**
+     * @param array|object|StreamInterface $data
+     */
+    public function patch(
+        string $uri,
+        $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
+        $this->validateRequestData($data);
+
+        $request = $this->createRequest($uri, 'PATCH', [], $headers, $cookies, $files);
+
+        return $this->handleRequest(
+            $data instanceof StreamInterface
+                ? $request->withBody($data)
+                : $request->withParsedBody($data)
+        );
+    }
+
+    /**
+     * @param array|StreamInterface $data
+     */
+    public function patchJson(
+        string $uri,
+        $data = [],
+        array $headers = [],
+        array $cookies = [],
+        array $files = []
+    ): TestResponse {
+        return $this->handleRequest(
+            $this->createJsonRequest($uri, 'PATCH', $data, $headers, $cookies, $files)
+        );
+    }
+
     public function put(
         string $uri,
         $data = [],
