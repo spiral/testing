@@ -32,7 +32,7 @@ abstract class TestCase extends BaseTestCase
     public const ENV = [];
     public const MAKE_APP_ON_STARTUP = true;
 
-    private TestableKernelInterface $app;
+    private ?TestableKernelInterface $app = null;
     /** @var array<Closure> */
     private array $beforeBooting = [];
     /** @var array<Closure> */
@@ -94,12 +94,15 @@ abstract class TestCase extends BaseTestCase
 
     final public function getApp(): TestApp
     {
+        if (!$this->app) {
+            $this->initApp();
+        }
         return $this->app;
     }
 
     final public function getContainer(): Container
     {
-        return $this->app->getContainer();
+        return $this->getApp()->getContainer();
     }
 
     public function createAppInstance(Container $container = new Container()): TestableKernelInterface
