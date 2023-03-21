@@ -69,5 +69,10 @@
     "allow-plugins": {
       "spiral/composer-publish-plugin": false
     }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.2.x-dev"
+    }
   }
 }
