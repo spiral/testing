@@ -82,22 +82,22 @@ abstract class TestCase extends BaseTestCase
         }
     }
 
-    final public function beforeBooting(Closure $callback): void
+    public function beforeBooting(Closure $callback): void
     {
         $this->beforeBooting[] = $callback;
     }
 
-    final public function beforeInit(Closure $callback): void
+    public function beforeInit(Closure $callback): void
     {
         $this->beforeInit[] = $callback;
     }
 
-    final public function getApp(): TestableKernelInterface
+    public function getApp(): TestableKernelInterface
     {
         return $this->app;
     }
 
-    final public function getContainer(): Container
+    public function getContainer(): Container
     {
         return $this->app->getContainer();
     }
@@ -117,7 +117,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<non-empty-string,mixed> $env
      * @return AbstractKernel|TestableKernelInterface
      */
-    final public function makeApp(array $env = []): AbstractKernel
+    public function makeApp(array $env = []): AbstractKernel
     {
         $environment = new Environment($env);
 
@@ -134,7 +134,7 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    final public function initApp(array $env = []): void
+    public function initApp(array $env = []): void
     {
         $this->app = $this->makeApp($env);
     }
@@ -143,7 +143,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<string, string|array|callable|object> $bindings
      * @throws \Throwable
      */
-    final public function runScoped(Closure $callback, array $bindings = []): mixed
+    public function runScoped(Closure $callback, array $bindings = []): mixed
     {
         if ($this->environment) {
             $bindings[EnvironmentInterface::class] = $this->environment;
