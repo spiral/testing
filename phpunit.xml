@@ -26,7 +26,6 @@
     </filter>
 
     <php>
-        <env name="ROUTE_CACHE" value="false" />
         <env name="DEBUG" value="true" />
     </php>
 </phpunit>
