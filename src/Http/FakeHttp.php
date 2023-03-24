@@ -343,8 +343,8 @@ class FakeHttp
         }
 
         $headers = \array_merge([
-            'CONTENT_LENGTH' => $data->getSize(),
-            'CONTENT_TYPE' => 'application/json',
+            'Content-Length' => $data->getSize(),
+            'Content-Type' => 'application/json',
             'Accept' => 'application/json',
         ], $headers);
 
