@@ -28,7 +28,10 @@ class FakeMailer implements MailerInterface
         });
     }
 
-    public function assertSent(string $message, Closure $callback = null): void
+    /**
+     * @return MessageInterface[]
+     */
+    public function assertSent(string $message, Closure $callback = null): array
     {
         $messages = $this->filterMessages($message, $callback);
 
@@ -36,6 +39,8 @@ class FakeMailer implements MailerInterface
             \count($messages) > 0,
             \sprintf('The expected [%s] message was not sent.', $message)
         );
+
+        return $messages;
     }
 
     public function assertNotSent(string $message, Closure $callback = null): void
@@ -49,7 +54,10 @@ class FakeMailer implements MailerInterface
         );
     }
 
-    public function assertSentTimes(string $message, int $times = 1): void
+    /**
+     * @return MessageInterface[]
+     */
+    public function assertSentTimes(string $message, int $times = 1): array
     {
         $messages = $this->filterMessages($message);
 
@@ -63,6 +71,8 @@ class FakeMailer implements MailerInterface
                 $times
             )
         );
+
+        return $messages;
     }
 
     public function assertNothingSent(): void
