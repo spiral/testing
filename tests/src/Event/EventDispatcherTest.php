@@ -28,7 +28,7 @@ final class EventDispatcherTest extends TestCase
     public function testWithoutEvents(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('The expected [Spiral\Testing\Tests\App\Event\SomeEvent] event was not dispatched.');
+        $this->expectExceptionMessage('The expected [Spiral\Testing\Tests\App\Event\SomeEvent] event was not dispatched.');
 
         $this->eventDispatcher->assertDispatched(SomeEvent::class);
     }
@@ -58,7 +58,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertNotDispatchedSomeEventShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('The unexpected [Spiral\Testing\Tests\App\Event\SomeEvent] event was dispatched.');
+        $this->expectExceptionMessage('The unexpected [Spiral\Testing\Tests\App\Event\SomeEvent] event was dispatched.');
 
         $this->http->get('/dispatch/some');
 
@@ -68,7 +68,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertNothingDispatchedShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('3 unexpected events were dispatched.');
+        $this->expectExceptionMessage('3 unexpected events were dispatched.');
 
         $this->http->get('/dispatch/some');
 
@@ -96,7 +96,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertListeningShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('Event [Spiral\Testing\Tests\App\Event\SomeEvent] does not have the [Spiral\Testing\Tests\App\Listener\AnotherListener] listener attached to it.');
+        $this->expectExceptionMessage('Event [Spiral\Testing\Tests\App\Event\SomeEvent] does not have the [Spiral\Testing\Tests\App\Listener\AnotherListener] listener attached to it.');
 
         $this->eventDispatcher->assertListening(SomeEvent::class, AnotherListener::class);
     }

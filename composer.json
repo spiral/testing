@@ -25,7 +25,7 @@
     "php": ">=8.1",
     "nyholm/psr7": "^1.5",
     "mockery/mockery": "^1.5",
-    "phpunit/phpunit": "^9.5",
+    "phpunit/phpunit": "^10.0",
     "spiral/auth": "^3.0",
     "spiral/auth-http": "^3.0",
     "spiral/boot": "^3.0",
@@ -50,7 +50,7 @@
     "spiral/roadrunner-bridge": "^2.0",
     "spiral-packages/league-event": "^1.0",
     "spiral/nyholm-bridge": "^1.2",
-    "vimeo/psalm": "^4.9"
+    "vimeo/psalm": "^5.9"
   },
   "autoload": {
     "psr-4": {
