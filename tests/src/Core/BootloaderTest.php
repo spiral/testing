@@ -40,7 +40,7 @@ final class BootloaderTest extends TestCase
     public function testAssertContainerBoundAsSingletonShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage(
+        $this->expectExceptionMessage(
             \sprintf(
                 'Container [%s] is bound, but it contains not a singleton.',
                 BlogServiceInterface::class

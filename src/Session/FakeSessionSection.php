@@ -69,7 +69,7 @@ class FakeSessionSection implements SessionSectionInterface
         return $this->data;
     }
 
-    public function set(string $name, $value): void
+    public function set(string $name, $value): self
     {
         $this->data[$name] = $value;
     }
@@ -79,7 +79,7 @@ class FakeSessionSection implements SessionSectionInterface
         return isset($this->data[$name]);
     }
 
-    public function get(string $name, $default = null)
+    public function get(string $name, $default = null): mixed
     {
         if (! $this->has($name)) {
             return $default;
@@ -88,7 +88,7 @@ class FakeSessionSection implements SessionSectionInterface
         return $this->data[$name];
     }
 
-    public function pull(string $name, $default = null)
+    public function pull(string $name, $default = null): mixed
     {
         $value = $this->get($name, $default);
         $this->delete($name);
@@ -96,12 +96,12 @@ class FakeSessionSection implements SessionSectionInterface
         return $value;
     }
 
-    public function delete(string $name)
+    public function delete(string $name): void
     {
         unset($this->data[$this->name][$name]);
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->data = [];
     }
