@@ -120,7 +120,7 @@ trait InteractsWithCore
      */
     public function getRegisteredBootloaders(): array
     {
-        return $this->app->getRegisteredBootloaders();
+        return $this->getApp()->getRegisteredBootloaders();
     }
 
     /**
