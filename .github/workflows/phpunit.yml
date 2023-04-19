@@ -2,7 +2,8 @@ on:
     pull_request:
     push:
         branches:
-            - 2.0
+            - 2.x
+            - 3.x
 
 name: phpunit
 
