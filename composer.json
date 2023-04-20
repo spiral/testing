@@ -65,7 +65,7 @@
     "ext-gd": "Required to use generate fake image files"
   },
   "require-dev": {
-    "spiral/roadrunner-bridge": "^3.0",
+    "spiral/roadrunner-bridge": "^2.2 || ^3.0",
     "spiral-packages/league-event": "^1.0.1",
     "spiral/nyholm-bridge": "^1.2",
     "vimeo/psalm": "^5.9"
