@@ -11,6 +11,7 @@ use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Core\Container;
+use Spiral\Core\ContainerScope;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -109,10 +110,10 @@ abstract class TestCase extends BaseTestCase
     {
         return TestApp::create(
             directories: $this->defineDirectories(
-                $this->rootDirectory()
+                $this->rootDirectory(),
             ),
             handleErrors: false,
-            container: $container
+            container: $container,
         )->withBootloaders($this->defineBootloaders());
     }
 
@@ -140,6 +141,8 @@ abstract class TestCase extends BaseTestCase
     public function initApp(array $env = []): void
     {
         $this->app = $this->makeApp($env);
+        (new \ReflectionClass(ContainerScope::class))
+            ->setStaticPropertyValue('container', $this->app->getContainer());
     }
 
     /**
@@ -153,5 +156,13 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $this->getContainer()->runScope($bindings, $callback);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        (new \ReflectionClass(ContainerScope::class))
+            ->setStaticPropertyValue('container', null);
     }
 }
