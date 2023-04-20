@@ -25,7 +25,7 @@ class FakeEventDispatcher implements EventDispatcherInterface
     ) {
     }
 
-    public function dispatch(object $event): object
+    public function dispatch(object $event): ?object
     {
         if ($this->shouldFakeEvent($event::class)) {
             if (! isset($this->dispatchedEvents[$event::class])) {

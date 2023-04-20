@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Event;
 
 use PHPUnit\Framework\ExpectationFailedException;
+use Spiral\Testing\Events\FakeEventDispatcher;
 use Spiral\Testing\Tests\App\Event\AnotherEvent;
 use Spiral\Testing\Tests\App\Event\SomeEvent;
 use Spiral\Testing\Tests\App\Listener\AnotherListener;
@@ -23,6 +24,15 @@ final class EventDispatcherTest extends TestCase
 
         $this->eventDispatcher = $this->fakeEventDispatcher();
         $this->http = $this->fakeHttp();
+    }
+
+    public function testWithoutDispatcher(): void
+    {
+        $dispatcher = new FakeEventDispatcher();
+
+        $event = $dispatcher->dispatch(new \stdClass());
+
+        $this->assertNull($event);
     }
 
     public function testWithoutEvents(): void
