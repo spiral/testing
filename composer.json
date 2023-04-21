@@ -43,7 +43,7 @@
     "php": ">=8.1",
     "nyholm/psr7": "^1.5",
     "mockery/mockery": "^1.5",
-    "phpunit/phpunit": "^10.0",
+    "phpunit/phpunit": "^9.6 || ^10.0",
     "spiral/auth": "^3.7",
     "spiral/auth-http": "^3.7",
     "spiral/boot": "^3.7",
@@ -58,6 +58,7 @@
     "spiral/storage": "^3.7",
     "spiral/views": "^3.7",
     "spiral/translator": "^3.7",
+    "spiral/scaffolder": "^3.7",
     "symfony/mime": "^6.0"
   },
   "suggest": {
