@@ -25,6 +25,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
             \Spiral\Testing\Tests\App\Bootloader\BlogBootloader::class,
             \Spiral\Events\Bootloader\EventsBootloader::class,
             \Spiral\League\Event\Bootloader\EventBootloader::class,
+            \Spiral\Scaffolder\Bootloader\ScaffolderBootloader::class,
             // ...
         ];
     }
