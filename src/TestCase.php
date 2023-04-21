@@ -28,6 +28,7 @@ abstract class TestCase extends BaseTestCase
         Traits\InteractsWithExceptions,
         Traits\InteractsWithViews,
         Traits\InteractsWithTranslator,
+        Traits\InteractsWithScaffolder,
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
