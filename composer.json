@@ -58,7 +58,6 @@
     "spiral/storage": "^3.7",
     "spiral/views": "^3.7",
     "spiral/translator": "^3.7",
-    "spiral/scaffolder": "^3.7",
     "symfony/mime": "^6.0"
   },
   "suggest": {
