@@ -64,6 +64,10 @@ trait InteractsWithScaffolder
 
     public function mockScaffolder(string $command, array $args, \Closure $expected): string
     {
+        $originalFiles = $this->getContainer()->has(FilesInterface::class)
+            ? $this->getContainer()->get(FilesInterface::class)
+            : null;
+
         $files = $this->mockContainer(FilesInterface::class);
         $files->shouldReceive('normalizePath')->andReturnUsing(function (string $filename) {
             $root = $this->getDirectoryByAlias('root');
@@ -75,7 +79,9 @@ trait InteractsWithScaffolder
 
         $this->getConsole()->run($command, new ArrayInput($args), $output = new BufferedOutput());
 
-        $this->getContainer()->removeBinding(FilesInterface::class);
+        $originalFiles !== null
+            ? $this->getContainer()->bind(FilesInterface::class, $originalFiles)
+            : $this->getContainer()->removeBinding(FilesInterface::class);
 
         return $output->fetch();
     }
