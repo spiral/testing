@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Scaffolder;
 
+use Spiral\Files\FilesInterface;
 use Spiral\Testing\Tests\TestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
 
@@ -89,5 +90,20 @@ PHP,
                 'private bool $foo;'
             ],
         );
+    }
+
+    public function testAfterTestFilesShoulBeRestored(): void
+    {
+        $files = $this->mockContainer(FilesInterface::class);
+
+        $this->assertScaffolderCommandContains(
+            'create:command',
+            [
+                'name' => 'TestCommand'
+            ],
+            expectedStrings: ['final class TestCommand extends Command'],
+        );
+
+        $this->assertSame($files, $this->getContainer()->get(FilesInterface::class));
     }
 }
