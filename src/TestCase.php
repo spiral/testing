@@ -183,8 +183,9 @@ abstract class TestCase extends BaseTestCase
     protected function getTestAttributes(string $attribute, string $method = null): array
     {
         try {
+            $methodName = $method ?? (\method_exists($this, 'name') ? $this->name() : $this->getName(false));
             $result = [];
-            $attributes = (new \ReflectionMethod($this, $method ?? $this->name()))->getAttributes($attribute);
+            $attributes = (new \ReflectionMethod($this, $methodName))->getAttributes($attribute);
             foreach ($attributes as $attr) {
                 $result[] = $attr->newInstance();
             }
