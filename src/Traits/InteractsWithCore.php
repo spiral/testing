@@ -7,6 +7,7 @@ namespace Spiral\Testing\Traits;
 use Spiral\Boot\Bootloader\BootloaderInterface;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
+use Spiral\Testing\Attribute;
 
 trait InteractsWithCore
 {
@@ -174,5 +175,21 @@ trait InteractsWithCore
             $this->getContainer()->get(EnvironmentInterface::class)->getAll(),
             \sprintf('Environment does not have key with name [%s].', $key)
         );
+    }
+
+    /**
+     * @return array<non-empty-string, mixed>
+     */
+    private function getEnvVariablesFromConfig(): array
+    {
+        $variables = [];
+
+        foreach ($this->getTestAttributes(Attribute\Env::class) as $attribute) {
+            \assert($attribute instanceof Attribute\Env);
+
+            $variables[$attribute->key] = $attribute->value;
+        }
+
+        return $variables;
     }
 }
