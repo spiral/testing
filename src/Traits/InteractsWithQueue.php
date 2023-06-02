@@ -11,9 +11,17 @@ trait InteractsWithQueue
 {
     public function fakeQueue(): FakeQueueManager
     {
-        $this->getContainer()->bindSingleton(
+        $container = $this->getContainer();
+        if ($container->has(QueueConnectionProviderInterface::class)) {
+            $manager = $container->get(QueueConnectionProviderInterface::class);
+            if ($manager instanceof FakeQueueManager) {
+                return $manager;
+            }
+        }
+
+        $container->bindSingleton(
             QueueConnectionProviderInterface::class,
-            $manager = $this->getContainer()->get(FakeQueueManager::class)
+            $manager = $container->get(FakeQueueManager::class)
         );
 
         return $manager;
