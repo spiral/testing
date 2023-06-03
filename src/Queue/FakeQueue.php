@@ -107,7 +107,7 @@ class FakeQueue implements QueueInterface
     {
         $this->jobs[$name][] = [
             'name' => $name,
-            'handler' => $this->registry->getHandler($name),
+            'handler' => class_exists($name) ? $this->registry->getHandler($name): null,
             'payload' => $payload,
             'options' => $options ?? new Options(),
         ];
