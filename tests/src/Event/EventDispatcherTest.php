@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Event;
 
 use PHPUnit\Framework\ExpectationFailedException;
+use Spiral\Testing\Events\FakeEventDispatcher;
 use Spiral\Testing\Tests\App\Event\AnotherEvent;
 use Spiral\Testing\Tests\App\Event\SomeEvent;
 use Spiral\Testing\Tests\App\Listener\AnotherListener;
@@ -25,10 +26,19 @@ final class EventDispatcherTest extends TestCase
         $this->http = $this->fakeHttp();
     }
 
+    public function testWithoutDispatcher(): void
+    {
+        $dispatcher = new FakeEventDispatcher();
+
+        $event = $dispatcher->dispatch(new \stdClass());
+
+        $this->assertNull($event);
+    }
+
     public function testWithoutEvents(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('The expected [Spiral\Testing\Tests\App\Event\SomeEvent] event was not dispatched.');
+        $this->expectExceptionMessage('The expected [Spiral\Testing\Tests\App\Event\SomeEvent] event was not dispatched.');
 
         $this->eventDispatcher->assertDispatched(SomeEvent::class);
     }
@@ -58,7 +68,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertNotDispatchedSomeEventShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('The unexpected [Spiral\Testing\Tests\App\Event\SomeEvent] event was dispatched.');
+        $this->expectExceptionMessage('The unexpected [Spiral\Testing\Tests\App\Event\SomeEvent] event was dispatched.');
 
         $this->http->get('/dispatch/some');
 
@@ -68,7 +78,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertNothingDispatchedShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('3 unexpected events were dispatched.');
+        $this->expectExceptionMessage('3 unexpected events were dispatched.');
 
         $this->http->get('/dispatch/some');
 
@@ -96,7 +106,7 @@ final class EventDispatcherTest extends TestCase
     public function testAssertListeningShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('Event [Spiral\Testing\Tests\App\Event\SomeEvent] does not have the [Spiral\Testing\Tests\App\Listener\AnotherListener] listener attached to it.');
+        $this->expectExceptionMessage('Event [Spiral\Testing\Tests\App\Event\SomeEvent] does not have the [Spiral\Testing\Tests\App\Listener\AnotherListener] listener attached to it.');
 
         $this->eventDispatcher->assertListening(SomeEvent::class, AnotherListener::class);
     }

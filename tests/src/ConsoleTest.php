@@ -17,7 +17,7 @@ final class ConsoleTest extends TestCase
     public function testNotRegisteredCommandShouldThrowAnException(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('Command [bar] is not registered.');
+        $this->expectExceptionMessage('Command [bar] is not registered.');
 
         $this->assertCommandRegistered('bar');
     }

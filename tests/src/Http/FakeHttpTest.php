@@ -24,7 +24,7 @@ final class FakeHttpTest extends TestCase
     public function testGetShouldThrowAnExceptionWhenNotSame(): void
     {
         $this->expectException(ExpectationFailedException::class);
-        $this->expectErrorMessage('Response is not same with [[foo]]');
+        $this->expectExceptionMessage('Response is not same with [[foo]]');
 
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[foo]');

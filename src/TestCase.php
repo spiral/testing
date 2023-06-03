@@ -11,6 +11,7 @@ use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Core\Container;
+use Spiral\Core\ContainerScope;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -27,12 +28,13 @@ abstract class TestCase extends BaseTestCase
         Traits\InteractsWithExceptions,
         Traits\InteractsWithViews,
         Traits\InteractsWithTranslator,
+        Traits\InteractsWithScaffolder,
         MockeryPHPUnitIntegration;
 
     public const ENV = [];
     public const MAKE_APP_ON_STARTUP = true;
 
-    private TestableKernelInterface $app;
+    private ?TestableKernelInterface $app = null;
     /** @var array<Closure> */
     private array $beforeBooting = [];
     /** @var array<Closure> */
@@ -94,22 +96,25 @@ abstract class TestCase extends BaseTestCase
 
     public function getApp(): TestableKernelInterface
     {
+        if (!$this->app) {
+            $this->initApp();
+        }
         return $this->app;
     }
 
     public function getContainer(): Container
     {
-        return $this->app->getContainer();
+        return $this->getApp()->getContainer();
     }
 
     public function createAppInstance(Container $container = new Container()): TestableKernelInterface
     {
         return TestApp::create(
             directories: $this->defineDirectories(
-                $this->rootDirectory()
+                $this->rootDirectory(),
             ),
             handleErrors: false,
-            container: $container
+            container: $container,
         )->withBootloaders($this->defineBootloaders());
     }
 
@@ -137,6 +142,8 @@ abstract class TestCase extends BaseTestCase
     public function initApp(array $env = []): void
     {
         $this->app = $this->makeApp($env);
+        (new \ReflectionClass(ContainerScope::class))
+            ->setStaticPropertyValue('container', $this->app->getContainer());
     }
 
     /**
@@ -150,5 +157,13 @@ abstract class TestCase extends BaseTestCase
         }
 
         return $this->getContainer()->runScope($bindings, $callback);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        (new \ReflectionClass(ContainerScope::class))
+            ->setStaticPropertyValue('container', null);
     }
 }

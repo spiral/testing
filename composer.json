@@ -1,23 +1,41 @@
 {
   "name": "spiral/testing",
   "description": "Spiral Framework testing SDK",
-  "keywords": [
-    "spiral-packages",
-    "spiral",
-    "testing"
-  ],
-  "homepage": "https://github.com/spiral/testing",
+  "keywords": ["spiral-packages", "spiral", "testing"],
   "license": "MIT",
   "authors": [
     {
-      "name": "butschster",
-      "email": "butschster@gmail.com",
-      "role": "Developer"
+      "name": "Anton Titov (wolfy-j)",
+      "email": "wolfy-j@spiralscout.com"
     },
     {
-      "name": "roxblnfk",
-      "email": "roxblnfk@gmail.com",
-      "role": "Developer"
+      "name": "Pavel Buchnev (butschster)",
+      "email": "pavel.buchnev@spiralscout.com"
+    },
+    {
+      "name": "Aleksei Gagarin (roxblnfk)",
+      "email": "alexey.gagarin@spiralscout.com"
+    },
+    {
+      "name": "Maksim Smakouz (msmakouz)",
+      "email": "maksim.smakouz@spiralscout.com"
+    },
+    {
+      "name": "RoadRunner Community",
+      "homepage": "https://github.com/spiral/roadrunner/graphs/contributors"
+    }
+  ],
+  "homepage": "https://spiral.dev/",
+  "support": {
+    "docs": "https://spiral.dev/docs/testing-start",
+    "issues": "https://github.com/spiral/testing/issues",
+    "forum": "https://forum.roadrunner.dev/",
+    "chat": "https://discord.gg/TFeEmCs"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/roadrunner-server"
     }
   ],
   "require": {
@@ -25,21 +43,22 @@
     "php": ">=8.1",
     "nyholm/psr7": "^1.5",
     "mockery/mockery": "^1.5",
-    "phpunit/phpunit": "^9.5",
-    "spiral/auth": "^3.0",
-    "spiral/auth-http": "^3.0",
-    "spiral/boot": "^3.0",
-    "spiral/events": "^3.0",
-    "spiral/console": "^3.0",
-    "spiral/http": "^3.0",
-    "spiral/mailer": "^3.0",
-    "spiral/queue": "^3.0",
-    "spiral/session": "^3.0",
-    "spiral/security": "^3.0",
-    "spiral/tokenizer": "^3.0",
-    "spiral/storage": "^3.0",
-    "spiral/views": "^3.0",
-    "spiral/translator": "^3.0",
+    "phpunit/phpunit": "^9.6 || ^10.0",
+    "spiral/auth": "^3.7",
+    "spiral/auth-http": "^3.7",
+    "spiral/boot": "^3.7",
+    "spiral/events": "^3.7",
+    "spiral/console": "^3.7",
+    "spiral/http": "^3.7",
+    "spiral/mailer": "^3.7",
+    "spiral/queue": "^3.7",
+    "spiral/session": "^3.7",
+    "spiral/security": "^3.7",
+    "spiral/tokenizer": "^3.7",
+    "spiral/storage": "^3.7",
+    "spiral/views": "^3.7",
+    "spiral/translator": "^3.7",
+    "spiral/scaffolder": "^3.7",
     "symfony/mime": "^6.0"
   },
   "suggest": {
@@ -47,10 +66,10 @@
     "ext-gd": "Required to use generate fake image files"
   },
   "require-dev": {
-    "spiral/roadrunner-bridge": "^2.0",
-    "spiral-packages/league-event": "^1.0",
+    "spiral/roadrunner-bridge": "^2.2 || ^3.0",
+    "spiral-packages/league-event": "^1.0.1",
     "spiral/nyholm-bridge": "^1.2",
-    "vimeo/psalm": "^4.9"
+    "vimeo/psalm": "^5.9"
   },
   "autoload": {
     "psr-4": {
@@ -68,11 +87,6 @@
   "config": {
     "allow-plugins": {
       "spiral/composer-publish-plugin": false
-    }
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "2.2.x-dev"
     }
   }
 }
