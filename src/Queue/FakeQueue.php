@@ -11,6 +11,14 @@ use Spiral\Queue\OptionsInterface;
 use Spiral\Queue\QueueInterface;
 use Spiral\Queue\QueueTrait;
 
+/**
+ * @psalm-type TJob = array{
+ *     name: string,
+ *     payload: array,
+ *     options: Options,
+ *     handler: ?\Spiral\Queue\HandlerInterface
+ * }
+ */
 class FakeQueue implements QueueInterface
 {
     use QueueTrait;
@@ -26,11 +34,15 @@ class FakeQueue implements QueueInterface
 
     public function __construct(
         private readonly HandlerRegistryInterface $registry,
-        private readonly string $name,
-        private readonly string $driver
-    ) {
+        private readonly string                   $name,
+        private readonly string                   $driver
+    )
+    {
     }
 
+    /**
+     * @return list<TJob>
+     */
     private function filterJobs(string $name, \Closure $callback = null): array
     {
         $jobs = $this->jobs[$name] ?? [];
@@ -44,7 +56,10 @@ class FakeQueue implements QueueInterface
         });
     }
 
-    public function assertPushed(string $name, \Closure $callback = null): void
+    /**
+     * @return list<TJob>
+     */
+    public function assertPushed(string $name, \Closure $callback = null): array
     {
         $jobs = $this->filterJobs($name, $callback);
 
@@ -52,6 +67,8 @@ class FakeQueue implements QueueInterface
             \count($jobs) > 0,
             \sprintf('The expected job [%s] was not pushed.', $name)
         );
+
+        return $jobs;
     }
 
     public function assertNotPushed(string $name, \Closure $callback = null): void
@@ -76,7 +93,10 @@ class FakeQueue implements QueueInterface
         );
     }
 
-    public function assertPushedTimes(string $name, int $times = 1): void
+    /**
+     * @return list<TJob>
+     */
+    public function assertPushedTimes(string $name, int $times = 1): array
     {
         $jobs = $this->filterJobs($name);
 
@@ -90,11 +110,16 @@ class FakeQueue implements QueueInterface
                 $times
             )
         );
+
+        return $jobs;
     }
 
-    public function assertPushedOnQueue(string $queue, string $name, \Closure $callback = null): void
+    /**
+     * @return list<TJob>
+     */
+    public function assertPushedOnQueue(string $queue, string $name, \Closure $callback = null): array
     {
-        $this->assertPushed($name, static function (array $data) use ($queue, $callback) {
+        return $this->assertPushed($name, static function (array $data) use ($queue, $callback) {
             if ($data['options']->getQueue() !== $queue) {
                 return false;
             }
