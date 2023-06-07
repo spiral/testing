@@ -7,6 +7,7 @@ namespace Spiral\Testing\Traits;
 use Spiral\Exceptions\ExceptionHandlerInterface;
 use Spiral\Exceptions\ExceptionRendererInterface;
 use Spiral\Exceptions\Verbosity;
+use Spiral\Testing\Attribute\WithoutExceptionHandling;
 
 trait InteractsWithExceptions
 {
@@ -47,5 +48,12 @@ trait InteractsWithExceptions
                 }
             }
         );
+    }
+
+    private function suppressExceptionHandlingIfAttributeDefined(): void
+    {
+        if (\count($this->getTestAttributes(WithoutExceptionHandling::class)) > 0) {
+            $this->withoutExceptionHandling();
+        }
     }
 }

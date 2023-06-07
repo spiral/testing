@@ -7,6 +7,7 @@ namespace Spiral\Testing\Traits;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Set;
 use Spiral\Core\ConfigsInterface;
+use Spiral\Testing\Attribute;
 
 trait InteractsWithConfig
 {
@@ -51,5 +52,13 @@ trait InteractsWithConfig
         [$config, $key] = explode('.', $key, 2);
 
         $this->getConfigs()->modify($config, new Set($key, $data));
+    }
+
+    private function updateConfigFromAttribute(): void
+    {
+        foreach ($this->getTestAttributes(Attribute\Config::class) as $attribute) {
+            \assert($attribute instanceof Attribute\Config);
+            $this->updateConfig($attribute->path, $attribute->closure?->__invoke() ?? $attribute->value);
+        }
     }
 }

@@ -64,9 +64,9 @@ abstract class TestCase extends BaseTestCase
     {
         return [
             'root' => $root,
-            'app' => $root.'/app',
-            'runtime' => $root.'/runtime',
-            'cache' => $root.'/runtime/cache',
+            'app' => $root . '/app',
+            'runtime' => $root . '/runtime',
+            'cache' => $root . '/runtime/cache',
         ];
     }
 
@@ -80,7 +80,8 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         if (static::MAKE_APP_ON_STARTUP) {
-            $this->initApp(static::ENV);
+            $variables = [...static::ENV, ...$this->getEnvVariablesFromConfig()];
+            $this->initApp($variables);
         }
     }
 
@@ -142,6 +143,9 @@ abstract class TestCase extends BaseTestCase
     public function initApp(array $env = []): void
     {
         $this->app = $this->makeApp($env);
+        $this->suppressExceptionHandlingIfAttributeDefined();
+        $this->updateConfigFromAttribute();
+
         (new \ReflectionClass(ContainerScope::class))
             ->setStaticPropertyValue('container', $this->app->getContainer());
     }
@@ -165,5 +169,29 @@ abstract class TestCase extends BaseTestCase
 
         (new \ReflectionClass(ContainerScope::class))
             ->setStaticPropertyValue('container', null);
+    }
+
+
+    /**
+     * @template TClass
+     *
+     * @param class-string<TClass> $attribute
+     * @param null|non-empty-string $method Method name
+     *
+     * @return array<int, TClass>
+     */
+    protected function getTestAttributes(string $attribute, string $method = null): array
+    {
+        try {
+            $methodName = $method ?? (\method_exists($this, 'name') ? $this->name() : $this->getName(false));
+            $result = [];
+            $attributes = (new \ReflectionMethod($this, $methodName))->getAttributes($attribute);
+            foreach ($attributes as $attr) {
+                $result[] = $attr->newInstance();
+            }
+            return $result;
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }
