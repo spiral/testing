@@ -99,4 +99,9 @@ class FakeMailer implements MailerInterface
             $this->messages[] = $msg;
         }
     }
+
+    public function clear(): void
+    {
+        $this->messages = [];
+    }
 }

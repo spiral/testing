@@ -114,4 +114,9 @@ class FakeQueue implements QueueInterface
 
         return 'job-id';
     }
+
+    public function clear(): void
+    {
+        $this->jobs = [];
+    }
 }

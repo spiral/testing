@@ -40,4 +40,11 @@ class FakeQueueManager implements QueueConnectionProviderInterface
     {
         return $this->config->getDefaultDriver();
     }
+
+    public function clearAll(): void
+    {
+        foreach ($this->connections as $connection) {
+            $connection->clear();
+        }
+    }
 }

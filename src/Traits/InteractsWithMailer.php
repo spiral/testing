@@ -11,7 +11,15 @@ trait InteractsWithMailer
 {
     public function fakeMailer(): FakeMailer
     {
-        $this->getContainer()->bindSingleton(
+        $container = $this->getContainer();
+        if ($container->has(MailerInterface::class)) {
+            $mailer = $container->get(MailerInterface::class);
+            if ($mailer instanceof FakeMailer) {
+                return $mailer;
+            }
+        }
+
+        $container->bindSingleton(
             MailerInterface::class,
             $mailer = new FakeMailer()
         );
