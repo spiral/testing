@@ -131,6 +131,8 @@ trait InteractsWithCore
      */
     public function mockContainer(string $alias, ?string $interface = null): \Mockery\MockInterface
     {
+        $this->getContainer()->removeBinding($alias);
+
         $this->getContainer()->bindSingleton(
             $alias,
             $mock = \Mockery::mock($interface ?? $alias)
@@ -152,6 +154,7 @@ trait InteractsWithCore
             array_merge($current, $env)
         );
 
+        $this->getContainer()->removeBinding(EnvironmentInterface::class);
         $this->getContainer()->bind(EnvironmentInterface::class, $this->environment);
 
         return $this;

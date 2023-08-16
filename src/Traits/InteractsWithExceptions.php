@@ -13,6 +13,7 @@ trait InteractsWithExceptions
 {
     protected function withoutExceptionHandling(): void
     {
+        $this->getContainer()->removeBinding(ExceptionHandlerInterface::class);
         $this->getContainer()->bind(
             ExceptionHandlerInterface::class,
             new class implements ExceptionHandlerInterface {

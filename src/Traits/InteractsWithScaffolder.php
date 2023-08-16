@@ -79,9 +79,10 @@ trait InteractsWithScaffolder
 
         $this->getConsole()->run($command, new ArrayInput($args), $output = new BufferedOutput());
 
-        $originalFiles !== null
-            ? $this->getContainer()->bind(FilesInterface::class, $originalFiles)
-            : $this->getContainer()->removeBinding(FilesInterface::class);
+        $this->getContainer()->removeBinding(FilesInterface::class);
+        if ($originalFiles !== null) {
+            $this->getContainer()->bind(FilesInterface::class, $originalFiles);
+        }
 
         return $output->fetch();
     }

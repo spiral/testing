@@ -128,6 +128,7 @@ abstract class TestCase extends BaseTestCase
         $environment = new Environment($env);
 
         $app = $this->createAppInstance();
+        $app->getContainer()->removeBinding(EnvironmentInterface::class);
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
         foreach ($this->beforeInit as $callback) {
