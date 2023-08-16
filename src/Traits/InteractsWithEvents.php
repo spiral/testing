@@ -11,6 +11,7 @@ trait InteractsWithEvents
 {
     public function fakeEventDispatcher(array $eventsToFake = []): FakeEventDispatcher
     {
+        $this->getContainer()->removeBinding(EventDispatcherInterface::class);
         $this->getContainer()->bindSingleton(
             EventDispatcherInterface::class,
             $dispatcher = $this->getContainer()->make(

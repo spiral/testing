@@ -138,6 +138,7 @@ class FakeHttp
     public function withoutMiddleware(string ...$middleware): self
     {
         foreach ($middleware as $name) {
+            $this->container->removeBinding($name);
             $this->container->bindSingleton(
                 $name,
                 new class implements MiddlewareInterface {
