@@ -219,4 +219,12 @@ final class TestResponse implements \Stringable
     {
         return $this->cookies;
     }
+
+    public function getJsonParsedBody(): array
+    {
+        return \json_decode(
+            (string)$this->response->getBody(),
+            true
+        );
+    }
 }

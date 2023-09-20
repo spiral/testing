@@ -45,4 +45,18 @@ final class FakeHttpTest extends TestCase
         $response = $http->get('/get/headers');
         $response->assertBodySame('{"baz":["bar"],"foo":["bar"]}');
     }
+
+    public function testGetJsonParsedBody(): void
+    {
+        $http = $this->fakeHttp();
+        $arr = [
+            'foo' => 'bar',
+            'list' => [1, 2, 3, 4]
+        ];
+        $response = $http->get('/get/query-params', $arr);
+        self::assertSame(
+            $arr,
+            $response->getJsonParsedBody()
+        );
+    }
 }
