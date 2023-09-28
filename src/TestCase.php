@@ -202,23 +202,32 @@ abstract class TestCase extends BaseTestCase
 
     protected function setUpTraits(): void
     {
-        $ref = new \ReflectionClass(static::class);
-
-        foreach ($ref->getTraits() as $trait) {
-            if (\method_exists($this, $method = 'setUp' . $trait->getShortName())) {
-                $this->{$method}();
-            }
-        }
+        $this->runTraitSetUpOrTearDown('setUp');
     }
 
     protected function tearDownTraits(): void
     {
+        $this->runTraitSetUpOrTearDown('tearDown');
+    }
+
+    private function runTraitSetUpOrTearDown(string $method): void
+    {
         $ref = new \ReflectionClass(static::class);
 
         foreach ($ref->getTraits() as $trait) {
-            if (\method_exists($this, $method = 'tearDown' . $trait->getShortName())) {
-                $this->{$method}();
+            if (\method_exists($this, $name = $method . $trait->getShortName())) {
+                $this->{$name}();
             }
+        }
+
+        while($parent = $ref->getParentClass()) {
+            foreach ($parent->getTraits() as $trait) {
+                if (\method_exists($this, $name = $method . $trait->getShortName())) {
+                    $this->{$name}();
+                }
+            }
+
+            $ref = $parent;
         }
     }
 }
