@@ -83,6 +83,8 @@ abstract class TestCase extends BaseTestCase
             $variables = [...static::ENV, ...$this->getEnvVariablesFromConfig()];
             $this->initApp($variables);
         }
+
+        $this->setUpTraits();
     }
 
     public function beforeBooting(Closure $callback): void
@@ -168,6 +170,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::tearDown();
 
+        $this->tearDownTraits();
+
         (new \ReflectionClass(ContainerScope::class))
             ->setStaticPropertyValue('container', null);
     }
@@ -193,6 +197,37 @@ abstract class TestCase extends BaseTestCase
             return $result;
         } catch (\Throwable) {
             return [];
+        }
+    }
+
+    protected function setUpTraits(): void
+    {
+        $this->runTraitSetUpOrTearDown('setUp');
+    }
+
+    protected function tearDownTraits(): void
+    {
+        $this->runTraitSetUpOrTearDown('tearDown');
+    }
+
+    private function runTraitSetUpOrTearDown(string $method): void
+    {
+        $ref = new \ReflectionClass(static::class);
+
+        foreach ($ref->getTraits() as $trait) {
+            if (\method_exists($this, $name = $method . $trait->getShortName())) {
+                $this->{$name}();
+            }
+        }
+
+        while($parent = $ref->getParentClass()) {
+            foreach ($parent->getTraits() as $trait) {
+                if (\method_exists($this, $name = $method . $trait->getShortName())) {
+                    $this->{$name}();
+                }
+            }
+
+            $ref = $parent;
         }
     }
 }
