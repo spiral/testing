@@ -36,7 +36,7 @@ class FakeHttp
     public function __construct(
         private readonly Container $container,
         private readonly FileFactory $fileFactory,
-        private readonly \Closure $scope
+        private readonly \Closure $scope,
     ) {
     }
 
@@ -77,7 +77,7 @@ class FakeHttp
 
     public function withAuthorizationToken(string $token, string $type = 'Bearer'): self
     {
-        return $this->withHeader('Authorization', $type.' '.$token);
+        return $this->withHeader('Authorization', $type . ' ' . $token);
     }
 
     public function flushHeaders(): self
@@ -112,7 +112,7 @@ class FakeHttp
         array $data,
         string $clientSignature = 'fake-session',
         int $lifetime = 3600,
-        ?string $id = null
+        ?string $id = null,
     ): self {
         $this->session = new FakeSession($data, $clientSignature, $lifetime, $id);
 
@@ -144,11 +144,11 @@ class FakeHttp
                 new class implements MiddlewareInterface {
                     public function process(
                         ServerRequestInterface $request,
-                        RequestHandlerInterface $handler
+                        RequestHandlerInterface $handler,
                     ): ResponseInterface {
                         return $handler->handle($request);
                     }
-                }
+                },
             );
         }
 
@@ -168,7 +168,7 @@ class FakeHttp
     public function get(string $uri, array $query = [], array $headers = [], array $cookies = []): TestResponse
     {
         return $this->handleRequest(
-            $this->createRequest($uri, 'GET', $query, $headers, $cookies)
+            $this->createRequest($uri, 'GET', $query, $headers, $cookies),
         );
     }
 
@@ -176,10 +176,10 @@ class FakeHttp
         string $uri,
         array $query = [],
         array $headers = [],
-        array $cookies = []
+        array $cookies = [],
     ): TestResponse {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'GET', $query, $headers, $cookies)
+            $this->createJsonRequest($uri, 'GET', $query, $headers, $cookies),
         );
     }
 
@@ -201,7 +201,7 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         $this->validateRequestData($data);
 
@@ -210,7 +210,7 @@ class FakeHttp
         return $this->handleRequest(
             $data instanceof StreamInterface
                 ? $request->withBody($data)
-                : $request->withParsedBody($data)
+                : $request->withParsedBody($data),
         );
     }
 
@@ -222,10 +222,10 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies, $files)
+            $this->createJsonRequest($uri, 'POST', $data, $headers, $cookies, $files),
         );
     }
 
@@ -237,7 +237,7 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         $this->validateRequestData($data);
 
@@ -246,7 +246,7 @@ class FakeHttp
         return $this->handleRequest(
             $data instanceof StreamInterface
                 ? $request->withBody($data)
-                : $request->withParsedBody($data)
+                : $request->withParsedBody($data),
         );
     }
 
@@ -258,10 +258,10 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'PATCH', $data, $headers, $cookies, $files)
+            $this->createJsonRequest($uri, 'PATCH', $data, $headers, $cookies, $files),
         );
     }
 
@@ -270,7 +270,7 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         $this->validateRequestData($data);
 
@@ -279,7 +279,7 @@ class FakeHttp
         return $this->handleRequest(
             $data instanceof StreamInterface
                 ? $request->withBody($data)
-                : $request->withParsedBody($data)
+                : $request->withParsedBody($data),
         );
     }
 
@@ -288,10 +288,10 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies, $files)
+            $this->createJsonRequest($uri, 'PUT', $data, $headers, $cookies, $files),
         );
     }
 
@@ -300,7 +300,7 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         $this->validateRequestData($data);
 
@@ -309,7 +309,7 @@ class FakeHttp
         return $this->handleRequest(
             $data instanceof StreamInterface
                 ? $request->withBody($data)
-                : $request->withParsedBody($data)
+                : $request->withParsedBody($data),
         );
     }
 
@@ -318,10 +318,10 @@ class FakeHttp
         $data = [],
         array $headers = [],
         array $cookies = [],
-        array $files = []
+        array $files = [],
     ): TestResponse {
         return $this->handleRequest(
-            $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies, $files)
+            $this->createJsonRequest($uri, 'DELETE', $data, $headers, $cookies, $files),
         );
     }
 
@@ -331,15 +331,15 @@ class FakeHttp
         $data,
         array $headers,
         array $cookies,
-        array $files = []
+        array $files = [],
     ): ServerRequest {
         if (!\is_array($data) && !$data instanceof StreamInterface) {
             throw new \InvalidArgumentException(
-                \sprintf('$data should be array or instance of `%s` interface.', StreamInterface::class)
+                \sprintf('$data should be array or instance of `%s` interface.', StreamInterface::class),
             );
         }
 
-        if (! $data instanceof StreamInterface) {
+        if (!$data instanceof StreamInterface) {
             $data = Stream::create(\json_encode($data));
         }
 
@@ -362,7 +362,7 @@ class FakeHttp
         array $query,
         array $headers,
         array $cookies,
-        array $files = []
+        array $files = [],
     ): ServerRequest {
         $cookies = \array_merge($this->defaultCookies, $cookies);
         $headers = \array_merge($this->defaultHeaders, $headers);
@@ -373,8 +373,16 @@ class FakeHttp
             $headers,
             'php://input',
             '1.1',
-            $this->defaultServerVariables
+            $this->defaultServerVariables,
         );
+
+        if ($request->getUri()->getQuery() !== '') {
+            $uriQuery = [];
+            \parse_str($request->getUri()->getQuery(), $uriQuery);
+            $query = \array_merge($uriQuery, $query);
+        } else {
+            $request = $request->getUri()->withQuery(\http_build_query($query));
+        }
 
         return $request
             ->withCookieParams($cookies)
