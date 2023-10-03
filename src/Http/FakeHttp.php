@@ -381,7 +381,7 @@ class FakeHttp
             \parse_str($request->getUri()->getQuery(), $uriQuery);
             $query = \array_merge($uriQuery, $query);
         } else {
-            $request = $request->getUri()->withQuery(\http_build_query($query));
+            $request = $request->withUri($request->getUri()->withQuery(\http_build_query($query)));
         }
 
         return $request
