@@ -24,7 +24,11 @@ trait InteractsWithScaffolder
             $this->assertSame($expected, $data, 'Generated code is not the same with expected.');
 
             if ($expectedFilename) {
-                $this->assertSame($expectedFilename, $filename, 'Generated filename is not the same with expected.');
+                $root = $this->getDirectoryByAlias('root');
+                $this->assertSame(
+                    \str_replace($root, '', $expectedFilename),
+                    \str_replace($root, '', $filename), 'Generated filename is not the same with expected.'
+                );
             }
 
             return true;
@@ -51,7 +55,11 @@ trait InteractsWithScaffolder
             }
 
             if ($expectedFilename) {
-                $this->assertSame($expectedFilename, $filename, 'Generated filename is not the same with expected.');
+                $root = $this->getDirectoryByAlias('root');
+                $this->assertSame(
+                    \str_replace($root, '', $expectedFilename),
+                    \str_replace($root, '', $filename), 'Generated filename is not the same with expected.'
+                );
             }
 
             return true;
@@ -69,11 +77,6 @@ trait InteractsWithScaffolder
             : null;
 
         $files = $this->mockContainer(FilesInterface::class);
-        $files->shouldReceive('normalizePath')->andReturnUsing(function (string $filename) {
-            $root = $this->getDirectoryByAlias('root');
-
-            return \str_replace($root, '', $filename);
-        });
         $files->shouldReceive('exists')->andReturnFalse();
         $files->shouldReceive('write')->withArgs($expected);
 
