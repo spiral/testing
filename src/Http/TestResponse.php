@@ -61,10 +61,11 @@ final class TestResponse implements \Stringable
             $this->response->getStatusCode(),
             $status,
             \sprintf(
-                "Received response status code [%s : %s] but expected %s.",
+                "Received response status code [%s : %s] but expected %s. Body: %s",
                 $this->response->getStatusCode(),
                 $this->response->getReasonPhrase(),
-                $status
+                $status,
+                (string) $this->response->getBody(),
             )
         );
 
