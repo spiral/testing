@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
+use Spiral\Config\Patch\Set;
+use Spiral\Core\ConfigsInterface;
 use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
 
@@ -137,6 +139,19 @@ abstract class TestCase extends BaseTestCase
             $app->getContainer()->invoke($callback);
         }
 
+        $configs = $this->getTestAttributes(Attribute\Config::class);
+        $app->booting(static function (ConfigsInterface $configManager) use ($configs) {
+            foreach ($configs as $attribute) {
+                \assert($attribute instanceof Attribute\Config);
+                [$config, $key] = explode('.', $attribute->path, 2);
+
+                $configManager->modify(
+                    $config,
+                    new Set($key, $attribute->closure?->__invoke() ?? $attribute->value)
+                );
+            }
+        });
+
         $app->booting(...$this->beforeBooting);
         $app->run($environment);
 
@@ -147,7 +162,6 @@ abstract class TestCase extends BaseTestCase
     {
         $this->app = $this->makeApp($env);
         $this->suppressExceptionHandlingIfAttributeDefined();
-        $this->updateConfigFromAttribute();
 
         (new \ReflectionClass(ContainerScope::class))
             ->setStaticPropertyValue('container', $this->app->getContainer());

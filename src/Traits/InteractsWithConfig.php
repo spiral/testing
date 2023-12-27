@@ -54,6 +54,9 @@ trait InteractsWithConfig
         $this->getConfigs()->modify($config, new Set($key, $data));
     }
 
+    /**
+     * @deprecated since v2.6.4
+     */
     private function updateConfigFromAttribute(): void
     {
         foreach ($this->getTestAttributes(Attribute\Config::class) as $attribute) {
