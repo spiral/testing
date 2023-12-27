@@ -24,11 +24,11 @@ final class ConfigTest extends TestCase
     }
 
     #[Config('storage.default', 'replaced')]
-    #[Config('storage.servers.static.adapter', 'test')]
+    #[Config('storage.servers.static.directory', 'test')]
     public function testMultipleAttributes(): void
     {
         $config = $this->getConfig(StorageConfig::CONFIG);
         $this->assertSame('replaced', $config['default']);
-        $this->assertSame('test', $config['servers']['static']['adapter']);
+        $this->assertSame('test', $config['servers']['static']['directory']);
     }
 }
