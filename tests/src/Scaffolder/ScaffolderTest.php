@@ -72,7 +72,7 @@ PHP,
 
         $this->assertScaffolderCommandSame(
             'create:command',
-            [],
+            ['-n' => false],
             '',
         );
     }
