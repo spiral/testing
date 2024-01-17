@@ -15,10 +15,14 @@ trait TestableKernel
         return $this->container;
     }
 
-    /** @return DispatcherInterface[] */
+    /** @return array<class-string<DispatcherInterface>> */
     public function getRegisteredDispatchers(): array
     {
-        return $this->dispatchers;
+        return \array_map(static fn (string|DispatcherInterface $dispatcher): string => \is_object($dispatcher)
+            ? $dispatcher::class
+            : $dispatcher,
+            $this->dispatchers
+        );
     }
 
     /** @return array<class-string> */
