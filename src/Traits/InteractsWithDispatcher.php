@@ -77,6 +77,8 @@ trait InteractsWithDispatcher
      */
     public function getRegisteredDispatchers(): array
     {
-        return $this->getContainer()->get(KernelInterface::class)->getRegisteredDispatchers();
+        return \array_map(static function ($dispatcher): string {
+            return \is_object($dispatcher) ? $dispatcher::class : $dispatcher;
+        }, $this->getContainer()->get(KernelInterface::class)->getRegisteredDispatchers());
     }
 }
