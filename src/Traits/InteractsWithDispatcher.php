@@ -15,7 +15,7 @@ trait InteractsWithDispatcher
     public function assertDispatcherCanBeServed(string $dispatcher): void
     {
         $this->assertTrue(
-            $this->getContainer()->get($dispatcher)->canServe(),
+            $this->getContainer()->invoke([$dispatcher, 'canServe']),
             \sprintf('Dispatcher [%s] can not be served.', $dispatcher)
         );
     }
@@ -26,7 +26,7 @@ trait InteractsWithDispatcher
     public function assertDispatcherCannotBeServed(string $dispatcher): void
     {
         $this->assertFalse(
-            $this->getContainer()->get($dispatcher)->canServe(),
+            $this->getContainer()->invoke([$dispatcher, 'canServe']),
             \sprintf('Dispatcher [%s] can be served.', $dispatcher)
         );
     }
@@ -77,8 +77,8 @@ trait InteractsWithDispatcher
      */
     public function getRegisteredDispatchers(): array
     {
-        return array_map(static function ($dispatcher): string {
-            return get_class($dispatcher);
+        return \array_map(static function ($dispatcher): string {
+            return \is_object($dispatcher) ? $dispatcher::class : $dispatcher;
         }, $this->getContainer()->get(KernelInterface::class)->getRegisteredDispatchers());
     }
 }
