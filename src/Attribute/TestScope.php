@@ -6,7 +6,7 @@ namespace Spiral\Testing\Attribute;
 
 use Attribute;
 
-#[Attribute(flags: Attribute::TARGET_METHOD)]
+#[Attribute(flags: Attribute::TARGET_METHOD|Attribute::TARGET_CLASS)]
 final class TestScope
 {
     public function __construct(

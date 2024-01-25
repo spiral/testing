@@ -228,19 +228,25 @@ abstract class TestCase extends BaseTestCase
 
     protected function runTest(): mixed
     {
-        $attribute = $this->getTestAttributes(TestScope::class)[0] ?? null;
-        if ($attribute === null) {
+        $scope = $this->getTestScope();
+        if ($scope === null) {
             return parent::runTest();
         }
 
-        return $this->app->getContainer()->runScope(
-            new Scope($attribute->scope, $attribute->bindings),
+        $previousApp = $this->getApp();
+
+        $result = $this->getApp()->getContainer()->runScope(
+            new Scope($scope->scope, $scope->bindings),
             function (Container $container): mixed {
                 $this->initApp([...static::ENV, ...$this->getEnvVariablesFromConfig()], $container);
 
                 return parent::runTest();
             },
         );
+
+        $this->app = $previousApp;
+
+        return $result;
     }
 
     private function runTraitSetUpOrTearDown(string $method): void
@@ -262,5 +268,23 @@ abstract class TestCase extends BaseTestCase
 
             $ref = $parent;
         }
+    }
+
+    private function getTestScope(): ?TestScope
+    {
+        $attribute = $this->getTestAttributes(TestScope::class)[0] ?? null;
+        if ($attribute !== null) {
+            return $attribute;
+        }
+
+        try {
+            foreach ((new \ReflectionClass($this))->getAttributes(TestScope::class) as $attr) {
+                return $attr->newInstance();
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return null;
     }
 }
