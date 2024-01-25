@@ -14,6 +14,8 @@ use Spiral\Config\Patch\Set;
 use Spiral\Core\ConfigsInterface;
 use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
+use Spiral\Core\Scope;
+use Spiral\Testing\Attribute\TestScope;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -127,11 +129,11 @@ abstract class TestCase extends BaseTestCase
      * @param array<non-empty-string,mixed> $env
      * @return AbstractKernel|TestableKernelInterface
      */
-    public function makeApp(array $env = []): AbstractKernel
+    public function makeApp(array $env = [], Container $container = new Container()): AbstractKernel
     {
         $environment = new Environment($env);
 
-        $app = $this->createAppInstance();
+        $app = $this->createAppInstance($container);
         $app->getContainer()->removeBinding(EnvironmentInterface::class);
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
@@ -158,9 +160,9 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
-    public function initApp(array $env = []): void
+    public function initApp(array $env = [], Container $container = new Container()): void
     {
-        $this->app = $this->makeApp($env);
+        $this->app = $this->makeApp($env, $container);
         $this->suppressExceptionHandlingIfAttributeDefined();
 
         (new \ReflectionClass(ContainerScope::class))
@@ -222,6 +224,23 @@ abstract class TestCase extends BaseTestCase
     protected function tearDownTraits(): void
     {
         $this->runTraitSetUpOrTearDown('tearDown');
+    }
+
+    protected function runTest(): mixed
+    {
+        $attribute = $this->getTestAttributes(TestScope::class)[0] ?? null;
+        if ($attribute === null) {
+            return parent::runTest();
+        }
+
+        return $this->app->getContainer()->runScope(
+            new Scope($attribute->scope, $attribute->bindings),
+            function (Container $container): mixed {
+                $this->initApp([...static::ENV, ...$this->getEnvVariablesFromConfig()], $container);
+
+                return parent::runTest();
+            },
+        );
     }
 
     private function runTraitSetUpOrTearDown(string $method): void
