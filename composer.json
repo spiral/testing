@@ -93,7 +93,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-feature/scopes": "2.8.x-dev"
+      "dev-feature/scopes": "2.x-dev"
     }
   }
 }
