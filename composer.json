@@ -90,5 +90,10 @@
     "allow-plugins": {
       "spiral/composer-publish-plugin": false
     }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-feature/scopes": "2.8.x-dev"
+    }
   }
 }
