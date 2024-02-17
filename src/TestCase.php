@@ -235,14 +235,12 @@ abstract class TestCase extends BaseTestCase
 
         $previousApp = $this->getApp();
 
-        $result = $this->getApp()->getContainer()->runScope(
-            new Scope($scope->scope, $scope->bindings),
-            function (Container $container): mixed {
-                $this->initApp([...static::ENV, ...$this->getEnvVariablesFromConfig()], $container);
+        $scopes = \is_array($scope->scope) ? $scope->scope : [$scope->scope];
+        $result = $this->runScopes($scopes, function (Container $container): mixed {
+            $this->initApp([...static::ENV, ...$this->getEnvVariablesFromConfig()], $container);
 
-                return parent::runTest();
-            },
-        );
+            return parent::runTest();
+        }, $this->getContainer(), $scope->bindings);
 
         $this->app = $previousApp;
 
@@ -286,5 +284,21 @@ abstract class TestCase extends BaseTestCase
         }
 
         return null;
+    }
+
+    private function runScopes(array $scopes, Closure $callback, Container $container, array $bindings): mixed
+    {
+        if ($scopes === []) {
+            return $container->runScope($bindings, $callback);
+        }
+
+        $scope = \array_shift($scopes);
+
+        return $container->runScope(
+            new Scope($scope, []),
+            function (Container $container) use ($scopes, $callback, $bindings): mixed {
+                return $this->runScopes($scopes, $callback, $container, $bindings);
+            },
+        );
     }
 }

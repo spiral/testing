@@ -10,7 +10,7 @@ use Attribute;
 final class TestScope
 {
     public function __construct(
-        public readonly string|\BackedEnum $scope,
+        public readonly string|\BackedEnum|array $scope,
         public readonly array $bindings = [],
     ) {
     }
