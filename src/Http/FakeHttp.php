@@ -35,6 +35,7 @@ class FakeHttp
     private ?object $actor = null;
     private ?SessionInterface $session = null;
     private array $bindings = [];
+
     /** @var array<non-empty-string> */
     private array $addedMiddleware = [];
 
