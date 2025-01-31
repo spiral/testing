@@ -7,6 +7,8 @@ namespace Spiral\Testing\Tests\Http;
 use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
+use Spiral\Testing\Tests\App\Middleware\FailMiddleware;
+use Spiral\Testing\Tests\Http\Stub\StaticResultMiddleware;
 use Spiral\Testing\Tests\TestCase;
 
 final class FakeHttpTest extends TestCase
@@ -15,6 +17,68 @@ final class FakeHttpTest extends TestCase
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
+    }
+
+    public function testWithMiddleware(): void
+    {
+        $response = $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->get('/get/query-params');
+        $response->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
+    }
+
+    public function testWithoutMiddleware(): void
+    {
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertNotFound();
+
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+    }
+
+    public function testWithoutAndWithMiddleware(): void
+    {
+        $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->get('/')
+            ->assertBodyNotSame(StaticResultMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->get('/')
+            ->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->withoutMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertNotFound();
+
+        // No mutable state from the previous test
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
 
     #[TestScope('http')]

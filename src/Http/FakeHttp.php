@@ -18,9 +18,9 @@ use Spiral\Auth\TokenStorageInterface;
 use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
 use Spiral\Core\Attribute\Proxy;
-use Spiral\Core\BinderInterface;
-use Spiral\Core\InvokerInterface;
+use Spiral\Core\FactoryInterface;
 use Spiral\Http\Http;
+use Spiral\Http\LazyPipeline;
 use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Session\FakeSession;
@@ -34,7 +34,10 @@ class FakeHttp
     private array $defaultCookies = [];
     private ?object $actor = null;
     private ?SessionInterface $session = null;
-    private BinderInterface $binder;
+    private array $bindings = [];
+
+    /** @var array<non-empty-string> */
+    private array $addedMiddleware = [];
 
     /**
      * @param \Closure(\Closure $closure, array $bindings): mixed $scope Scope runner
@@ -43,11 +46,7 @@ class FakeHttp
         #[Proxy] private readonly ContainerInterface $container,
         private readonly FileFactory $fileFactory,
         private readonly \Closure $scope,
-    ) {
-        $this->binder = $container
-            ->get(InvokerInterface::class)
-            ->invoke(static fn(#[Proxy] BinderInterface $binder): BinderInterface => $binder);
-    }
+    ) {}
 
     public function withActor(object $actor): self
     {
@@ -135,30 +134,39 @@ class FakeHttp
         return $this;
     }
 
+    /**
+     * Prepend middleware to the pipeline.
+     *
+     * @param non-empty-string ...$middleware
+     */
     public function withMiddleware(string ...$middleware): self
     {
         foreach ($middleware as $name) {
-            $this->binder->removeBinding($name);
+            \array_unshift($this->addedMiddleware, $name);
+            unset($this->bindings[$name]);
         }
-
         return $this;
     }
 
+    /**
+     * Remove middleware from the pipeline.
+     *
+     * @param non-empty-string ...$middleware
+     */
     public function withoutMiddleware(string ...$middleware): self
     {
         foreach ($middleware as $name) {
-            $this->binder->removeBinding($name);
-            $this->binder->bindSingleton(
-                $name,
-                new class implements MiddlewareInterface {
-                    public function process(
-                        ServerRequestInterface $request,
-                        RequestHandlerInterface $handler,
-                    ): ResponseInterface {
-                        return $handler->handle($request);
-                    }
-                },
-            );
+            // Remove middleware from added middleware list
+            $this->addedMiddleware = \array_filter($this->addedMiddleware, static fn($m): bool => $m !== $name);
+
+            $this->bindings[$name] = new class implements MiddlewareInterface {
+                public function process(
+                    ServerRequestInterface $request,
+                    RequestHandlerInterface $handler,
+                ): ResponseInterface {
+                    return $handler->handle($request);
+                }
+            };
         }
 
         return $this;
@@ -169,6 +177,10 @@ class FakeHttp
         return $this->fileFactory;
     }
 
+    /**
+     * @note The HTTP instance will not contain all configured things like middleware, etc.
+     *       It's just a simple HTTP instance from the Container.
+     */
     public function getHttp(): Http
     {
         return $this->container->get(Http::class);
@@ -401,6 +413,7 @@ class FakeHttp
 
     protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
+        $bindings = \array_merge($this->bindings, $bindings);
         if ($this->actor) {
             $request = $request->withHeader(static::AUTH_TOKEN_HEADER_KEY, \spl_object_hash($this->actor));
 
@@ -416,8 +429,18 @@ class FakeHttp
             $bindings[SessionInterface::class] = $this->session;
         }
 
-        $handler = function () use ($request) {
-            return $this->getHttp()->handle($request);
+        $handler = function () use ($request): ResponseInterface {
+            if ($this->addedMiddleware === []) {
+                return $this->getHttp()->handle($request);
+            }
+
+            // Add middleware to the pipeline
+            /** @var FactoryInterface $factory */
+            $factory = $this->container->get(FactoryInterface::class);
+            $pipeline = $factory->make(LazyPipeline::class);
+            return $pipeline->withMiddleware(...$this->addedMiddleware)
+                ->withHandler($this->getHttp())
+                ->handle($request);
         };
 
         return new TestResponse(($this->scope)($handler, $bindings));

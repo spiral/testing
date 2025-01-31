@@ -26,9 +26,9 @@
     </TooManyArguments>
   </file>
   <file src="src/Http/FakeHttp.php">
-    <MissingClosureReturnType>
-      <code><![CDATA[function () use ($request) {]]></code>
-    </MissingClosureReturnType>
+    <InvalidArgument>
+      <code><![CDATA[$this->addedMiddleware]]></code>
+    </InvalidArgument>
     <MissingParamType>
       <code><![CDATA[$data]]></code>
       <code><![CDATA[$data]]></code>
@@ -51,15 +51,11 @@
       <code><![CDATA[$files]]></code>
     </MixedArgumentTypeCoercion>
     <MixedAssignment>
-      <code><![CDATA[$this->binder]]></code>
       <code><![CDATA[$v]]></code>
     </MixedAssignment>
     <MixedInferredReturnType>
       <code><![CDATA[Http]]></code>
     </MixedInferredReturnType>
-    <MixedMethodCall>
-      <code><![CDATA[invoke]]></code>
-    </MixedMethodCall>
     <MixedReturnStatement>
       <code><![CDATA[$this->container->get(Http::class)]]></code>
     </MixedReturnStatement>
@@ -313,9 +309,6 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="src/Traits/InteractsWithConsole.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$verbosityLevel ?? $this->defaultVerbosityLevel]]></code>
-    </ArgumentTypeCoercion>
     <MixedInferredReturnType>
       <code><![CDATA[string]]></code>
     </MixedInferredReturnType>
