@@ -43,6 +43,44 @@ final class FakeHttpTest extends TestCase
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
 
+    public function testWithoutAndWithMiddleware(): void
+    {
+        $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->get('/')
+            ->assertBodyNotSame(StaticResultMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->withoutMiddleware(StaticResultMiddleware::class)
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->get('/')
+            ->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->withMiddleware(FailMiddleware::class)
+            ->withoutMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertNotFound();
+
+        // No mutable state from the previous test
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+    }
+
     #[TestScope('http')]
     public function testHttpScopeDoesNotConflict(): void
     {
