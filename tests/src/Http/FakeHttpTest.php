@@ -8,6 +8,7 @@ use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
 use Spiral\Testing\Tests\App\Middleware\FailMiddleware;
+use Spiral\Testing\Tests\Http\Stub\StaticResultMiddleware;
 use Spiral\Testing\Tests\TestCase;
 
 final class FakeHttpTest extends TestCase
@@ -16,6 +17,14 @@ final class FakeHttpTest extends TestCase
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
+    }
+
+    public function testWithMiddleware(): void
+    {
+        $response = $this->fakeHttp()
+            ->withMiddleware(StaticResultMiddleware::class)
+            ->get('/get/query-params');
+        $response->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
     }
 
     public function testWithoutMiddleware(): void

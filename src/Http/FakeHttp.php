@@ -18,7 +18,9 @@ use Spiral\Auth\TokenStorageInterface;
 use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
 use Spiral\Core\Attribute\Proxy;
+use Spiral\Core\FactoryInterface;
 use Spiral\Http\Http;
+use Spiral\Http\LazyPipeline;
 use Spiral\Session\SessionInterface;
 use Spiral\Testing\Auth\FakeActorProvider;
 use Spiral\Testing\Session\FakeSession;
@@ -33,6 +35,7 @@ class FakeHttp
     private ?object $actor = null;
     private ?SessionInterface $session = null;
     private array $bindings = [];
+    private array $addedMiddleware = [];
 
     /**
      * @param \Closure(\Closure $closure, array $bindings): mixed $scope Scope runner
@@ -129,15 +132,24 @@ class FakeHttp
         return $this;
     }
 
+    /**
+     * Prepend middleware to the pipeline.
+     */
     public function withMiddleware(string ...$middleware): self
     {
-        // todo
+        foreach ($middleware as $name) {
+            \array_unshift($this->addedMiddleware, $name);
+            unset($this->bindings[$name]);
+        }
         return $this;
     }
 
     public function withoutMiddleware(string ...$middleware): self
     {
         foreach ($middleware as $name) {
+            // Remove middleware from added middleware list
+            $this->addedMiddleware = \array_filter($this->addedMiddleware, static fn($m): bool => $m !== $name);
+
             $this->bindings[$name] = new class implements MiddlewareInterface {
                 public function process(
                     ServerRequestInterface $request,
@@ -409,7 +421,16 @@ class FakeHttp
         }
 
         $handler = function () use ($request): ResponseInterface {
-            return $this->getHttp()->handle($request);
+            if ($this->addedMiddleware === []) {
+                return $this->getHttp()->handle($request);
+            }
+
+            // Add middleware to the pipeline
+            /** @var LazyPipeline $pipeline */
+            $pipeline = $this->container->get(FactoryInterface::class)->make(LazyPipeline::class);
+            return $pipeline->withMiddleware(...$this->addedMiddleware)
+                ->withHandler($this->getHttp())
+                ->handle($request);
         };
 
         return new TestResponse(($this->scope)($handler, $bindings));
