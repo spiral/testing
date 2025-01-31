@@ -8,7 +8,7 @@
 Make sure that your server is configured with following PHP version and extensions:
 
 - PHP 8.1+
-- Spiral framework 3.0+
+- Spiral framework 3.15+
 
 Documentation on how to install and use the package can be found on the official documentation
 page - [Testing — Getting Started](https://spiral.dev/docs/testing-start)
@@ -22,7 +22,7 @@ extra classes.
 
 The following example will show you how it is easy-peasy.
 
-#### Tests folders structure:
+#### Tests folder structure:
 
 ```
 tests
