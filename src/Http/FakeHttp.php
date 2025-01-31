@@ -35,6 +35,7 @@ class FakeHttp
     private ?object $actor = null;
     private ?SessionInterface $session = null;
     private array $bindings = [];
+    /** @var array<non-empty-string> */
     private array $addedMiddleware = [];
 
     /**
@@ -134,6 +135,8 @@ class FakeHttp
 
     /**
      * Prepend middleware to the pipeline.
+     *
+     * @param non-empty-string ...$middleware
      */
     public function withMiddleware(string ...$middleware): self
     {
@@ -144,6 +147,11 @@ class FakeHttp
         return $this;
     }
 
+    /**
+     * Remove middleware from the pipeline.
+     *
+     * @param non-empty-string ...$middleware
+     */
     public function withoutMiddleware(string ...$middleware): self
     {
         foreach ($middleware as $name) {
@@ -426,8 +434,9 @@ class FakeHttp
             }
 
             // Add middleware to the pipeline
-            /** @var LazyPipeline $pipeline */
-            $pipeline = $this->container->get(FactoryInterface::class)->make(LazyPipeline::class);
+            /** @var FactoryInterface $factory */
+            $factory = $this->container->get(FactoryInterface::class);
+            $pipeline = $factory->make(LazyPipeline::class);
             return $pipeline->withMiddleware(...$this->addedMiddleware)
                 ->withHandler($this->getHttp())
                 ->handle($request);
