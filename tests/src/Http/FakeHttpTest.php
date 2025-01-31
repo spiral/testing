@@ -7,6 +7,7 @@ namespace Spiral\Testing\Tests\Http;
 use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
+use Spiral\Testing\Tests\App\Middleware\FailMiddleware;
 use Spiral\Testing\Tests\TestCase;
 
 final class FakeHttpTest extends TestCase
@@ -15,6 +16,22 @@ final class FakeHttpTest extends TestCase
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
+    }
+
+    public function testWithoutMiddleware(): void
+    {
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
+
+        $this->fakeHttp()
+            ->withoutMiddleware(FailMiddleware::class)
+            ->get(FailMiddleware::ROUTE)
+            ->assertNotFound();
+
+        $this->fakeHttp()
+            ->get(FailMiddleware::ROUTE)
+            ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
 
     #[TestScope('http')]
