@@ -21,6 +21,7 @@ abstract class TestCase extends \Spiral\Testing\TestCase
             \Spiral\Tokenizer\Bootloader\TokenizerBootloader::class,
             \Spiral\SendIt\Bootloader\MailerBootloader::class,
             \Spiral\Bootloader\Http\HttpBootloader::class,
+            \Spiral\Bootloader\Auth\HttpAuthBootloader::class,
             \Spiral\Nyholm\Bootloader\NyholmBootloader::class,
             \Spiral\Bootloader\Security\EncrypterBootloader::class,
             \Spiral\Bootloader\Http\RouterBootloader::class,
