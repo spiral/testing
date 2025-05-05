@@ -8,6 +8,8 @@
        errorBaseline="psalm-baseline.xml"
 >
     <issueHandlers>
+        <MissingOverrideAttribute errorLevel="suppress"/>
+        <ClassMustBeFinal errorLevel="suppress"/>
         <MissingClassConstType errorLevel="suppress"/>
         <RedundantConditionGivenDocblockType errorLevel="suppress"/>
         <RedundantCastGivenDocblockType errorLevel="suppress"/>

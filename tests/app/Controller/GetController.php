@@ -25,6 +25,6 @@ class GetController
     #[Route('/get/scopes', 'get.scopes')]
     public function scopes(ServerRequestInterface $request): array
     {
-        return Introspector::scopeNames();
+        return \array_values(\array_filter(Introspector::scopeNames()));
     }
 }
