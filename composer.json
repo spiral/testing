@@ -46,7 +46,7 @@
         "php": ">=8.1",
         "nyholm/psr7": "^1.8.2",
         "mockery/mockery": "^1.6.12",
-        "phpunit/phpunit": "^9.6 || ^10.5.44",
+        "phpunit/phpunit": "^9.6 || 10.5.45",
         "spiral/auth": "^3.15",
         "spiral/auth-http": "^3.15",
         "spiral/boot": "^3.15",
