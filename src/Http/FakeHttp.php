@@ -346,7 +346,7 @@ class FakeHttp
         );
     }
 
-    protected function createJsonRequest(
+    public function createJsonRequest(
         string $uri,
         string $method,
         $data,
@@ -377,7 +377,7 @@ class FakeHttp
     /**
      * @param array<UploadedFileInterface> $files
      */
-    protected function createRequest(
+    public function createRequest(
         string $uri,
         string $method,
         array $query,
@@ -411,7 +411,7 @@ class FakeHttp
             ->withUploadedFiles($files);
     }
 
-    protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
+    public function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
         $bindings = \array_merge($this->bindings, $bindings);
         if ($this->actor) {
