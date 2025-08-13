@@ -106,7 +106,7 @@ final class EventDispatcherTest extends TestCase
 
     public function testDecorate(): void
     {
-        $inner = new class() implements EventDispatcherInterface {
+        $inner = new class implements EventDispatcherInterface {
             public array $traces = [];
 
             public function dispatch(object $event)
