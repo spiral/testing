@@ -127,6 +127,19 @@ final class EventDispatcherTest extends TestCase
         self::assertInstanceOf(AnotherEvent::class, $inner->traces[1]);
     }
 
+    public function testClear(): void
+    {
+        $eventDispatcher = $this->fakeEventDispatcher();
+        $eventDispatcher->dispatch(new SomeEvent(2025));
+        $eventDispatcher->dispatch(new AnotherEvent('boo'));
+        $eventDispatcher->assertDispatched(SomeEvent::class);
+        $eventDispatcher->assertDispatched(AnotherEvent::class);
+        $eventDispatcher->clear();
+
+        $eventDispatcher->assertNotDispatched(SomeEvent::class);
+        $eventDispatcher->assertNotDispatched(AnotherEvent::class);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();

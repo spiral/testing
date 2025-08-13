@@ -178,4 +178,9 @@ class FakeEventDispatcher implements EventDispatcherInterface
 
         return false;
     }
+
+    public function clear(): void
+    {
+        $this->dispatchedEvents = [];
+    }
 }
