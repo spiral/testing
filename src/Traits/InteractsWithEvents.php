@@ -9,14 +9,26 @@ use Spiral\Testing\Events\FakeEventDispatcher;
 
 trait InteractsWithEvents
 {
-    public function fakeEventDispatcher(array $eventsToFake = []): FakeEventDispatcher
+    /**
+     * @param bool $decorate If false then original eventDispatcher will be fully replace by Fake, otherwise it will be decorated.
+     */
+    public function fakeEventDispatcher(array $eventsToFake = [], bool $decorate = false): FakeEventDispatcher
     {
-        $this->getContainer()->removeBinding(EventDispatcherInterface::class);
+        $eventDispatcher = null;
+        if ($decorate) {
+            $eventDispatcher = $this->getContainer()->get(EventDispatcherInterface::class);
+        } else {
+            $this->getContainer()->removeBinding(EventDispatcherInterface::class);
+        }
+
         $this->getContainer()->bindSingleton(
             EventDispatcherInterface::class,
             $dispatcher = $this->getContainer()->make(
                 FakeEventDispatcher::class,
-                ['eventsToFake' => $eventsToFake],
+                [
+                    'eventDispatcher' => $eventDispatcher,
+                    'eventsToFake' => $eventsToFake,
+                ],
             ),
         );
 
