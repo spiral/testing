@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Event;
 
 use PHPUnit\Framework\ExpectationFailedException;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Spiral\Testing\Events\FakeEventDispatcher;
 use Spiral\Testing\Tests\App\Event\AnotherEvent;
 use Spiral\Testing\Tests\App\Event\SomeEvent;
@@ -101,6 +102,42 @@ final class EventDispatcherTest extends TestCase
         $this->expectExceptionMessage('Event [Spiral\Testing\Tests\App\Event\SomeEvent] does not have the [Spiral\Testing\Tests\App\Listener\AnotherListener] listener attached to it.');
 
         $this->eventDispatcher->assertListening(SomeEvent::class, AnotherListener::class);
+    }
+
+    public function testDecorate(): void
+    {
+        $inner = new class implements EventDispatcherInterface {
+            public array $traces = [];
+
+            public function dispatch(object $event)
+            {
+                $this->traces[] = $event;
+            }
+        };
+        $this->getContainer()->bindSingleton(EventDispatcherInterface::class, $inner);
+
+        $eventDispatcher = $this->fakeEventDispatcher(decorate: true);
+        $eventDispatcher->dispatch(new SomeEvent(2025));
+        $eventDispatcher->dispatch(new AnotherEvent('boo'));
+        $eventDispatcher->assertDispatched(SomeEvent::class);
+        $eventDispatcher->assertDispatched(AnotherEvent::class);
+
+        self::assertCount(2, $inner->traces);
+        self::assertInstanceOf(SomeEvent::class, $inner->traces[0]);
+        self::assertInstanceOf(AnotherEvent::class, $inner->traces[1]);
+    }
+
+    public function testClear(): void
+    {
+        $eventDispatcher = $this->fakeEventDispatcher();
+        $eventDispatcher->dispatch(new SomeEvent(2025));
+        $eventDispatcher->dispatch(new AnotherEvent('boo'));
+        $eventDispatcher->assertDispatched(SomeEvent::class);
+        $eventDispatcher->assertDispatched(AnotherEvent::class);
+        $eventDispatcher->clear();
+
+        $eventDispatcher->assertNotDispatched(SomeEvent::class);
+        $eventDispatcher->assertNotDispatched(AnotherEvent::class);
     }
 
     protected function setUp(): void
