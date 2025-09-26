@@ -80,7 +80,7 @@ trait InteractsWithCore
         ?\Closure $callback = null,
     ): void {
         $this->assertTrue(
-            $this->getContainer()->has($alias),
+            $this->getContainer()->hasBinding($alias),
             \sprintf('Container does not contain entry with name [%s].', $alias),
         );
 
