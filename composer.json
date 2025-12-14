@@ -63,7 +63,10 @@
         "spiral/views": "^3.16",
         "spiral/translator": "^3.16",
         "spiral/scaffolder": "^3.16",
-        "symfony/mime": "^6.4.18 || ^7.2"
+        "symfony/mime": "^6.4.18 || ^7.2 || ^8.0"
+    },
+    "conflict": {
+        "phpunit/phpunit": ">10.5.45"
     },
     "suggest": {
         "brianium/paratest": "Required to run tests in parallel (^6.0).",
