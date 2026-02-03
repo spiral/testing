@@ -17,6 +17,7 @@ use Spiral\Auth\ActorProviderInterface;
 use Spiral\Auth\TokenStorageInterface;
 use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
+use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Attribute\Proxy;
 use Spiral\Core\FactoryInterface;
 use Spiral\Http\Http;
@@ -443,7 +444,13 @@ class FakeHttp
                 ->handle($request);
         };
 
-        return new TestResponse(($this->scope)($handler, $bindings));
+        try {
+            return new TestResponse(($this->scope)($handler, $bindings));
+        } finally {
+            if ($this->container->has(FinalizerInterface::class)) {
+                $this->container->get(FinalizerInterface::class)->finalize(false);
+            }
+        }
     }
 
     protected function validateRequestData($data): void
