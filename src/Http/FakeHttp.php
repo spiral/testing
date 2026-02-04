@@ -447,8 +447,10 @@ class FakeHttp
         try {
             return new TestResponse(($this->scope)($handler, $bindings));
         } finally {
-            if ($this->container->has(FinalizerInterface::class)) {
+            try {
                 $this->container->get(FinalizerInterface::class)->finalize(false);
+            } catch (\Throwable) {
+                // Ignore exceptions when finalizer is out of scope
             }
         }
     }
