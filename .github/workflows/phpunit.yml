@@ -15,4 +15,4 @@ jobs:
             stability: >-
                 ['prefer-lowest', 'prefer-stable']
             php: >-
-                ['8.4']
+                ['8.4', '8.5']
