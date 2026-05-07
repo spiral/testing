@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Traits;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
@@ -69,6 +70,7 @@ final class InteractsWithDispatcherTest extends TestCase
         $this->assertDispatcherCannotBeServed($dispatcher::class);
     }
 
+    #[AllowMockObjectsWithoutExpectations]
     public function testGetRegisteredDispatchers(): void
     {
         $dispatcherA = $this->createMock(DispatcherInterface::class);
