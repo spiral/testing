@@ -6,9 +6,11 @@ namespace Spiral\Testing\Tests\Http;
 
 use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Auth\Middleware\AuthMiddleware;
+use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
 use Spiral\Testing\Tests\App\Middleware\FailMiddleware;
+use Spiral\Testing\Tests\Http\Stub\FakeFinalizer;
 use Spiral\Testing\Tests\Http\Stub\StaticResultMiddleware;
 use Spiral\Testing\Tests\TestCase;
 
@@ -173,5 +175,33 @@ final class FakeHttpTest extends TestCase
         $response = $this->fakeHttp()->get('/get/query-params', ['foo' => 'bar', 'baz' => ['foo1' => 'bar1']]);
         $response->assertBodySame('{"foo":"bar","baz":{"foo1":"bar1"}}');
         $this->assertSame(['bar', 'foo', 'root'], Introspector::scopeNames($this->getContainer()));
+    }
+
+    public function testFinalizersAreCalledAfterRequest(): void
+    {
+        $finalizer = new FakeFinalizer();
+        $this->getContainer()->bindSingleton(FinalizerInterface::class, $finalizer);
+
+        $this->assertCount(0, $finalizer->calls);
+
+        $this->fakeHttp()->get('/get/query-params');
+
+        $this->assertCount(1, $finalizer->calls);
+        $this->assertFalse($finalizer->calls[0]['terminate']);
+    }
+
+    public function testFinalizersAreCalledAfterEachRequest(): void
+    {
+        $finalizer = new FakeFinalizer();
+        $this->getContainer()->bindSingleton(FinalizerInterface::class, $finalizer);
+
+        $this->fakeHttp()->get('/get/query-params');
+        $this->fakeHttp()->post('/post/json', ['foo' => 'bar']);
+        $this->fakeHttp()->get('/get/headers');
+
+        $this->assertCount(3, $finalizer->calls);
+        foreach ($finalizer->calls as $call) {
+            $this->assertFalse($call['terminate']);
+        }
     }
 }

@@ -163,6 +163,11 @@ class FakeEventDispatcher implements EventDispatcherInterface
         return isset($this->dispatchedEvents[$event]) && $this->dispatchedEvents[$event] !== [];
     }
 
+    public function clear(): void
+    {
+        $this->dispatchedEvents = [];
+    }
+
     /**
      * @param class-string $event
      */

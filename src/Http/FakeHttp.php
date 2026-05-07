@@ -17,6 +17,7 @@ use Spiral\Auth\ActorProviderInterface;
 use Spiral\Auth\TokenStorageInterface;
 use Spiral\Auth\Transport\HeaderTransport;
 use Spiral\Auth\TransportRegistry;
+use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Attribute\Proxy;
 use Spiral\Core\FactoryInterface;
 use Spiral\Http\Http;
@@ -346,7 +347,7 @@ class FakeHttp
         );
     }
 
-    protected function createJsonRequest(
+    public function createJsonRequest(
         string $uri,
         string $method,
         $data,
@@ -377,7 +378,7 @@ class FakeHttp
     /**
      * @param array<UploadedFileInterface> $files
      */
-    protected function createRequest(
+    public function createRequest(
         string $uri,
         string $method,
         array $query,
@@ -411,7 +412,7 @@ class FakeHttp
             ->withUploadedFiles($files);
     }
 
-    protected function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
+    public function handleRequest(ServerRequestInterface $request, array $bindings = []): TestResponse
     {
         $bindings = \array_merge($this->bindings, $bindings);
         if ($this->actor) {
@@ -443,7 +444,15 @@ class FakeHttp
                 ->handle($request);
         };
 
-        return new TestResponse(($this->scope)($handler, $bindings));
+        try {
+            return new TestResponse(($this->scope)($handler, $bindings));
+        } finally {
+            try {
+                $this->container->get(FinalizerInterface::class)->finalize(false);
+            } catch (\Throwable) {
+                // Ignore exceptions when finalizer is out of scope
+            }
+        }
     }
 
     protected function validateRequestData($data): void

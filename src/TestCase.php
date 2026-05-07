@@ -228,16 +228,16 @@ abstract class TestCase extends BaseTestCase
         $this->runTraitSetUpOrTearDown('tearDown');
     }
 
-    protected function runTest(): mixed
+    protected function invokeTestMethod(string $methodName, array $testArguments): mixed
     {
         $scope = $this->getTestScope();
         if ($scope === null) {
-            return parent::runTest();
+            return parent::invokeTestMethod($methodName, $testArguments);
         }
 
         $scopes = \is_array($scope->scope) ? $scope->scope : [$scope->scope];
-        $result = self::runScopes($scopes, function (): mixed {
-            return parent::runTest();
+        $result = self::runScopes($scopes, function () use ($methodName, $testArguments): mixed {
+            return parent::invokeTestMethod($methodName, $testArguments);
         }, $this->getContainer(), $scope->bindings);
 
         return $result;

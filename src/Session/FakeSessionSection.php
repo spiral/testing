@@ -23,17 +23,17 @@ class FakeSessionSection implements SessionSectionInterface
         return $this->has($offset);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         $this->set($offset, $value);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         $this->delete($offset);
     }
@@ -51,6 +51,7 @@ class FakeSessionSection implements SessionSectionInterface
     public function set(string $name, $value): self
     {
         $this->data[$name] = $value;
+        return $this;
     }
 
     public function has(string $name): bool
