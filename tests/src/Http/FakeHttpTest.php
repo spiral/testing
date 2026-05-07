@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Http;
 
 use PHPUnit\Framework\ExpectationFailedException;
+use Spiral\Auth\Middleware\AuthMiddleware;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
@@ -21,9 +22,25 @@ final class FakeHttpTest extends TestCase
         $response->assertBodySame('[]');
     }
 
+    public function testWithActor(): void
+    {
+        $http = $this->fakeHttp();
+
+        $user = (object) ['id' => 42, 'name' => 'John Doe'];
+
+        $response = $http
+            ->withMiddleware(AuthMiddleware::class)
+            ->withActor($user)
+            ->get('/some-method');
+
+        $response->assertOk();
+        $response->assertBodySame('{"id":42,"name":"John Doe"}');
+    }
+
     public function testWithMiddleware(): void
     {
-        $response = $this->fakeHttp()
+        $response = $this
+            ->fakeHttp()
             ->withMiddleware(StaticResultMiddleware::class)
             ->get('/get/query-params');
         $response->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
@@ -31,16 +48,19 @@ final class FakeHttpTest extends TestCase
 
     public function testWithoutMiddleware(): void
     {
-        $this->fakeHttp()
+        $this
+            ->fakeHttp()
             ->get(FailMiddleware::ROUTE)
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
 
-        $this->fakeHttp()
+        $this
+            ->fakeHttp()
             ->withoutMiddleware(FailMiddleware::class)
             ->get(FailMiddleware::ROUTE)
             ->assertNotFound();
 
-        $this->fakeHttp()
+        $this
+            ->fakeHttp()
             ->get(FailMiddleware::ROUTE)
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
