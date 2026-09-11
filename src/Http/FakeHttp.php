@@ -421,9 +421,7 @@ class FakeHttp
             $bindings[ActorProviderInterface::class] = new FakeActorProvider($this->actor);
             $bindings[TokenStorageInterface::class] = new FakeTokenStorage();
 
-            $transport = new TransportRegistry();
-            $transport->setTransport('testing', new HeaderTransport(static::AUTH_TOKEN_HEADER_KEY));
-            $bindings[TransportRegistry::class] = $transport;
+            $bindings[TransportRegistry::class] = $this->createFakeTransportRegistry();
         }
 
         if ($this->session) {
@@ -460,5 +458,30 @@ class FakeHttp
         if (!\is_array($data) && !\is_object($data)) {
             throw new \InvalidArgumentException('$data should be an array or an object.');
         }
+    }
+
+    /**
+     * The fake token travels in the {@see self::AUTH_TOKEN_HEADER_KEY} header, so every transport the
+     * application has configured is replaced by one that reads it. The configured names are kept because
+     * {@see \Spiral\Auth\Middleware\AuthTransportMiddleware} resolves a transport by name.
+     */
+    private function createFakeTransportRegistry(): TransportRegistry
+    {
+        $registry = new TransportRegistry();
+        $transport = new HeaderTransport(static::AUTH_TOKEN_HEADER_KEY);
+
+        try {
+            $configured = $this->container->get(TransportRegistry::class);
+            foreach (\array_keys($configured->getTransports()) as $name) {
+                $registry->setTransport((string) $name, $transport);
+            }
+        } catch (\Throwable) {
+            // Nothing to copy the names from; the fake transport is all there is.
+        }
+
+        $registry->setTransport('testing', $transport);
+        $registry->setDefaultTransport('testing');
+
+        return $registry;
     }
 }
