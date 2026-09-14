@@ -471,6 +471,7 @@ class FakeHttp
         $transport = new HeaderTransport(static::AUTH_TOKEN_HEADER_KEY);
 
         try {
+            /** @var TransportRegistry $configured */
             $configured = $this->container->get(TransportRegistry::class);
             foreach (\array_keys($configured->getTransports()) as $name) {
                 $registry->setTransport((string) $name, $transport);
