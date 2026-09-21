@@ -7,6 +7,7 @@ namespace Spiral\Testing\Http;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -476,7 +477,7 @@ class FakeHttp
             foreach (\array_keys($configured->getTransports()) as $name) {
                 $registry->setTransport((string) $name, $transport);
             }
-        } catch (\Throwable) {
+        } catch (NotFoundExceptionInterface) {
             // Nothing to copy the names from; the fake transport is all there is.
         }
 
