@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Http;
 
 use PHPUnit\Framework\ExpectationFailedException;
+use Spiral\Auth\Middleware\AuthMiddleware;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
@@ -19,6 +20,21 @@ final class FakeHttpTest extends TestCase
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
+    }
+
+    public function testWithActor(): void
+    {
+        $http = $this->fakeHttp();
+
+        $user = (object) ['id' => 42, 'name' => 'John Doe'];
+
+        $response = $http
+            ->withMiddleware(AuthMiddleware::class)
+            ->withActor($user)
+            ->get('/auth/actor');
+
+        $response->assertOk();
+        $response->assertBodySame('{"id":42,"name":"John Doe"}');
     }
 
     public function testWithMiddleware(): void
