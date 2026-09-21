@@ -100,8 +100,10 @@ final class FakeSession implements SessionInterface
 
     public function getSection(?string $name = null): SessionSectionInterface
     {
+        $name ??= '_DEFAULT';
+
         return new FakeSessionSection(
-            $name ?? '_DEFAULT',
+            $name,
             $this->data[$name] ?? [],
         );
     }

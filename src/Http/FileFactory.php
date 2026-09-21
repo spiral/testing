@@ -11,7 +11,7 @@ final class FileFactory
      */
     public function createFile(string $filename, ?int $kilobytes = null, ?string $mimeType = null): File
     {
-        $file = new File($filename, tmpfile());
+        $file = new File($filename, $this->createTempFile());
 
         if ($kilobytes !== null) {
             $file->setSize($kilobytes);
@@ -29,7 +29,7 @@ final class FileFactory
      */
     public function createFileWithContent(string $filename, string $content, ?string $mimeType = null): File
     {
-        $tmpFile = tmpfile();
+        $tmpFile = $this->createTempFile();
         fwrite($tmpFile, $content);
 
         $file = new File($filename, $tmpFile);
@@ -43,7 +43,7 @@ final class FileFactory
 
     public function createImage(string $filename, int $width = 50, int $height = 50): File
     {
-        $tmpFile = tmpfile();
+        $tmpFile = $this->createTempFile();
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
         ob_start();
@@ -56,8 +56,22 @@ final class FileFactory
 
         call_user_func("image{$extension}", $image);
 
-        fwrite($tmpFile, ob_get_clean());
+        fwrite($tmpFile, (string) ob_get_clean());
 
         return new File($filename, $tmpFile);
+    }
+
+    /**
+     * @return resource
+     */
+    private function createTempFile()
+    {
+        $tmpFile = tmpfile();
+
+        if ($tmpFile === false) {
+            throw new \RuntimeException('Unable to create a temporary file.');
+        }
+
+        return $tmpFile;
     }
 }

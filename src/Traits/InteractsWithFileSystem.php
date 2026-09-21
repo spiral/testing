@@ -56,7 +56,7 @@ trait InteractsWithFileSystem
         $fs = $this->getContainer()->get(FilesInterface::class);
 
         foreach ($directories as $directory) {
-            if ($fs->isDirectory($directory)) {
+            if ($directory !== '' && $fs->isDirectory($directory)) {
                 $fs->deleteDirectory($directory);
             }
         }

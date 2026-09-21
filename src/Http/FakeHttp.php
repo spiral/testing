@@ -363,7 +363,7 @@ class FakeHttp
         }
 
         if (!$data instanceof StreamInterface) {
-            $data = Stream::create(\json_encode($data));
+            $data = Stream::create(\json_encode($data, JSON_THROW_ON_ERROR));
         }
 
         $headers = \array_merge([
@@ -447,7 +447,9 @@ class FakeHttp
             return new TestResponse(($this->scope)($handler, $bindings));
         } finally {
             try {
-                $this->container->get(FinalizerInterface::class)->finalize(false);
+                /** @var FinalizerInterface $finalizer */
+                $finalizer = $this->container->get(FinalizerInterface::class);
+                $finalizer->finalize(false);
             } catch (\Throwable) {
                 // Ignore exceptions when finalizer is out of scope
             }

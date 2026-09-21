@@ -31,7 +31,7 @@ trait InteractsWithConsole
                 \sprintf(
                     'Console command [%s] with args [%s] does not contain string [%s]',
                     $command,
-                    json_encode($args),
+                    json_encode($args, JSON_THROW_ON_ERROR),
                     $string,
                 ),
             );

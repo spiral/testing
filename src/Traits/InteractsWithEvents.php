@@ -21,16 +21,16 @@ trait InteractsWithEvents
             $this->getContainer()->removeBinding(EventDispatcherInterface::class);
         }
 
-        $this->getContainer()->bindSingleton(
-            EventDispatcherInterface::class,
-            $dispatcher = $this->getContainer()->make(
-                FakeEventDispatcher::class,
-                [
-                    'eventDispatcher' => $eventDispatcher,
-                    'eventsToFake' => $eventsToFake,
-                ],
-            ),
+        /** @var FakeEventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->make(
+            FakeEventDispatcher::class,
+            [
+                'eventDispatcher' => $eventDispatcher,
+                'eventsToFake' => $eventsToFake,
+            ],
         );
+
+        $this->getContainer()->bindSingleton(EventDispatcherInterface::class, $dispatcher);
 
         return $dispatcher;
     }

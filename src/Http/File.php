@@ -28,10 +28,11 @@ class File extends UploadedFile
     ) {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         $mimeType = (new MimeTypes())->getMimeTypes($extension)[0] ?? 'application/octet-stream';
+        $stat = fstat($tempFile);
 
         parent::__construct(
             $this->tempFilePath(),
-            fstat($tempFile)['size'],
+            $stat === false ? 0 : $stat['size'],
             UPLOAD_ERR_OK,
             $filename,
             $mimeType,
