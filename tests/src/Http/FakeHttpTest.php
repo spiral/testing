@@ -31,7 +31,7 @@ final class FakeHttpTest extends TestCase
         $response = $http
             ->withMiddleware(AuthMiddleware::class)
             ->withActor($user)
-            ->get('/some-method');
+            ->get('/auth/actor');
 
         $response->assertOk();
         $response->assertBodySame('{"id":42,"name":"John Doe"}');
@@ -39,8 +39,7 @@ final class FakeHttpTest extends TestCase
 
     public function testWithMiddleware(): void
     {
-        $response = $this
-            ->fakeHttp()
+        $response = $this->fakeHttp()
             ->withMiddleware(StaticResultMiddleware::class)
             ->get('/get/query-params');
         $response->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
@@ -48,19 +47,16 @@ final class FakeHttpTest extends TestCase
 
     public function testWithoutMiddleware(): void
     {
-        $this
-            ->fakeHttp()
+        $this->fakeHttp()
             ->get(FailMiddleware::ROUTE)
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
 
-        $this
-            ->fakeHttp()
+        $this->fakeHttp()
             ->withoutMiddleware(FailMiddleware::class)
             ->get(FailMiddleware::ROUTE)
             ->assertNotFound();
 
-        $this
-            ->fakeHttp()
+        $this->fakeHttp()
             ->get(FailMiddleware::ROUTE)
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
