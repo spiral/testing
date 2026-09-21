@@ -124,7 +124,9 @@ abstract class TestCase extends BaseTestCase
     {
         $environment = new Environment($env);
 
-        $app = $this->createAppInstance($container);
+        // Published before the app boots: a `beforeInit` or `beforeBooting` callback that reaches for
+        // `getApp()` or `getContainer()` would otherwise find no app and start building a second one.
+        $this->app = $app = $this->createAppInstance($container);
         $app->getContainer()->removeBinding(EnvironmentInterface::class);
         $app->getContainer()->bindSingleton(EnvironmentInterface::class, $environment);
 
