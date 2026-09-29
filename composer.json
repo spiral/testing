@@ -70,6 +70,7 @@
         "ext-gd": "Required to use generate fake image files"
     },
     "require-dev": {
+        "llm/skills": "^1.14",
         "spiral-packages/league-event": "^1.0.1",
         "spiral/code-style": "^2.2.2",
         "spiral/dumper": "^3.3.1",
@@ -95,7 +96,8 @@
         "lock": false,
         "sort-packages": true,
         "allow-plugins": {
-            "spiral/composer-publish-plugin": false
+            "spiral/composer-publish-plugin": false,
+            "llm/skills": true
         }
     },
     "extra": {
