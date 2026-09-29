@@ -1,0 +1,31 @@
+on:
+    pull_request:
+    push:
+        branches:
+            - 4.x
+
+name: testo
+
+jobs:
+    testo:
+        name: PHP ${{ matrix.php }} / ${{ matrix.stability }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ['8.4', '8.5']
+                stability: ['prefer-lowest', 'prefer-stable']
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  extensions: json, tokenizer
+                  coverage: none
+
+            - uses: ramsey/composer-install@v3
+              with:
+                  dependency-versions: ${{ matrix.stability == 'prefer-lowest' && 'lowest' || 'highest' }}
+
+            - run: vendor/bin/testo
