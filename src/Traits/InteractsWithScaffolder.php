@@ -7,9 +7,12 @@ namespace Spiral\Testing\Traits;
 use Spiral\Files\FilesInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 trait InteractsWithScaffolder
 {
+    #[AssertMethod]
     public function assertScaffolderCommandSame(
         string $command,
         array $args,
@@ -21,13 +24,13 @@ trait InteractsWithScaffolder
             string $filename,
             string $data,
         ) use ($expected, $expectedFilename): bool {
-            $this->assertSame($expected, $data, 'Generated code is not the same with expected.');
+            Assert::same($data, $expected, 'Generated code is not the same with expected.');
 
             if ($expectedFilename) {
                 $root = $this->getDirectoryByAlias('root');
-                $this->assertSame(
-                    \str_replace($root, '', $expectedFilename),
+                Assert::same(
                     \str_replace($root, '', $filename),
+                    \str_replace($root, '', $expectedFilename),
                     'Generated filename is not the same with expected.',
                 );
             }
@@ -36,10 +39,11 @@ trait InteractsWithScaffolder
         });
 
         foreach ($expectedOutputStrings as $expected) {
-            $this->assertStringContainsString($expected, $output, 'Output does not contain expected string.');
+            Assert::string($output)->contains($expected, 'Output does not contain expected string.');
         }
     }
 
+    #[AssertMethod]
     public function assertScaffolderCommandContains(
         string $command,
         array $args,
@@ -52,14 +56,14 @@ trait InteractsWithScaffolder
             string $data,
         ) use ($expectedStrings, $expectedFilename): bool {
             foreach ($expectedStrings as $expected) {
-                $this->assertStringContainsString($expected, $data, 'Generated code does not contain expected string.');
+                Assert::string($data)->contains($expected, 'Generated code does not contain expected string.');
             }
 
             if ($expectedFilename) {
                 $root = $this->getDirectoryByAlias('root');
-                $this->assertSame(
-                    \str_replace($root, '', $expectedFilename),
+                Assert::same(
                     \str_replace($root, '', $filename),
+                    \str_replace($root, '', $expectedFilename),
                     'Generated filename is not the same with expected.',
                 );
             }
@@ -68,7 +72,7 @@ trait InteractsWithScaffolder
         });
 
         foreach ($expectedOutputStrings as $expected) {
-            $this->assertStringContainsString($expected, $output, 'Output does not contain expected string.');
+            Assert::string($output)->contains($expected, 'Output does not contain expected string.');
         }
     }
 

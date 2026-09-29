@@ -4,28 +4,29 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Traits;
 
-use PHPUnit\Framework\TestCase;
 use Spiral\Core\Container;
 use Spiral\Mailer\MailerInterface;
 use Spiral\Testing\Mailer\FakeMailer;
 use Spiral\Testing\Traits\InteractsWithMailer;
+use Testo\Assert;
+use Testo\Test;
 
 /**
  * @coversDefaultClass InteractsWithMailer
  */
-final class InteractsWithMailerTest extends TestCase
+#[Test]
+final class InteractsWithMailerTest
 {
     public function test(): void
     {
         $container = new Container();
-        self::assertFalse($container->has(MailerInterface::class));
-
+        Assert::false($container->has(MailerInterface::class));
         $object = $this->getSomeService($container);
         $mailer = $object->fakeMailer();
-        self::assertInstanceOf(FakeMailer::class, $mailer);
-        self::assertTrue($container->has(MailerInterface::class));
+        Assert::instanceOf($mailer, FakeMailer::class);
+        Assert::true($container->has(MailerInterface::class));
         $mailer2 = $object->fakeMailer();
-        self::assertSame($mailer, $mailer2);
+        Assert::same($mailer2, $mailer);
     }
 
     private function getSomeService(Container $container): object

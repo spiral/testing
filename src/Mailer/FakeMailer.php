@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Mailer;
 
-use PHPUnit\Framework\TestCase;
 use Spiral\Mailer\MailerInterface;
 use Spiral\Mailer\MessageInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 class FakeMailer implements MailerInterface
 {
@@ -15,11 +16,12 @@ class FakeMailer implements MailerInterface
     /**
      * @return MessageInterface[]
      */
+    #[AssertMethod]
     public function assertSent(string $message, ?\Closure $callback = null): array
     {
         $messages = $this->filterMessages($message, $callback);
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($messages) > 0,
             \sprintf('The expected [%s] message was not sent.', $message),
         );
@@ -27,13 +29,14 @@ class FakeMailer implements MailerInterface
         return $messages;
     }
 
+    #[AssertMethod]
     public function assertNotSent(string $message, ?\Closure $callback = null): void
     {
         $messages = $this->filterMessages($message, $callback);
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($messages),
             0,
-            $messages,
             \sprintf('The unexpected [%s] message was sent.', $message),
         );
     }
@@ -41,13 +44,14 @@ class FakeMailer implements MailerInterface
     /**
      * @return MessageInterface[]
      */
+    #[AssertMethod]
     public function assertSentTimes(string $message, int $times = 1): array
     {
         $messages = $this->filterMessages($message);
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($messages),
             $times,
-            $messages,
             \sprintf(
                 'The expected [%s] message was sent {%d} times instead of {%d} times.',
                 $message,
@@ -59,6 +63,7 @@ class FakeMailer implements MailerInterface
         return $messages;
     }
 
+    #[AssertMethod]
     public function assertNothingSent(): void
     {
         $messages = \array_map(static function (MessageInterface $message): string {
@@ -67,9 +72,9 @@ class FakeMailer implements MailerInterface
 
         $messages = \implode(', ', $messages);
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($this->messages),
             0,
-            $this->messages,
             \sprintf(
                 'The following messages were sent unexpectedly: %s.',
                 $messages,

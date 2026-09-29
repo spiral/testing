@@ -6,24 +6,28 @@ namespace Spiral\Testing\Traits;
 
 use Spiral\Boot\DirectoriesInterface;
 use Spiral\Files\FilesInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 trait InteractsWithFileSystem
 {
+    #[AssertMethod]
     public function assertDirectoryAliasDefined(string $name): void
     {
-        $this->assertTrue(
+        Assert::true(
             $this->getDirectories()->has($name),
             \sprintf('Application directory with alias [%s] is not defined.', $name),
         );
     }
 
+    #[AssertMethod]
     public function assertDirectoryAliasMatches(string $name, string $path): void
     {
         $this->assertDirectoryAliasDefined($name);
 
         $currentPath = $this->getDirectories()->get($name);
 
-        $this->assertSame(
+        Assert::same(
             $currentPath,
             $path,
             \sprintf(
@@ -51,6 +55,7 @@ trait InteractsWithFileSystem
         return $dir;
     }
 
+    #[AssertMethod]
     public function cleanupDirectories(string ...$directories): void
     {
         $fs = $this->getContainer()->get(FilesInterface::class);
@@ -62,6 +67,7 @@ trait InteractsWithFileSystem
         }
     }
 
+    #[AssertMethod]
     public function cleanupDirectoriesByAliases(string ...$aliases): void
     {
         $directories = \array_map(function (string $alias): string {
@@ -71,6 +77,7 @@ trait InteractsWithFileSystem
         $this->cleanupDirectories(...$directories);
     }
 
+    #[AssertMethod]
     public function cleanUpRuntimeDirectory(): void
     {
         $this->cleanupDirectoriesByAliases('runtime');

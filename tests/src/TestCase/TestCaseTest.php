@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\TestCase;
 
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
-use PHPUnit\Framework\TestCase;
+use Spiral\Testing\TestCase;
 use Spiral\Testing\Tests\TestCase\Fixture\WithMethods;
 use Spiral\Testing\Tests\TestCase\Fixture\WithMethodsInNestedParent;
 use Spiral\Testing\Tests\TestCase\Fixture\WithMethodsInParent;
@@ -13,83 +12,85 @@ use Spiral\Testing\Tests\TestCase\Fixture\WithoutMethods;
 use Spiral\Testing\Tests\TestCase\Fixture\WithoutTraits;
 use Spiral\Testing\Tests\TestCase\Fixture\WithSetUp;
 use Spiral\Testing\Tests\TestCase\Fixture\WithTearDown;
+use Testo\Assert;
+use Testo\Assert\ExpectNoAssertions;
+use Testo\Test;
 
-final class TestCaseTest extends TestCase
+#[Test]
+final class TestCaseTest
 {
-    /**
-     * @doesNotPerformAssertions
-     */
-    #[DoesNotPerformAssertions]
+    #[ExpectNoAssertions]
     public function testItDoesNotThrowWhenCallingSetUp(): void
     {
-        $testCase = new WithoutTraits('foo');
-        $testCase->setUp();
+        $testCase = new WithoutTraits();
+        self::setUp($testCase);
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
-    #[DoesNotPerformAssertions]
+    #[ExpectNoAssertions]
     public function testItDoesNotThrowWhenCallingTearDown(): void
     {
-        $testCase = new WithoutTraits('foo');
-        $testCase->tearDown();
+        $testCase = new WithoutTraits();
+        self::tearDown($testCase);
     }
 
     public function testTraitWithoutMethods(): void
     {
-        $testCase = new WithoutMethods('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
-
-        $this->assertTrue($testCase->isAvailable());
+        $testCase = new WithoutMethods();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->isAvailable());
     }
 
     public function testTraitWithSetUp(): void
     {
-        $testCase = new WithSetUp('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
-
-        $this->assertTrue($testCase->calledSetUp);
+        $testCase = new WithSetUp();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->calledSetUp);
     }
 
     public function testTraitWithTearDown(): void
     {
-        $testCase = new WithTearDown('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
-
-        $this->assertTrue($testCase->calledTearDown);
+        $testCase = new WithTearDown();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->calledTearDown);
     }
 
     public function testTraitWithSetUpAndTearDownMethods(): void
     {
-        $testCase = new WithMethods('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
-
-        $this->assertTrue($testCase->calledSetUp);
-        $this->assertTrue($testCase->calledTearDown);
+        $testCase = new WithMethods();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->calledSetUp);
+        Assert::true($testCase->calledTearDown);
     }
 
     public function testTraitWithSetUpAndTearDownMethodsInParentClass(): void
     {
-        $testCase = new WithMethodsInParent('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
-
-        $this->assertTrue($testCase->calledSetUp);
-        $this->assertTrue($testCase->calledTearDown);
+        $testCase = new WithMethodsInParent();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->calledSetUp);
+        Assert::true($testCase->calledTearDown);
     }
 
     public function testTraitWithSetUpAndTearDownMethodsInNestedParentClass(): void
     {
-        $testCase = new WithMethodsInNestedParent('foo');
-        $testCase->setUp();
-        $testCase->tearDown();
+        $testCase = new WithMethodsInNestedParent();
+        self::setUp($testCase);
+        self::tearDown($testCase);
+        Assert::true($testCase->calledSetUp);
+        Assert::true($testCase->calledTearDown);
+    }
 
-        $this->assertTrue($testCase->calledSetUp);
-        $this->assertTrue($testCase->calledTearDown);
+    private static function setUp(TestCase $testCase): void
+    {
+        (fn() => $this->setUp())->call($testCase);
+    }
+
+    private static function tearDown(TestCase $testCase): void
+    {
+        (fn() => $this->tearDown())->call($testCase);
     }
 }

@@ -8,14 +8,17 @@ use Spiral\Console\Console;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 trait InteractsWithConsole
 {
     public int $defaultVerbosityLevel = OutputInterface::VERBOSITY_NORMAL;
 
     /**
-     * @param string[]|string $strings
+     * @param non-empty-string[]|non-empty-string $strings
      */
+    #[AssertMethod]
     public function assertConsoleCommandOutputContainsStrings(
         string $command,
         array $args = [],
@@ -25,9 +28,8 @@ trait InteractsWithConsole
         $output = $this->runCommand($command, $args);
 
         foreach ((array) $strings as $string) {
-            $this->assertStringContainsString(
+            Assert::string($output)->contains(
                 $string,
-                $output,
                 \sprintf(
                     'Console command [%s] with args [%s] does not contain string [%s]',
                     $command,
@@ -38,9 +40,10 @@ trait InteractsWithConsole
         }
     }
 
+    #[AssertMethod]
     public function assertCommandRegistered(string $name): void
     {
-        $this->assertTrue(
+        Assert::true(
             $this->getConsole()->getApplication()->has($name),
             \sprintf('Command [%s] is not registered.', $name),
         );

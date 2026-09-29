@@ -11,6 +11,8 @@ use Spiral\Core\Container\Autowire;
 use Spiral\Testing\Tests\App\Bootloader\CustomAuthTransportBootloader;
 use Spiral\Testing\Tests\Http\Stub\ActorReportingMiddleware;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Assert;
+use Testo\Test;
 
 final class FakeHttpAuthTransportTest extends TestCase
 {
@@ -22,13 +24,15 @@ final class FakeHttpAuthTransportTest extends TestCase
         return [...parent::defineBootloaders(), CustomAuthTransportBootloader::class];
     }
 
+    #[Test]
     public function testCustomTransportIsConfigured(): void
     {
         $transports = $this->getContainer()->get(TransportRegistry::class)->getTransports();
 
-        $this->assertArrayHasKey(CustomAuthTransportBootloader::TRANSPORT, $transports);
+        Assert::array($transports)->hasKeys(CustomAuthTransportBootloader::TRANSPORT);
     }
 
+    #[Test]
     public function testActorIsAuthenticatedThroughNamedTransport(): void
     {
         $actor = new \stdClass();
@@ -42,6 +46,7 @@ final class FakeHttpAuthTransportTest extends TestCase
         $response->assertBodySame($actor::class);
     }
 
+    #[Test]
     public function testActorIsAuthenticatedThroughCustomTransport(): void
     {
         $actor = new \stdClass();
@@ -55,6 +60,7 @@ final class FakeHttpAuthTransportTest extends TestCase
         $response->assertBodySame($actor::class);
     }
 
+    #[Test]
     public function testActorIsAuthenticatedThroughEveryTransport(): void
     {
         $actor = new \stdClass();
@@ -68,6 +74,7 @@ final class FakeHttpAuthTransportTest extends TestCase
         $response->assertBodySame($actor::class);
     }
 
+    #[Test]
     public function testRequestWithoutActorStaysUnauthenticated(): void
     {
         $response = $this->fakeHttp()

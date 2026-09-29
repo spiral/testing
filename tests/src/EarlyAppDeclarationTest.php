@@ -6,6 +6,8 @@ namespace Spiral\Testing\Tests;
 
 use Spiral\Core\Container;
 use Spiral\Testing\TestableKernelInterface;
+use Testo\Assert;
+use Testo\Test;
 
 final class EarlyAppDeclarationTest extends TestCase
 {
@@ -21,6 +23,7 @@ final class EarlyAppDeclarationTest extends TestCase
         return parent::createAppInstance($container);
     }
 
+    #[Test]
     public function testContainerIsAvailableWhileBooting(): void
     {
         $bootingContainer = null;
@@ -28,14 +31,14 @@ final class EarlyAppDeclarationTest extends TestCase
         $this->beforeBooting(function () use (&$bootingContainer): void {
             // Guards the recursion instead of letting it overflow the stack: a second call means
             // getContainer() did not find the app and went on to build another one.
-            $this->assertSame(1, ++$this->bootingCalls);
+            Assert::same(++$this->bootingCalls, 1);
 
             $bootingContainer = $this->getContainer();
         });
 
         $this->initApp();
 
-        $this->assertSame(1, $this->createdApps);
-        $this->assertSame($this->getContainer(), $bootingContainer);
+        Assert::same($this->createdApps, 1);
+        Assert::same($bootingContainer, $this->getContainer());
     }
 }

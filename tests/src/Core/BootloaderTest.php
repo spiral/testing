@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Core;
 
-use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Testing\Tests\App\Repositories\ArrayPostRepository;
 use Spiral\Testing\Tests\App\Repositories\PostRepositoryInterface;
 use Spiral\Testing\Tests\App\Services\BlogService;
 use Spiral\Testing\Tests\App\Services\BlogServiceInterface;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Expect;
+use Testo\Test;
 
 final class BootloaderTest extends TestCase
 {
+    #[Test]
     public function testPostRepositoryInterfaceBinding(): void
     {
         $this->assertContainerBoundAsSingleton(
@@ -21,6 +24,7 @@ final class BootloaderTest extends TestCase
         );
     }
 
+    #[Test]
     public function testBlogServiceInterfaceBinding(): void
     {
         $this->assertContainerBound(
@@ -29,6 +33,7 @@ final class BootloaderTest extends TestCase
         );
     }
 
+    #[Test]
     public function testBlogServiceInterfaceIsNotSingleton(): void
     {
         $this->assertContainerBoundNotAsSingleton(
@@ -37,15 +42,13 @@ final class BootloaderTest extends TestCase
         );
     }
 
+    #[Test]
     public function testAssertContainerBoundAsSingletonShouldThrowAnException(): void
     {
-        $this->expectException(ExpectationFailedException::class);
-        $this->expectExceptionMessage(
-            \sprintf(
-                'Container [%s] is bound, but it contains not a singleton.',
-                BlogServiceInterface::class,
-            ),
-        );
+        Expect::exception(AssertionException::class)->withMessageContaining(\sprintf(
+            'Container [%s] is bound, but it contains not a singleton.',
+            BlogServiceInterface::class,
+        ));
 
         $this->assertContainerBoundAsSingleton(
             BlogServiceInterface::class,

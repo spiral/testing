@@ -6,15 +6,18 @@ namespace Spiral\Testing\Traits;
 
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Boot\KernelInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 trait InteractsWithDispatcher
 {
     /**
      * @param class-string<DispatcherInterface> $dispatcher
      */
+    #[AssertMethod]
     public function assertDispatcherCanBeServed(string $dispatcher): void
     {
-        $this->assertTrue(
+        Assert::true(
             $this->getContainer()->invoke([$dispatcher, 'canServe']),
             \sprintf('Dispatcher [%s] can not be served.', $dispatcher),
         );
@@ -23,9 +26,10 @@ trait InteractsWithDispatcher
     /**
      * @param class-string<DispatcherInterface> $dispatcher
      */
+    #[AssertMethod]
     public function assertDispatcherCannotBeServed(string $dispatcher): void
     {
-        $this->assertFalse(
+        Assert::false(
             $this->getContainer()->invoke([$dispatcher, 'canServe']),
             \sprintf('Dispatcher [%s] can be served.', $dispatcher),
         );
@@ -34,6 +38,7 @@ trait InteractsWithDispatcher
     /**
      * @param class-string<DispatcherInterface> $dispatcher
      */
+    #[AssertMethod]
     public function serveDispatcher(string $dispatcher, array $bindings = []): void
     {
         $this->assertDispatcherRegistered($dispatcher);
@@ -51,11 +56,12 @@ trait InteractsWithDispatcher
     /**
      * @param class-string<DispatcherInterface> $dispatcher
      */
+    #[AssertMethod]
     public function assertDispatcherRegistered(string $dispatcher): void
     {
-        $this->assertContains(
-            $dispatcher,
+        Assert::contains(
             $this->getRegisteredDispatchers(),
+            $dispatcher,
             \sprintf('Dispatcher [%s] was not loaded.', $dispatcher),
         );
     }
@@ -63,11 +69,11 @@ trait InteractsWithDispatcher
     /**
      * @param class-string<DispatcherInterface> $dispatcher
      */
+    #[AssertMethod]
     public function assertDispatcherMissed(string $dispatcher): void
     {
-        $this->assertNotContains(
+        Assert::iterable($this->getRegisteredDispatchers())->notContains(
             $dispatcher,
-            $this->getRegisteredDispatchers(),
             \sprintf('Dispatcher [%s] was loaded.', $dispatcher),
         );
     }

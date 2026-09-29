@@ -7,9 +7,13 @@ namespace Spiral\Testing\Tests\Scaffolder;
 use Spiral\Files\FilesInterface;
 use Spiral\Testing\Tests\TestCase;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Testo\Assert;
+use Testo\Expect;
+use Testo\Test;
 
 final class ScaffolderTest extends TestCase
 {
+    #[Test]
     public function testCreateCommand(): void
     {
         $this->assertScaffolderCommandSame(
@@ -50,6 +54,7 @@ PHP,
         );
     }
 
+    #[Test]
     public function testCreateCommandContainsNamespace(): void
     {
         $this->assertScaffolderCommandContains(
@@ -65,10 +70,10 @@ PHP,
         );
     }
 
+    #[Test]
     public function testCommandNameIsRequired(): void
     {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Not enough arguments (missing: "name").');
+        Expect::exception(RuntimeException::class)->withMessageContaining('Not enough arguments (missing: "name").');
 
         $this->assertScaffolderCommandSame(
             'create:command',
@@ -77,6 +82,7 @@ PHP,
         );
     }
 
+    #[Test]
     public function testCreateCommandWithAdditionalOptions(): void
     {
         $this->assertScaffolderCommandContains(
@@ -92,6 +98,7 @@ PHP,
         );
     }
 
+    #[Test]
     public function testAfterTestFilesShoulBeRestored(): void
     {
         $files = $this->mockContainer(FilesInterface::class);
@@ -104,6 +111,6 @@ PHP,
             expectedStrings: ['final class TestCommand extends Command'],
         );
 
-        $this->assertSame($files, $this->getContainer()->get(FilesInterface::class));
+        Assert::same($this->getContainer()->get(FilesInterface::class), $files);
     }
 }

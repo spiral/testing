@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Storage;
 
-use PHPUnit\Framework\TestCase;
 use Spiral\Storage\Bucket;
 use Spiral\Storage\BucketInterface;
 use Spiral\Storage\FileInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 class FakeBucket extends Bucket
 {
@@ -17,41 +18,45 @@ class FakeBucket extends Bucket
     private array $moved = [];
     private array $visibility = [];
 
+    #[AssertMethod]
     public function assertExists(string $pathname): void
     {
-        TestCase::assertTrue(
+        Assert::true(
             $this->file($pathname)->exists(),
             \sprintf('The expected [%s] files is not exist.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertNotExist(string $pathname): void
     {
-        TestCase::assertFalse(
+        Assert::false(
             $this->file($pathname)->exists(),
             \sprintf('The unexpected [%s] files is exist.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertCreated(string $pathname): void
     {
         $files = $this->filterFiles($this->created, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) > 0,
             \sprintf('The expected [%s] files was not created.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertNotCreated(string $pathname): void
     {
         $files = $this->filterFiles($this->created, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) === 0,
             \sprintf('The expected [%s] files was created.', $pathname),
         );
@@ -75,25 +80,27 @@ class FakeBucket extends Bucket
         return $file;
     }
 
+    #[AssertMethod]
     public function assertVisibilityChanged(string $pathname): void
     {
         $files = $this->filterFiles($this->visibility, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) > 0,
             \sprintf('The expected [%s] files visibility was not changed.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertVisibilityNotChanged(string $pathname): void
     {
         $files = $this->filterFiles($this->visibility, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) === 0,
             \sprintf('The expected [%s] files visibility was changed.', $pathname),
         );
@@ -108,25 +115,27 @@ class FakeBucket extends Bucket
         return $file;
     }
 
+    #[AssertMethod]
     public function assertCopied(string $pathname, string $destination): void
     {
         $files = $this->filterFiles($this->copied, function (array $data) use ($pathname, $destination) {
             return $data['pathname'] === $pathname && $data['destination'] === $destination;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) > 0,
             \sprintf('The expected [%s] files was not copied.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertNotCopied(string $pathname, string $destination): void
     {
         $files = $this->filterFiles($this->copied, function (array $data) use ($pathname, $destination) {
             return $data['pathname'] === $pathname && $data['destination'] === $destination;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) === 0,
             \sprintf('The expected [%s] files was copied.', $pathname),
         );
@@ -145,25 +154,27 @@ class FakeBucket extends Bucket
         return $file;
     }
 
+    #[AssertMethod]
     public function assertMoved(string $pathname, string $destination): void
     {
         $files = $this->filterFiles($this->moved, function (array $data) use ($pathname, $destination) {
             return $data['pathname'] === $pathname && $data['destination'] === $destination;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) > 0,
             \sprintf('The expected [%s] files was not moved.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertNotMoved(string $pathname, string $destination): void
     {
         $files = $this->filterFiles($this->moved, function (array $data) use ($pathname, $destination) {
             return $data['pathname'] === $pathname && $data['destination'] === $destination;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) === 0,
             \sprintf('The expected [%s] files was moved.', $pathname),
         );
@@ -182,25 +193,27 @@ class FakeBucket extends Bucket
         return $file;
     }
 
+    #[AssertMethod]
     public function assertDeleted(string $pathname): void
     {
         $files = $this->filterFiles($this->deleted, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) > 0,
             \sprintf('The expected [%s] files was not deleted.', $pathname),
         );
     }
 
+    #[AssertMethod]
     public function assertNotDeleted(string $pathname): void
     {
         $files = $this->filterFiles($this->deleted, function (array $data) use ($pathname) {
             return $data['pathname'] === $pathname;
         });
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($files) === 0,
             \sprintf('The expected [%s] files was deleted.', $pathname),
         );

@@ -8,33 +8,29 @@ use Spiral\Exceptions\ExceptionHandler;
 use Spiral\Exceptions\ExceptionHandlerInterface;
 use Spiral\Testing\Attribute\WithoutExceptionHandling;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Assert;
+use Testo\Test;
 
 final class WithoutExceptionHandlingTest extends TestCase
 {
+    #[Test]
     public function testDefaultHandler(): void
     {
-        $this->assertInstanceOf(
-            ExceptionHandler::class,
-            $this->getContainer()->get(ExceptionHandlerInterface::class),
-        );
+        Assert::instanceOf($this->getContainer()->get(ExceptionHandlerInterface::class), ExceptionHandler::class);
     }
 
+    #[Test]
     public function testSuppressWithMethod(): void
     {
         $this->withoutExceptionHandling();
 
-        $this->assertNotInstanceOf(
-            ExceptionHandler::class,
-            $this->getContainer()->get(ExceptionHandlerInterface::class),
-        );
+        Assert::false($this->getContainer()->get(ExceptionHandlerInterface::class) instanceof ExceptionHandler);
     }
 
     #[WithoutExceptionHandling]
+    #[Test]
     public function testSuppressWithAttribute(): void
     {
-        $this->assertNotInstanceOf(
-            ExceptionHandler::class,
-            $this->getContainer()->get(ExceptionHandlerInterface::class),
-        );
+        Assert::false($this->getContainer()->get(ExceptionHandlerInterface::class) instanceof ExceptionHandler);
     }
 }

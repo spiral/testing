@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Queue;
 
-use PHPUnit\Framework\TestCase;
 use Spiral\Queue\HandlerRegistryInterface;
 use Spiral\Queue\Options;
 use Spiral\Queue\OptionsInterface;
 use Spiral\Queue\QueueInterface;
 use Spiral\Queue\QueueTrait;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 /**
  * @psalm-type TJob = array{
@@ -41,11 +42,12 @@ class FakeQueue implements QueueInterface
     /**
      * @return list<TJob>
      */
+    #[AssertMethod]
     public function assertPushed(string $name, ?\Closure $callback = null): array
     {
         $jobs = $this->filterJobs($name, $callback);
 
-        TestCase::assertTrue(
+        Assert::true(
             \count($jobs) > 0,
             \sprintf('The expected job [%s] was not pushed.', $name),
         );
@@ -53,24 +55,26 @@ class FakeQueue implements QueueInterface
         return $jobs;
     }
 
+    #[AssertMethod]
     public function assertNotPushed(string $name, ?\Closure $callback = null): void
     {
         $jobs = $this->filterJobs($name, $callback);
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($jobs),
             0,
-            $jobs,
             \sprintf('The unexpected job [%s] was pushed.', $name),
         );
     }
 
+    #[AssertMethod]
     public function assertNothingPushed(): void
     {
         $jobs = \implode(', ', \array_keys($this->jobs));
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($this->jobs),
             0,
-            $this->jobs,
             \sprintf('The following jobs were pushed unexpectedly: %s', $jobs),
         );
     }
@@ -78,13 +82,14 @@ class FakeQueue implements QueueInterface
     /**
      * @return list<TJob>
      */
+    #[AssertMethod]
     public function assertPushedTimes(string $name, int $times = 1): array
     {
         $jobs = $this->filterJobs($name);
 
-        TestCase::assertCount(
+        Assert::same(
+            \count($jobs),
             $times,
-            $jobs,
             \sprintf(
                 'The expected job [%s] was sent {%d} times instead of {%d} times.',
                 $name,
@@ -99,6 +104,7 @@ class FakeQueue implements QueueInterface
     /**
      * @return list<TJob>
      */
+    #[AssertMethod]
     public function assertPushedOnQueue(string $queue, string $name, ?\Closure $callback = null): array
     {
         return $this->assertPushed($name, static function (array $data) use ($queue, $callback) {

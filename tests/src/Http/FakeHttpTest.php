@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Http;
 
-use PHPUnit\Framework\ExpectationFailedException;
 use Spiral\Auth\Middleware\AuthMiddleware;
 use Spiral\Boot\FinalizerInterface;
 use Spiral\Core\Internal\Introspector;
@@ -13,15 +12,21 @@ use Spiral\Testing\Tests\App\Middleware\FailMiddleware;
 use Spiral\Testing\Tests\Http\Stub\FakeFinalizer;
 use Spiral\Testing\Tests\Http\Stub\StaticResultMiddleware;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Assert;
+use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Expect;
+use Testo\Test;
 
 final class FakeHttpTest extends TestCase
 {
+    #[Test]
     public function testGetBodySame(): void
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
     }
 
+    #[Test]
     public function testWithActor(): void
     {
         $http = $this->fakeHttp();
@@ -37,6 +42,7 @@ final class FakeHttpTest extends TestCase
         $response->assertBodySame('{"id":42,"name":"John Doe"}');
     }
 
+    #[Test]
     public function testWithMiddleware(): void
     {
         $response = $this->fakeHttp()
@@ -45,6 +51,7 @@ final class FakeHttpTest extends TestCase
         $response->assertBodySame(StaticResultMiddleware::STATIC_RESULT);
     }
 
+    #[Test]
     public function testWithoutMiddleware(): void
     {
         $this->fakeHttp()
@@ -61,6 +68,7 @@ final class FakeHttpTest extends TestCase
             ->assertBodySame(FailMiddleware::STATIC_RESULT);
     }
 
+    #[Test]
     public function testWithoutAndWithMiddleware(): void
     {
         $this->fakeHttp()
@@ -100,39 +108,44 @@ final class FakeHttpTest extends TestCase
     }
 
     #[TestScope('http')]
+    #[Test]
     public function testHttpScopeDoesNotConflict(): void
     {
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[]');
     }
 
+    #[Test]
     public function testAutoHttpScope(): void
     {
         $response = $this->fakeHttp()->get('/get/scopes');
         $response->assertBodySame('["http-request","http","root"]');
     }
 
+    #[Test]
     public function testGetWithQueryParams(): void
     {
         $response = $this->fakeHttp()->get('/get/query-params', ['foo' => 'bar', 'baz' => ['foo1' => 'bar1']]);
         $response->assertBodySame('{"foo":"bar","baz":{"foo1":"bar1"}}');
     }
 
+    #[Test]
     public function testGetShouldThrowAnExceptionWhenNotSame(): void
     {
-        $this->expectException(ExpectationFailedException::class);
-        $this->expectExceptionMessage('Response is not same with [[foo]]');
+        Expect::exception(AssertionException::class)->withMessageContaining('Response is not same with [[foo]]');
 
         $response = $this->fakeHttp()->get('/get/query-params');
         $response->assertBodySame('[foo]');
     }
 
+    #[Test]
     public function testGetWithHeaders(): void
     {
         $response = $this->fakeHttp()->get('/get/headers', headers: ['foo' => 'bar', 'baz=bar']);
         $response->assertBodySame('{"foo":["bar"],"0":["baz=bar"]}');
     }
 
+    #[Test]
     public function testGetWithDefaultHeaders(): void
     {
         $http = $this->fakeHttp();
@@ -143,6 +156,7 @@ final class FakeHttpTest extends TestCase
         $response->assertBodySame('{"baz":["bar"],"foo":["bar"]}');
     }
 
+    #[Test]
     public function testGetJsonParsedBody(): void
     {
         $http = $this->fakeHttp();
@@ -151,41 +165,42 @@ final class FakeHttpTest extends TestCase
             'list' => [1, 2, 3, 4],
         ];
         $response = $http->get('/get/query-params', $arr);
-        self::assertSame(
-            $arr,
-            $response->getJsonParsedBody(),
-        );
+        Assert::same($response->getJsonParsedBody(), $arr);
     }
 
     #[TestScope('foo')]
+    #[Test]
     public function testGetWithQueryParamsInScope(): void
     {
         $response = $this->fakeHttp()->get('/get/query-params', ['foo' => 'bar', 'baz' => ['foo1' => 'bar1']]);
         $response->assertBodySame('{"foo":"bar","baz":{"foo1":"bar1"}}');
-        $this->assertSame(['foo', 'root'], Introspector::scopeNames($this->getContainer()));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['foo', 'root']);
     }
 
     #[TestScope(['foo', 'bar'])]
+    #[Test]
     public function testGetWithQueryParamsInNestedScope(): void
     {
         $response = $this->fakeHttp()->get('/get/query-params', ['foo' => 'bar', 'baz' => ['foo1' => 'bar1']]);
         $response->assertBodySame('{"foo":"bar","baz":{"foo1":"bar1"}}');
-        $this->assertSame(['bar', 'foo', 'root'], Introspector::scopeNames($this->getContainer()));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['bar', 'foo', 'root']);
     }
 
+    #[Test]
     public function testFinalizersAreCalledAfterRequest(): void
     {
         $finalizer = new FakeFinalizer();
         $this->getContainer()->bindSingleton(FinalizerInterface::class, $finalizer);
 
-        $this->assertCount(0, $finalizer->calls);
+        Assert::count($finalizer->calls, 0);
 
         $this->fakeHttp()->get('/get/query-params');
 
-        $this->assertCount(1, $finalizer->calls);
-        $this->assertFalse($finalizer->calls[0]['terminate']);
+        Assert::count($finalizer->calls, 1);
+        Assert::false($finalizer->calls[0]['terminate']);
     }
 
+    #[Test]
     public function testFinalizersAreCalledAfterEachRequest(): void
     {
         $finalizer = new FakeFinalizer();
@@ -195,9 +210,9 @@ final class FakeHttpTest extends TestCase
         $this->fakeHttp()->post('/post/json', ['foo' => 'bar']);
         $this->fakeHttp()->get('/get/headers');
 
-        $this->assertCount(3, $finalizer->calls);
+        Assert::count($finalizer->calls, 3);
         foreach ($finalizer->calls as $call) {
-            $this->assertFalse($call['terminate']);
+            Assert::false($call['terminate']);
         }
     }
 }

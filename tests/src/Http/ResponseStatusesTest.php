@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Spiral\Testing\Tests\Http;
 
 use Spiral\Testing\Tests\TestCase;
+use Testo\Test;
 
 final class ResponseStatusesTest extends TestCase
 {
+    #[Test]
     public function testGetOk(): void
     {
         $response = $this->fakeHttp()->get('/status/200');
@@ -15,6 +17,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(200);
     }
 
+    #[Test]
     public function testGetWithStatusCreated(): void
     {
         $response = $this->fakeHttp()->get('/status/201');
@@ -22,6 +25,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(201);
     }
 
+    #[Test]
     public function testGetWithStatusAccepted(): void
     {
         $response = $this->fakeHttp()->get('/status/202');
@@ -29,6 +33,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(202);
     }
 
+    #[Test]
     public function testGetWithStatusNotFound(): void
     {
         $response = $this->fakeHttp()->get('/status/404');
@@ -36,6 +41,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(404);
     }
 
+    #[Test]
     public function testGetWithStatusForbidden(): void
     {
         $response = $this->fakeHttp()->get('/status/403');
@@ -43,6 +49,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(403);
     }
 
+    #[Test]
     public function testGetWithStatusUnauthorized(): void
     {
         $response = $this->fakeHttp()->get('/status/401');
@@ -50,6 +57,7 @@ final class ResponseStatusesTest extends TestCase
         $response->assertStatus(401);
     }
 
+    #[Test]
     public function testGetWithStatusUnprocessable(): void
     {
         $response = $this->fakeHttp()->get('/status/422');

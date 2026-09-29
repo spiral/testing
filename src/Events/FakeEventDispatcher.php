@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Events;
 
-use PHPUnit\Framework\Assert as PHPUnit;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 class FakeEventDispatcher implements EventDispatcherInterface
 {
@@ -44,6 +45,7 @@ class FakeEventDispatcher implements EventDispatcherInterface
      * @param class-string $expectedListener
      * @throws \ReflectionException
      */
+    #[AssertMethod]
     public function assertListening(string $expectedEvent, string $expectedListener): void
     {
         $expectedEvent = new \ReflectionClass($expectedEvent);
@@ -60,13 +62,13 @@ class FakeEventDispatcher implements EventDispatcherInterface
             }
 
             if ($actualListener === $expectedListener) {
-                PHPUnit::assertTrue(true);
+                Assert::true(true);
 
                 return;
             }
         }
 
-        PHPUnit::assertTrue(
+        Assert::true(
             false,
             \sprintf(
                 'Event [%s] does not have the [%s] listener attached to it.',
@@ -80,9 +82,10 @@ class FakeEventDispatcher implements EventDispatcherInterface
      * Assert if an event was dispatched based on a truth-test callback.
      * @param class-string $event
      */
+    #[AssertMethod]
     public function assertDispatched(string $event, ?\Closure $callback = null): void
     {
-        PHPUnit::assertTrue(
+        Assert::true(
             \count($this->dispatched($event, $callback)) > 0,
             "The expected [{$event}] event was not dispatched.",
         );
@@ -94,13 +97,14 @@ class FakeEventDispatcher implements EventDispatcherInterface
      * @param class-string $event
      * @param positive-int $times
      */
+    #[AssertMethod]
     public function assertDispatchedTimes(string $event, int $times = 1): void
     {
         $count = \count($this->dispatched($event));
 
-        PHPUnit::assertSame(
-            $times,
+        Assert::same(
             $count,
+            $times,
             "The expected [{$event}] event was dispatched {$count} times instead of {$times} times.",
         );
     }
@@ -110,11 +114,12 @@ class FakeEventDispatcher implements EventDispatcherInterface
      *
      * @param class-string $event
      */
+    #[AssertMethod]
     public function assertNotDispatched(string $event, ?\Closure $callback = null): void
     {
-        PHPUnit::assertCount(
+        Assert::same(
+            \count($this->dispatched($event, $callback)),
             0,
-            $this->dispatched($event, $callback),
             "The unexpected [{$event}] event was dispatched.",
         );
     }
@@ -122,13 +127,14 @@ class FakeEventDispatcher implements EventDispatcherInterface
     /**
      * Assert that no events were dispatched.
      */
+    #[AssertMethod]
     public function assertNothingDispatched(): void
     {
         $count = count($this->dispatchedEvents);
 
-        PHPUnit::assertSame(
-            0,
+        Assert::same(
             $count,
+            0,
             "{$count} unexpected events were dispatched.",
         );
     }

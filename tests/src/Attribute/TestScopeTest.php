@@ -7,30 +7,36 @@ namespace Spiral\Testing\Tests\Attribute;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Assert;
+use Testo\Test;
 
 final class TestScopeTest extends TestCase
 {
+    #[Test]
     public function testDefaultScope(): void
     {
-        $this->assertSame(['root'], Introspector::scopeNames($this->getContainer()));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['root']);
     }
 
     #[TestScope('foo')]
+    #[Test]
     public function testScopeFromAttribute(): void
     {
-        $this->assertSame(['foo', 'root'], Introspector::scopeNames($this->getContainer()));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['foo', 'root']);
     }
 
     #[TestScope(['foo', 'bar'])]
+    #[Test]
     public function testNestedScopes(): void
     {
-        $this->assertSame(['bar', 'foo', 'root'], Introspector::scopeNames($this->getContainer()));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['bar', 'foo', 'root']);
     }
 
     #[TestScope('foo', ['test' => \stdClass::class])]
+    #[Test]
     public function testScopeWithBindings(): void
     {
-        $this->assertSame(['foo', 'root'], Introspector::scopeNames($this->getContainer()));
-        $this->assertInstanceOf(\stdClass::class, $this->getContainer()->get('test'));
+        Assert::same(Introspector::scopeNames($this->getContainer()), ['foo', 'root']);
+        Assert::instanceOf($this->getContainer()->get('test'), \stdClass::class);
     }
 }

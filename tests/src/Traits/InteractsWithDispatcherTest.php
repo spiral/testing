@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Traits;
 
-use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use Spiral\Boot\DispatcherInterface;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Testing\TestCase;
 use Spiral\Testing\Traits\InteractsWithDispatcher;
+use Testo\Assert;
+use Testo\Test;
 
 /**
  * @coversDefaultClass InteractsWithDispatcher
  */
 final class InteractsWithDispatcherTest extends TestCase
 {
+    #[Test]
     public function testAssertDispatcherCanBeServed(): void
     {
         $dispatcher = new class implements DispatcherInterface {
@@ -30,6 +32,7 @@ final class InteractsWithDispatcherTest extends TestCase
         $this->assertDispatcherCanBeServed($dispatcher::class);
     }
 
+    #[Test]
     public function testAssertDispatcherCanBeServedStaticMethodWithEnv(): void
     {
         $dispatcher = new class {
@@ -43,6 +46,7 @@ final class InteractsWithDispatcherTest extends TestCase
         $this->assertDispatcherCanBeServed($dispatcher::class);
     }
 
+    #[Test]
     public function testAssertDispatcherCannotBeServed(): void
     {
         $dispatcher = new class implements DispatcherInterface {
@@ -57,6 +61,7 @@ final class InteractsWithDispatcherTest extends TestCase
         $this->assertDispatcherCannotBeServed($dispatcher::class);
     }
 
+    #[Test]
     public function testAssertDispatcherCannotBeServedStaticMethodWithEnv(): void
     {
         $dispatcher = new class {
@@ -70,18 +75,15 @@ final class InteractsWithDispatcherTest extends TestCase
         $this->assertDispatcherCannotBeServed($dispatcher::class);
     }
 
-    #[AllowMockObjectsWithoutExpectations]
+    #[Test]
     public function testGetRegisteredDispatchers(): void
     {
-        $dispatcherA = $this->createMock(DispatcherInterface::class);
-        $dispatcherB = $this->createMock(DispatcherInterface::class);
+        $dispatcherA = \Mockery::mock(DispatcherInterface::class)->shouldIgnoreMissing();
+        $dispatcherB = \Mockery::mock(DispatcherInterface::class)->shouldIgnoreMissing();
 
         $ref = new \ReflectionProperty($this->getApp(), 'dispatchers');
         $ref->setValue($this->getApp(), [$dispatcherA, $dispatcherB::class]);
 
-        $this->assertSame(
-            [$dispatcherA::class, $dispatcherB::class],
-            $this->getRegisteredDispatchers(),
-        );
+        Assert::same($this->getRegisteredDispatchers(), [$dispatcherA::class, $dispatcherB::class]);
     }
 }

@@ -4,16 +4,20 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Tests\Storage;
 
+use Spiral\Storage\StorageInterface;
 use Spiral\Testing\Tests\TestCase;
+use Testo\Core\Exception\SkipTest;
+use Testo\Test;
 
 final class StorageBucketFakerTest extends TestCase
 {
-    private \Spiral\Storage\StorageInterface $storage;
+    private StorageInterface $storage;
 
+    #[Test]
     public function testWrite(): void
     {
         if (! function_exists('imagecreatetruecolor')) {
-            $this->markTestSkipped('Missed Gd library. Test skipped.');
+            throw new SkipTest('Missed Gd library. Test skipped.');
 
             return;
         }

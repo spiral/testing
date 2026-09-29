@@ -8,22 +8,26 @@ use Spiral\Config\ConfiguratorInterface;
 use Spiral\Config\Patch\Set;
 use Spiral\Core\ConfigsInterface;
 use Spiral\Testing\Attribute;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 trait InteractsWithConfig
 {
+    #[AssertMethod]
     public function assertConfigMatches(string $name, array $data): void
     {
         $config = $this->getConfig($name);
 
-        $this->assertSame($data, $config);
+        Assert::same($config, $data);
     }
 
+    #[AssertMethod]
     public function assertConfigHasFragments(string $name, array $data): void
     {
         $config = $this->getConfig($name);
 
         foreach ($data as $key => $fragment) {
-            $this->assertSame($fragment, $config[$key]);
+            Assert::same($config[$key], $fragment);
         }
     }
 
@@ -42,11 +46,13 @@ trait InteractsWithConfig
         return $this->getContainer()->get(ConfigsInterface::class);
     }
 
+    #[AssertMethod]
     public function setConfig(string $config, array $data): void
     {
         $this->getConfigurator()->setDefaults($config, $data);
     }
 
+    #[AssertMethod]
     public function updateConfig(string $key, mixed $data): void
     {
         [$config, $key] = explode('.', $key, 2);

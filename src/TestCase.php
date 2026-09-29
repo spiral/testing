@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Spiral\Testing;
 
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PHPUnit\Framework\TestCase as BaseTestCase;
 use Spiral\Boot\AbstractKernel;
 use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
@@ -16,8 +14,13 @@ use Spiral\Core\ContainerScope;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Core\Scope;
 use Spiral\Testing\Attribute\TestScope;
+use Spiral\Testing\Internal\TestCaseLifecycle;
+use Testo\Common\Attribute\AssertMethod;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeTest;
 
-abstract class TestCase extends BaseTestCase
+#[TestCaseLifecycle]
+abstract class TestCase
 {
     use Traits\InteractsWithConsole;
     use Traits\InteractsWithHttp;
@@ -33,7 +36,6 @@ abstract class TestCase extends BaseTestCase
     use Traits\InteractsWithViews;
     use Traits\InteractsWithTranslator;
     use Traits\InteractsWithScaffolder;
-    use MockeryPHPUnitIntegration;
 
     public const ENV = [];
     public const MAKE_APP_ON_STARTUP = true;
@@ -47,6 +49,9 @@ abstract class TestCase extends BaseTestCase
     private array $beforeInit = [];
 
     private ?EnvironmentInterface $environment = null;
+
+    /** The running test, set by {@see Internal\TestCaseInterceptor} before {@see self::setUp()}. */
+    private ?\ReflectionFunctionAbstract $testMethod = null;
 
     /**
      * @return array<class-string>|array<class-string, array<non-empty-string, mixed>>
@@ -82,11 +87,15 @@ abstract class TestCase extends BaseTestCase
         return dirname(__DIR__);
     }
 
+    # Public void methods would be discovered as tests under a class-level #[Test];
+    # #[AssertMethod] keeps them out of discovery.
+    #[AssertMethod]
     public function beforeBooting(\Closure $callback): void
     {
         $this->beforeBooting[] = $callback;
     }
 
+    #[AssertMethod]
     public function beforeInit(\Closure $callback): void
     {
         $this->beforeInit[] = $callback;
@@ -153,6 +162,7 @@ abstract class TestCase extends BaseTestCase
         return $app;
     }
 
+    #[AssertMethod]
     public function initApp(array $env = [], Container $container = new Container()): void
     {
         $this->app = $this->makeApp($env, $container);
@@ -175,10 +185,11 @@ abstract class TestCase extends BaseTestCase
         return $this->getContainer()->runScope($bindings, $callback);
     }
 
+    # Ahead of the subclass hooks at the default priority: they expect a booted app, and a teardown
+    # that still has it.
+    #[BeforeTest(priority: 1000)]
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (static::MAKE_APP_ON_STARTUP) {
             $variables = [...static::ENV, ...$this->getEnvVariablesFromConfig()];
             $this->initApp($variables);
@@ -187,10 +198,9 @@ abstract class TestCase extends BaseTestCase
         $this->setUpTraits();
     }
 
+    #[AfterTest(priority: -1000)]
     protected function tearDown(): void
     {
-        parent::tearDown();
-
         $this->tearDownTraits();
 
         (new \ReflectionClass(ContainerScope::class))
@@ -201,17 +211,16 @@ abstract class TestCase extends BaseTestCase
      * @template TClass
      *
      * @param class-string<TClass> $attribute
-     * @param null|non-empty-string $method Method name
+     * @param null|non-empty-string $method Method name; the running test when omitted.
      *
      * @return array<int, TClass>
      */
     protected function getTestAttributes(string $attribute, ?string $method = null): array
     {
         try {
-            $methodName = $method ?? (\method_exists($this, 'name') ? $this->name() : $this->getName(false));
+            $reflection = $method === null ? $this->testMethod : new \ReflectionMethod($this, $method);
             $result = [];
-            $attributes = (new \ReflectionMethod($this, $methodName))->getAttributes($attribute);
-            foreach ($attributes as $attr) {
+            foreach ($reflection?->getAttributes($attribute) ?? [] as $attr) {
                 $result[] = $attr->newInstance();
             }
             return $result;
@@ -230,19 +239,20 @@ abstract class TestCase extends BaseTestCase
         $this->runTraitSetUpOrTearDown('tearDown');
     }
 
-    protected function invokeTestMethod(string $methodName, array $testArguments): mixed
+    /**
+     * Runs the test body, inside the scopes declared by {@see TestScope} if there are any.
+     *
+     * @param \Closure(): mixed $test
+     */
+    protected function invokeTestMethod(\Closure $test): mixed
     {
         $scope = $this->getTestScope();
         if ($scope === null) {
-            return parent::invokeTestMethod($methodName, $testArguments);
+            return $test();
         }
 
         $scopes = \is_array($scope->scope) ? $scope->scope : [$scope->scope];
-        $result = self::runScopes($scopes, function () use ($methodName, $testArguments): mixed {
-            return parent::invokeTestMethod($methodName, $testArguments);
-        }, $this->getContainer(), $scope->bindings);
-
-        return $result;
+        return self::runScopes($scopes, $test, $this->getContainer(), $scope->bindings);
     }
 
     private static function runScopes(array $scopes, \Closure $callback, Container $container, array $bindings): mixed

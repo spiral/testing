@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Http;
 
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Testo\Assert;
+use Testo\Common\Attribute\AssertMethod;
 
 final class TestResponse implements \Stringable
 {
@@ -25,9 +26,10 @@ final class TestResponse implements \Stringable
         return $this->response->getStatusCode();
     }
 
+    #[AssertMethod]
     public function assertHasHeader(string $name, ?string $value = null): self
     {
-        TestCase::assertTrue(
+        Assert::true(
             $this->response->hasHeader($name),
             \sprintf('Response does not contain header with name [%s].', $name),
         );
@@ -35,9 +37,9 @@ final class TestResponse implements \Stringable
         $headerValue = $this->response->getHeaderLine($name);
 
         if ($value) {
-            TestCase::assertSame(
-                $value,
+            Assert::same(
                 $headerValue,
+                $value,
                 \sprintf("Header [%s] was found, but value [%s] does not match [%s].", $name, $headerValue, $value),
             );
         }
@@ -45,9 +47,10 @@ final class TestResponse implements \Stringable
         return $this;
     }
 
+    #[AssertMethod]
     public function assertHeaderMissing(string $name): self
     {
-        TestCase::assertFalse(
+        Assert::false(
             $this->response->hasHeader($name),
             \sprintf('Response contains header with name [%s].', $name),
         );
@@ -55,9 +58,10 @@ final class TestResponse implements \Stringable
         return $this;
     }
 
+    #[AssertMethod]
     public function assertStatus(int $status): self
     {
-        TestCase::assertSame(
+        Assert::same(
             $this->response->getStatusCode(),
             $status,
             \sprintf(
@@ -72,26 +76,30 @@ final class TestResponse implements \Stringable
         return $this;
     }
 
+    #[AssertMethod]
     public function assertOk(): self
     {
         return $this->assertStatus(200);
     }
 
+    #[AssertMethod]
     public function assertCreated(): self
     {
         return $this->assertStatus(201);
     }
 
+    #[AssertMethod]
     public function assertAccepted(): self
     {
         return $this->assertStatus(202);
     }
 
+    #[AssertMethod]
     public function assertNoContent(int $status = 204): self
     {
         $this->assertStatus($status);
 
-        TestCase::assertEmpty(
+        Assert::blank(
             $this->response->getBody()->getContents(),
             'Response content should be empty.',
         );
@@ -99,88 +107,98 @@ final class TestResponse implements \Stringable
         return $this;
     }
 
+    #[AssertMethod]
     public function assertNotFound(): self
     {
         return $this->assertStatus(404);
     }
 
+    #[AssertMethod]
     public function assertForbidden(): self
     {
         return $this->assertStatus(403);
     }
 
+    #[AssertMethod]
     public function assertUnauthorized(): self
     {
         return $this->assertStatus(401);
     }
 
+    #[AssertMethod]
     public function assertUnprocessable(): self
     {
         return $this->assertStatus(422);
     }
 
+    #[AssertMethod]
     public function assertBodySame(string $needle): self
     {
-        TestCase::assertSame(
-            $needle,
+        Assert::same(
             (string) $this->response->getBody(),
+            $needle,
             \sprintf('Response is not same with [%s]', $needle),
         );
 
         return $this;
     }
 
+    #[AssertMethod]
     public function assertBodyNotSame(string $needle): self
     {
-        TestCase::assertNotSame(
-            $needle,
+        Assert::notSame(
             (string) $this->response->getBody(),
+            $needle,
             \sprintf('Response is same with [%s]', $needle),
         );
 
         return $this;
     }
 
+    /**
+     * @param non-empty-string $needle
+     */
+    #[AssertMethod]
     public function assertBodyContains(string $needle): self
     {
-        TestCase::assertStringContainsString(
+        Assert::string((string) $this->response->getBody())->contains(
             $needle,
-            (string) $this->response->getBody(),
             \sprintf('Response doesn\'t contain [%s]', $needle),
         );
 
         return $this;
     }
 
+    #[AssertMethod]
     public function assertCookieExists(string $key): self
     {
-        TestCase::assertArrayHasKey(
-            $key,
-            $this->getCookies(),
+        Assert::true(
+            \array_key_exists($key, $this->getCookies()),
             \sprintf('Response doesn\'t have cookie with name [%s]', $key),
         );
 
         return $this;
     }
 
+    #[AssertMethod]
     public function assertCookieMissed(string $key): self
     {
-        TestCase::assertArrayNotHasKey(
-            $key,
-            $this->getCookies(),
+        Assert::false(
+            \array_key_exists($key, $this->getCookies()),
             \sprintf('Response has cookie with name [%s]', $key),
         );
 
         return $this;
     }
 
+    #[AssertMethod]
     public function assertCookieSame(string $key, mixed $value): self
     {
         $this->assertCookieExists($key);
 
-        TestCase::assertSame(
-            $value,
+        Assert::same(
             $this->cookies[$key],
+            $value,
             \sprintf('Response cookie with name [%s] is not equal.', $key),
         );
 
