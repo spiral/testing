@@ -7,11 +7,53 @@
 
 Make sure that your server is configured with following PHP version and extensions:
 
-- PHP 8.1+
-- Spiral framework 3.15+
+- PHP 8.4+
+- Spiral framework 3.16+
+- [Testo](https://php-testo.github.io) — the test runner the `TestCase` is built on
 
 Documentation on how to install and use the package can be found on the official documentation
 page - [Testing — Getting Started](https://spiral.dev/docs/testing-start)
+
+## Running tests with Testo
+
+`Spiral\Testing\TestCase` has no PHPUnit parent: tests run on Testo. Declare the suites in `testo.php`
+at the project root and run `vendor/bin/testo`:
+
+```php
+use Testo\Application\Config\ApplicationConfig;
+use Testo\Application\Config\SuiteConfig;
+
+return new ApplicationConfig(
+    src: ['app/src'],
+    suites: [
+        new SuiteConfig(name: 'Feature', location: ['tests/Feature']),
+    ],
+);
+```
+
+Mark the tests with `#[\Testo\Test]` (on the class or on each method) and assert through `Testo\Assert`:
+
+```php
+use Testo\Assert;
+use Testo\Test;
+
+#[Test]
+final class UserControllerTest extends TestCase
+{
+    public function showsTheProfile(): void
+    {
+        $this->fakeHttp()->get('/profile')->assertOk();
+
+        Assert::true($this->getContainer()->has(UserRepository::class));
+    }
+}
+```
+
+Every test gets a fresh `TestCase` instance with the application booted in `setUp()`, the same as under PHPUnit.
+`setUp()` and `tearDown()` are `#[BeforeTest]` / `#[AfterTest]` hooks that run ahead of, and after, the hooks of
+your test class; override them and call the parent, with or without repeating the attribute. A `SkipTest` thrown in
+`setUp()` skips the test, any other exception is reported as a test error. Mockery expectations are verified after
+each test without any extra configuration.
 
 ## Spiral package testing
 
