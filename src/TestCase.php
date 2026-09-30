@@ -75,18 +75,36 @@ abstract class TestCase
         return dirname(__DIR__);
     }
 
+    /**
+     * @deprecated Use the {@see Attribute\BeforeBooting} attribute.
+     */
     # Public void methods would be discovered as tests under a class-level #[Test];
     # #[AssertMethod] keeps them out of discovery.
     #[AssertMethod]
     public function beforeBooting(\Closure $callback): void
     {
-        AppContext::of($this)->beforeBooting($callback);
+        $context = AppContext::of($this);
+        $context->deprecated(\sprintf(
+            '%s::beforeBooting() is deprecated, use the #[%s] attribute.',
+            self::class,
+            Attribute\BeforeBooting::class,
+        ));
+        $context->beforeBooting($callback);
     }
 
+    /**
+     * @deprecated Use the {@see Attribute\BeforeInit} attribute.
+     */
     #[AssertMethod]
     public function beforeInit(\Closure $callback): void
     {
-        AppContext::of($this)->beforeInit($callback);
+        $context = AppContext::of($this);
+        $context->deprecated(\sprintf(
+            '%s::beforeInit() is deprecated, use the #[%s] attribute.',
+            self::class,
+            Attribute\BeforeInit::class,
+        ));
+        $context->beforeInit($callback);
     }
 
     public function getApp(): TestableKernelInterface
