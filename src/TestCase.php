@@ -37,7 +37,6 @@ abstract class TestCase
     public const ENV = [];
 
     private ?EnvironmentInterface $environment = null;
-
     private ?AppContext $appContext = null;
 
     /**

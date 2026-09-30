@@ -19,6 +19,11 @@ final class BootCallbacksTest extends TestCase
     /** @var list<non-empty-string> */
     private array $calls = [];
 
+    public static function bindMarker(Container $container, EnvironmentInterface $env): void
+    {
+        $container->bindSingleton('marker', (object) ['env' => $env]);
+    }
+
     #[BeforeBooting('recordBooting')]
     #[Test]
     public function testMethodsOfTestClassAreCalledInBootOrder(): void
@@ -39,11 +44,6 @@ final class BootCallbacksTest extends TestCase
         Expect::exception(\LogicException::class)->withMessageContaining('once the application has booted');
 
         $this->beforeBooting(static fn() => null);
-    }
-
-    public static function bindMarker(Container $container, EnvironmentInterface $env): void
-    {
-        $container->bindSingleton('marker', (object) ['env' => $env]);
     }
 
     private function recordInit(): void
