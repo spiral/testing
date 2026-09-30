@@ -101,6 +101,9 @@
         }
     },
     "extra": {
+        "skills": {
+            "source": "skills"
+        },
         "branch-alias": {
             "dev-2.x": "2.12.x-dev"
         }
