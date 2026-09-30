@@ -26,11 +26,6 @@ final readonly class TestScopeInterceptor implements TestRunInterceptor
     public function runTest(TestInfo $info, callable $next): TestResult
     {
         $context = AppContext::fromTest($info, TestScope::class);
-        $context->isBooted() or throw new \LogicException(\sprintf(
-            '#[%s] on %s needs the application booted before the test, but the test case sets `MAKE_APP_ON_STARTUP = false`.',
-            TestScope::class,
-            $info->identity->fqn(),
-        ));
 
         # Class attributes come first: the one on the method wins.
         /** @var non-empty-list<TestScope> $attributes */

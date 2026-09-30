@@ -22,7 +22,7 @@ final readonly class BootInterceptor implements TestRunInterceptor
     public function runTest(TestInfo $info, callable $next): TestResult
     {
         $context = $info->getAttribute(AppContext::class);
-        $context instanceof AppContext and $context->testCase::MAKE_APP_ON_STARTUP and $context->boot();
+        $context instanceof AppContext and $context->boot();
 
         return $next($info);
     }

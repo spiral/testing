@@ -86,8 +86,7 @@ final class OrderTest extends TestCase
 
 `#[TestScope]` wraps the lifecycle hooks too, so a `#[BeforeTest]` method already works with the scoped services.
 `beforeBooting()` and `beforeInit()` are deprecated in favour of `#[BeforeBooting]` and `#[BeforeInit]`; called once
-the application has booted they throw. A test case with `MAKE_APP_ON_STARTUP = false` boots the application itself
-with `initApp()`, and can't use `#[TestScope]`.
+the application has booted they throw. `initApp()` boots the application once more, for instance with another env.
 
 ### Extending the test pipeline
 

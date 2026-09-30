@@ -36,9 +36,6 @@ abstract class TestCase
     /** @var array<non-empty-string, mixed> */
     public const ENV = [];
 
-    /** Boot the application before each test; with `false` the test boots it with {@see self::initApp()}. */
-    public const MAKE_APP_ON_STARTUP = true;
-
     private ?EnvironmentInterface $environment = null;
 
     /**

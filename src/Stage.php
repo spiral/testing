@@ -23,7 +23,7 @@ final class Stage
     /** Env, configs and boot callbacks are collected into the {@see AppContext}. */
     public const CONFIGURE = 200_000;
 
-    /** The application boots, unless the test case opts out with `MAKE_APP_ON_STARTUP`. */
+    /** The application boots. */
     public const BOOT = 300_000;
 
     /** The container scopes declared by {@see Attribute\TestScope} are entered. */

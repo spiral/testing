@@ -215,7 +215,7 @@ final class AppContext
     private function assertNotBooted(string $what): void
     {
         $this->app === null or throw new \LogicException(
-            "$what has no effect once the application has booted. Declare it with an attribute, or boot the app yourself with `MAKE_APP_ON_STARTUP = false`.",
+            "$what has no effect once the application has booted. Declare it with an attribute.",
         );
     }
 }

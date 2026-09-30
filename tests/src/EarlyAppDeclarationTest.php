@@ -12,8 +12,6 @@ use Testo\Test;
 
 final class EarlyAppDeclarationTest extends TestCase
 {
-    public const MAKE_APP_ON_STARTUP = false;
-
     private int $createdApps = 0;
     private int $bootingCalls = 0;
     private ?Container $bootingContainer = null;
@@ -29,8 +27,6 @@ final class EarlyAppDeclarationTest extends TestCase
     #[Test]
     public function testContainerIsAvailableWhileBooting(): void
     {
-        $this->initApp();
-
         Assert::same($this->createdApps, 1);
         Assert::same($this->bootingContainer, $this->getContainer());
     }
