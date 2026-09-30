@@ -49,11 +49,72 @@ final class UserControllerTest extends TestCase
 }
 ```
 
-Every test gets a fresh `TestCase` instance with the application booted in `setUp()`, the same as under PHPUnit.
-`setUp()` and `tearDown()` are `#[BeforeTest]` / `#[AfterTest]` hooks that run ahead of, and after, the hooks of
-your test class; override them and call the parent, with or without repeating the attribute. A `SkipTest` thrown in
-`setUp()` skips the test, any other exception is reported as a test error. Mockery expectations are verified after
-each test without any extra configuration.
+Every test gets a fresh `TestCase` instance and a freshly booted application, the same as under PHPUnit. Put the
+per-test preparation into `#[BeforeTest]` / `#[AfterTest]` methods: they run with the application already booted.
+Overriding `setUp()` / `tearDown()` still works but is deprecated. A `SkipTest` thrown from a hook skips the test,
+any other exception is reported as a test error. Mockery expectations are verified after each test without any extra
+configuration.
+
+### Shaping the application with attributes
+
+The application is set up before the lifecycle hooks run, so whatever it needs at boot time is declared up front,
+on the test method or on the class:
+
+```php
+use Spiral\Testing\Attribute\BeforeBooting;
+use Spiral\Testing\Attribute\BeforeInit;
+use Spiral\Testing\Attribute\Config;
+use Spiral\Testing\Attribute\Env;
+use Spiral\Testing\Attribute\TestScope;
+use Spiral\Testing\Attribute\WithoutExceptionHandling;
+
+#[Env('APP_ENV', 'testing')]
+#[BeforeBooting('registerFakes')]           // a method of the test class, of any visibility
+final class OrderTest extends TestCase
+{
+    #[Env('QUEUE', 'sync')]                 // overrides the class for this test
+    #[Config('app.debug', true)]
+    #[BeforeInit([Seeder::class, 'prepare'])]
+    #[TestScope('http', bindings: [Clock::class => FrozenClock::class])]
+    #[WithoutExceptionHandling]
+    #[Test]
+    public function placesAnOrder(): void { /* ... */ }
+
+    private function registerFakes(Container $container): void { /* ... */ }
+}
+```
+
+`#[TestScope]` wraps the lifecycle hooks too, so a `#[BeforeTest]` method already works with the scoped services.
+`beforeBooting()` and `beforeInit()` are deprecated in favour of `#[BeforeBooting]` and `#[BeforeInit]`; called once
+the application has booted they throw. A test case with `MAKE_APP_ON_STARTUP = false` boots the application itself
+with `initApp()`, and can't use `#[TestScope]`.
+
+### Extending the test pipeline
+
+The attributes above are plain Testo interceptors ordered by the stages of `Spiral\Testing\Stage`:
+`INSTANCE` → `CONFIGURE` → `BOOT` → `SCOPE` → `SCOPED`. An interceptor of your own takes one of these orders and
+reaches the application under test through `Spiral\Testing\AppContext`:
+
+```php
+#[InterceptorOptions(order: Stage::SCOPED)]
+final readonly class TransactionInterceptor implements TestRunInterceptor
+{
+    public function runTest(TestInfo $info, callable $next): TestResult
+    {
+        $db = AppContext::fromTest($info, WithTransaction::class)->getContainer()->get(DatabaseInterface::class);
+
+        $db->begin();
+        try {
+            return $next($info);
+        } finally {
+            $db->rollback();
+        }
+    }
+}
+```
+
+Between `CONFIGURE` and `BOOT` an interceptor still adds env and boot callbacks to the `AppContext`; from `SCOPED` on
+the container it hands out is the scoped one.
 
 ## Spiral package testing
 
