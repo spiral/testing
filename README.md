@@ -20,6 +20,7 @@ page - [Testing — Getting Started](https://spiral.dev/docs/testing-start)
 at the project root and run `vendor/bin/testo`:
 
 ```php
+use Spiral\Testing\SpiralTestingPlugin;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\SuiteConfig;
 
@@ -28,8 +29,11 @@ return new ApplicationConfig(
     suites: [
         new SuiteConfig(name: 'Feature', location: ['tests/Feature']),
     ],
+    plugins: [new SpiralTestingPlugin()],
 );
 ```
+
+`SpiralTestingPlugin` registers the services the test cases of a suite share in the Testo container.
 
 Mark the tests with `#[\Testo\Test]` (on the class or on each method) and assert through `Testo\Assert`:
 

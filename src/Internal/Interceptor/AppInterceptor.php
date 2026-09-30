@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Spiral\Testing\Internal\Interceptor;
 
 use Spiral\Testing\AppContext;
+use Spiral\Testing\Internal\Deprecations;
 use Spiral\Testing\Internal\TestCaseInstance;
 use Spiral\Testing\Stage;
 use Spiral\Testing\TestCase;
-use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Exception\CancelTest;
@@ -27,7 +27,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 final readonly class AppInterceptor implements TestRunInterceptor
 {
     public function __construct(
-        private Messenger $messenger,
+        private Deprecations $deprecations,
     ) {}
 
     #[\Override]
@@ -43,8 +43,8 @@ final readonly class AppInterceptor implements TestRunInterceptor
         $testCase = $class->newInstance();
         \assert($testCase instanceof TestCase);
 
-        $context = AppContext::attach($testCase, $this->messenger);
-        self::reportOverriddenHooks($class, $context);
+        $context = AppContext::attach($testCase, $this->deprecations);
+        self::reportOverriddenHooks($class, $this->deprecations);
 
         $info = (new TestInfo(
             name: $info->name,
@@ -66,11 +66,11 @@ final readonly class AppInterceptor implements TestRunInterceptor
         }
     }
 
-    private static function reportOverriddenHooks(\ReflectionClass $class, AppContext $context): void
+    private static function reportOverriddenHooks(\ReflectionClass $class, Deprecations $deprecations): void
     {
         foreach (['setUp' => 'BeforeTest', 'tearDown' => 'AfterTest'] as $hook => $attribute) {
             $declaring = $class->getMethod($hook)->getDeclaringClass()->getName();
-            $declaring === TestCase::class or $context->deprecated(\sprintf(
+            $declaring === TestCase::class or $deprecations->report(\sprintf(
                 '%s::%s() overrides %s::%s(), which is deprecated: move the code into a #[\Testo\Lifecycle\%s] method.',
                 $declaring,
                 $hook,

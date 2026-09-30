@@ -9,9 +9,8 @@ use Spiral\Boot\Environment;
 use Spiral\Boot\EnvironmentInterface;
 use Spiral\Core\Container;
 use Spiral\Core\ContainerScope;
-use Testo\Common\Messenger;
+use Spiral\Testing\Internal\Deprecations;
 use Testo\Core\Context\TestInfo;
-use Testo\Core\Log\Level;
 
 /**
  * The application under test for a single run of a {@see TestCase} test.
@@ -23,12 +22,6 @@ use Testo\Core\Log\Level;
  */
 final class AppContext
 {
-    /** @var \WeakMap<TestCase, self>|null */
-    private static ?\WeakMap $contexts = null;
-
-    /** @var array<non-empty-string, true> */
-    private static array $reported = [];
-
     /** @var array<string, mixed> */
     private array $env;
 
@@ -43,9 +36,12 @@ final class AppContext
 
     private ?TestableKernelInterface $app = null;
 
-    private function __construct(
+    /**
+     * @internal Created by the Testo pipeline, or by a {@see TestCase} used outside of it.
+     */
+    public function __construct(
         public readonly TestCase $testCase,
-        private readonly ?Messenger $messenger,
+        private readonly Deprecations $deprecations = new Deprecations(),
     ) {
         /** @var array<string, mixed> $env */
         $env = $testCase::ENV;
@@ -53,27 +49,23 @@ final class AppContext
     }
 
     /**
-     * Binds a new context to the test instance, replacing any previous one.
+     * Makes the context the one the test instance works with.
+     *
+     * @internal
      */
-    public static function attach(TestCase $testCase, ?Messenger $messenger = null): self
+    public static function attach(TestCase $testCase, Deprecations $deprecations): self
     {
-        /** @var \WeakMap<TestCase, self> $contexts */
-        $contexts = self::$contexts ?? new \WeakMap();
-        $contexts[$testCase] = $context = new self($testCase, $messenger);
-        self::$contexts = $contexts;
+        $context = new self($testCase, $deprecations);
+        $bind = \Closure::bind(
+            /** @psalm-suppress InaccessibleProperty */
+            static fn() => $testCase->appContext = $context,
+            null,
+            TestCase::class,
+        );
+        \assert($bind !== null);
+        $bind();
 
         return $context;
-    }
-
-    /**
-     * The context of the test instance; one is attached on first use when the instance runs
-     * outside the Testo pipeline.
-     */
-    public static function of(TestCase $testCase): self
-    {
-        $context = self::$contexts?->offsetExists($testCase) ? self::$contexts[$testCase] : null;
-
-        return $context ?? self::attach($testCase);
     }
 
     /**
@@ -191,20 +183,13 @@ final class AppContext
     }
 
     /**
-     * Reports a deprecation to the Testo stderr channel, once per message.
+     * Reports a deprecation to the Testo stderr channel, once per test case.
      *
      * @param non-empty-string $message
      */
     public function deprecated(string $message): void
     {
-        if (isset(self::$reported[$message])) {
-            return;
-        }
-
-        self::$reported[$message] = true;
-        $this->messenger === null
-            ? \trigger_error($message, \E_USER_DEPRECATED)
-            : $this->messenger->log(Messenger::CHANNEL_STDERR, $message, Level::Warning);
+        $this->deprecations->report($message);
     }
 
     private static function setScopeContainer(?Container $container): void

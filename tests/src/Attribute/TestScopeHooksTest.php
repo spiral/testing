@@ -7,6 +7,7 @@ namespace Spiral\Testing\Tests\Attribute;
 use Spiral\Core\Internal\Introspector;
 use Spiral\Testing\Attribute\TestScope;
 use Spiral\Testing\Tests\Attribute\Stub\RecordScope;
+use Spiral\Testing\Tests\Attribute\Stub\RecordsScope;
 use Spiral\Testing\Tests\TestCase;
 use Testo\Assert;
 use Testo\Lifecycle\BeforeTest;
@@ -16,10 +17,13 @@ use Testo\Test;
  * Lifecycle hooks and the interceptors of the scoped stage run inside the test scope.
  */
 #[TestScope('foo')]
-final class TestScopeHooksTest extends TestCase
+final class TestScopeHooksTest extends TestCase implements RecordsScope
 {
     /** @var list<string> */
     private array $hookScopes = [];
+
+    /** @var list<string> */
+    private array $interceptorScopes = [];
 
     #[Test]
     public function testHookRunsInsideClassScope(): void
@@ -38,7 +42,12 @@ final class TestScopeHooksTest extends TestCase
     #[Test]
     public function testScopedInterceptorSeesTheScope(): void
     {
-        Assert::same(RecordScope::$scopes, ['foo', 'root']);
+        Assert::same($this->interceptorScopes, ['foo', 'root']);
+    }
+
+    public function recordInterceptorScopes(array $scopes): void
+    {
+        $this->interceptorScopes = $scopes;
     }
 
     #[BeforeTest]

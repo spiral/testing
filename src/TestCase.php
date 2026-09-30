@@ -38,6 +38,8 @@ abstract class TestCase
 
     private ?EnvironmentInterface $environment = null;
 
+    private ?AppContext $appContext = null;
+
     /**
      * @return array<class-string>|array<class-string, array<non-empty-string, mixed>>
      */
@@ -80,7 +82,7 @@ abstract class TestCase
     #[AssertMethod]
     public function beforeBooting(\Closure $callback): void
     {
-        $context = AppContext::of($this);
+        $context = $this->appContext();
         $context->deprecated(\sprintf(
             '%s::beforeBooting() is deprecated, use the #[%s] attribute.',
             self::class,
@@ -95,7 +97,7 @@ abstract class TestCase
     #[AssertMethod]
     public function beforeInit(\Closure $callback): void
     {
-        $context = AppContext::of($this);
+        $context = $this->appContext();
         $context->deprecated(\sprintf(
             '%s::beforeInit() is deprecated, use the #[%s] attribute.',
             self::class,
@@ -106,7 +108,7 @@ abstract class TestCase
 
     public function getApp(): TestableKernelInterface
     {
-        return AppContext::of($this)->getApp();
+        return $this->appContext()->getApp();
     }
 
     public function getContainer(): Container
@@ -131,7 +133,7 @@ abstract class TestCase
      */
     public function makeApp(array $env = [], Container $container = new Container()): AbstractKernel
     {
-        $app = AppContext::of($this)->boot($env, $container);
+        $app = $this->appContext()->boot($env, $container);
         \assert($app instanceof AbstractKernel);
 
         return $app;
@@ -143,7 +145,7 @@ abstract class TestCase
     #[AssertMethod]
     public function initApp(array $env = [], Container $container = new Container()): void
     {
-        AppContext::of($this)->boot($env, $container);
+        $this->appContext()->boot($env, $container);
     }
 
     /**
@@ -170,4 +172,10 @@ abstract class TestCase
      */
     #[AfterTest]
     protected function tearDown(): void {}
+
+    private function appContext(): AppContext
+    {
+        # Attached by the Testo pipeline; an instance used outside of it gets a context of its own.
+        return $this->appContext ??= new AppContext($this);
+    }
 }

@@ -17,9 +17,10 @@ final readonly class RecordScopeInterceptor implements TestRunInterceptor
 {
     public function runTest(TestInfo $info, callable $next): TestResult
     {
-        RecordScope::$scopes = Introspector::scopeNames(
-            AppContext::fromTest($info, RecordScope::class)->getContainer(),
-        );
+        $context = AppContext::fromTest($info, RecordScope::class);
+        $test = $context->testCase;
+        \assert($test instanceof RecordsScope);
+        $test->recordInterceptorScopes(Introspector::scopeNames($context->getContainer()));
 
         return $next($info);
     }
