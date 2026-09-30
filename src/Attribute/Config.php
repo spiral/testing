@@ -4,8 +4,17 @@ declare(strict_types=1);
 
 namespace Spiral\Testing\Attribute;
 
-#[\Attribute(flags: \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-final class Config
+use Spiral\Testing\Internal\Interceptor\ConfigInterceptor;
+use Testo\Pipeline\Attribute\FallbackInterceptor;
+use Testo\Pipeline\Attribute\Interceptable;
+
+/**
+ * Patches a config value of the application under test while it boots; on a method it is applied
+ * after the class.
+ */
+#[\Attribute(flags: \Attribute::TARGET_METHOD | \Attribute::TARGET_CLASS | \Attribute::IS_REPEATABLE)]
+#[FallbackInterceptor(ConfigInterceptor::class)]
+final class Config implements Interceptable
 {
     public ?\Closure $closure;
 

@@ -12,6 +12,7 @@ use Spiral\Testing\Tests\App\Bootloader\CustomAuthTransportBootloader;
 use Spiral\Testing\Tests\Http\Stub\ActorReportingMiddleware;
 use Spiral\Testing\Tests\TestCase;
 use Testo\Assert;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 final class FakeHttpAuthTransportTest extends TestCase
@@ -85,10 +86,9 @@ final class FakeHttpAuthTransportTest extends TestCase
         $response->assertBodySame(ActorReportingMiddleware::NO_ACTOR);
     }
 
-    protected function setUp(): void
+    #[BeforeTest]
+    protected function prepare(): void
     {
-        parent::setUp();
-
         $binder = $this->getContainer()->getBinder('http');
         $binder->bind(
             self::HEADER_AUTH,

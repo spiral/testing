@@ -7,6 +7,7 @@ namespace Spiral\Testing\Tests\Storage;
 use Spiral\Storage\StorageInterface;
 use Spiral\Testing\Tests\TestCase;
 use Testo\Core\Exception\SkipTest;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 final class StorageBucketFakerTest extends TestCase
@@ -39,10 +40,9 @@ final class StorageBucketFakerTest extends TestCase
         $public->assertNotExist('image.jpg');
     }
 
-    protected function setUp(): void
+    #[BeforeTest]
+    protected function prepare(): void
     {
-        parent::setUp();
-
         $this->storage = $this->fakeStorage();
     }
 }

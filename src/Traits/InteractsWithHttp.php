@@ -7,6 +7,7 @@ namespace Spiral\Testing\Traits;
 use Spiral\Core\FactoryInterface;
 use Spiral\Testing\Http\FakeHttp;
 use Spiral\Testing\Http\FileFactory;
+use Spiral\Testing\Internal\ScopeRunner;
 
 trait InteractsWithHttp
 {
@@ -19,8 +20,8 @@ trait InteractsWithHttp
     {
         return $this->getContainer()->get(FactoryInterface::class)->make(FakeHttp::class, [
             'fileFactory' => $this->getFileFactory(),
-            'scope' => function (\Closure $closure, array $bindings = []) {
-                return self::runScopes(['http'], $closure, $this->getContainer(), $bindings);
+            'scope' => /** @param array<non-empty-string, callable|non-empty-string|object|list{class-string, non-empty-string}> $bindings */ function (\Closure $closure, array $bindings = []) {
+                return ScopeRunner::run(['http'], $closure, $this->getContainer(), $bindings);
             },
         ]);
     }

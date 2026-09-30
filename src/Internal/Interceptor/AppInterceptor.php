@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Spiral\Testing\Internal;
+namespace Spiral\Testing\Internal\Interceptor;
 
+use Spiral\Testing\AppContext;
+use Spiral\Testing\Internal\TestCaseInstance;
+use Spiral\Testing\Stage;
 use Spiral\Testing\TestCase;
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Exception\CancelTest;
@@ -15,19 +19,17 @@ use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 
 /**
- * Runs each test on a fresh {@see TestCase} instance, with the test body going through
- * {@see TestCase::invokeTestMethod()}.
+ * Runs each test on a fresh {@see TestCase} instance and hands its {@see AppContext} down the pipeline.
  *
  * @internal
  */
-#[InterceptorOptions(
-    # Outside the lifecycle hooks, so a failing setUp() / tearDown() reaches the catch below, and inside
-    # the assertion collector, so their assertions count.
-    order: InterceptorOptions::ORDER_CLOSE_TO_TEST - 1,
-    testType: TestType::Test,
-)]
-final readonly class TestCaseInterceptor implements TestRunInterceptor
+#[InterceptorOptions(order: Stage::INSTANCE, testType: TestType::Test)]
+final readonly class AppInterceptor implements TestRunInterceptor
 {
+    public function __construct(
+        private Messenger $messenger,
+    ) {}
+
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult
     {
@@ -41,49 +43,42 @@ final readonly class TestCaseInterceptor implements TestRunInterceptor
         $testCase = $class->newInstance();
         \assert($testCase instanceof TestCase);
 
-        $invoke = self::prepare($testCase, $info->testDefinition->reflection);
+        $context = AppContext::attach($testCase, $this->messenger);
+        self::reportOverriddenHooks($class, $context);
 
-        $handler = $info->caseInfo->handler;
-        $info = new TestInfo(
+        $info = (new TestInfo(
             name: $info->name,
-            caseInfo: $info->caseInfo
-                ->withInstance(new TestCaseInstance($testCase))
-                ->with(handler: static fn(TestInfo $info): mixed => $invoke(
-                    static fn(): mixed => $handler($info),
-                )),
+            caseInfo: $info->caseInfo->withInstance(new TestCaseInstance($testCase)),
             testDefinition: $info->testDefinition,
             arguments: $info->arguments,
             attributes: $info->attributes,
             identity: $info->identity,
-        );
+        ))->withAttribute(AppContext::class, $context);
 
         try {
             return $next($info);
         } catch (\Throwable $e) {
-            # A hook failure would otherwise abort the pipeline; report it the way a failing test body is.
+            # The boot, a scope or a lifecycle hook failed: without this the pipeline would be aborted
+            # instead of the test being reported the way a failing test body is.
             return self::failed($info, $e);
+        } finally {
+            $context->shutdown();
         }
     }
 
-    /**
-     * @return \Closure(\Closure): mixed
-     */
-    private static function prepare(TestCase $testCase, \ReflectionFunctionAbstract $method): \Closure
+    private static function reportOverriddenHooks(\ReflectionClass $class, AppContext $context): void
     {
-        $prepare = \Closure::bind(
-            /** @psalm-suppress InaccessibleProperty, InaccessibleMethod */
-            static function (TestCase $testCase) use ($method): \Closure {
-                $testCase->testMethod = $method;
-
-                return $testCase->invokeTestMethod(...);
-            },
-            null,
-            TestCase::class,
-        );
-        \assert($prepare !== null);
-
-        /** @var \Closure(\Closure): mixed */
-        return $prepare($testCase);
+        foreach (['setUp' => 'BeforeTest', 'tearDown' => 'AfterTest'] as $hook => $attribute) {
+            $declaring = $class->getMethod($hook)->getDeclaringClass()->getName();
+            $declaring === TestCase::class or $context->deprecated(\sprintf(
+                '%s::%s() overrides %s::%s(), which is deprecated: move the code into a #[\Testo\Lifecycle\%s] method.',
+                $declaring,
+                $hook,
+                TestCase::class,
+                $hook,
+                $attribute,
+            ));
+        }
     }
 
     private static function failed(TestInfo $info, \Throwable $e): TestResult

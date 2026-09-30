@@ -16,6 +16,7 @@ use Spiral\Testing\Tests\TestCase;
 use Testo\Assert;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Expect;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 final class EventDispatcherTest extends TestCase
@@ -152,10 +153,9 @@ final class EventDispatcherTest extends TestCase
         $eventDispatcher->assertNotDispatched(AnotherEvent::class);
     }
 
-    protected function setUp(): void
+    #[BeforeTest]
+    protected function prepare(): void
     {
-        parent::setUp();
-
         $this->eventDispatcher = $this->fakeEventDispatcher();
         $this->http = $this->fakeHttp();
     }
