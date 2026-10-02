@@ -20,4 +20,9 @@ final class ConsoleTest extends TestCase
 
         $this->assertCommandRegistered('bar');
     }
+
+    public function testCommandOutputContainsStringsIgnoringLineEndings(): void
+    {
+        $this->assertConsoleCommandOutputContainsStrings('multiline', strings: "first line\r\nsecond line");
+    }
 }
