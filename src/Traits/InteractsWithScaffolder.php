@@ -36,7 +36,11 @@ trait InteractsWithScaffolder
         });
 
         foreach ($expectedOutputStrings as $expected) {
-            $this->assertStringContainsString($expected, $output, 'Output does not contain expected string.');
+            $this->assertStringContainsStringIgnoringLineEndings(
+                $expected,
+                $output,
+                'Output does not contain expected string.',
+            );
         }
     }
 
@@ -68,7 +72,11 @@ trait InteractsWithScaffolder
         });
 
         foreach ($expectedOutputStrings as $expected) {
-            $this->assertStringContainsString($expected, $output, 'Output does not contain expected string.');
+            $this->assertStringContainsStringIgnoringLineEndings(
+                $expected,
+                $output,
+                'Output does not contain expected string.',
+            );
         }
     }
 

@@ -92,6 +92,49 @@ PHP,
         );
     }
 
+    public function testCommandSameOutputStringsIgnoreLineEndings(): void
+    {
+        $this->assertScaffolderCommandSame(
+            'create:filter',
+            [
+                'name' => 'Test',
+            ],
+            expected: <<<'PHP'
+<?php
+
+declare(strict_types=1);
+
+namespace Spiral\Testing\Filter;
+
+use Spiral\Filters\Model\Filter;
+
+final class TestFilter extends Filter
+{
+}
+
+PHP,
+            expectedOutputStrings: [
+                "Next steps:\r\n1. Read more about Filter Objects in the documentation",
+            ],
+        );
+    }
+
+    public function testCommandContainsOutputStringsIgnoreLineEndings(): void
+    {
+        $this->assertScaffolderCommandContains(
+            'create:filter',
+            [
+                'name' => 'Test',
+            ],
+            expectedStrings: [
+                'final class TestFilter extends Filter',
+            ],
+            expectedOutputStrings: [
+                "Next steps:\r\n1. Read more about Filter Objects in the documentation",
+            ],
+        );
+    }
+
     public function testAfterTestFilesShoulBeRestored(): void
     {
         $files = $this->mockContainer(FilesInterface::class);
