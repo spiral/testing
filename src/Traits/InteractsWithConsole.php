@@ -25,7 +25,7 @@ trait InteractsWithConsole
         $output = $this->runCommand($command, $args);
 
         foreach ((array) $strings as $string) {
-            $this->assertStringContainsString(
+            $this->assertStringContainsStringIgnoringLineEndings(
                 $string,
                 $output,
                 \sprintf(
